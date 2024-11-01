@@ -8,89 +8,138 @@ interface EarningHistoryProps {
   crewId: string;
 }
 
-interface Earning {
+interface CrewMemberEarning {
   id: number;
   amount: number;
-  earningDate: string;
+  earningDate: string; // 이 속성 추가
   member: {
     id: number;
     name: string;
     rank: {
       name: string;
+      level: number;
     };
   };
 }
 
-export default function EarningHistory({ crewId }: EarningHistoryProps) {
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+interface DailyEarning {
+  date: string;
+  totalAmount: number;
+  earnings: CrewMemberEarning[];
+}
 
-  const { data: earnings, isLoading } = useQuery<Earning[]>({
-    queryKey: ["earnings", crewId, startDate, endDate],
+export default function EarningHistory({ crewId }: EarningHistoryProps) {
+  const currentYear = new Date().getFullYear();
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [year, setYear] = useState(currentYear);
+
+  const { data: earnings, isLoading } = useQuery<CrewMemberEarning[]>({
+    queryKey: ["earnings", crewId, year],
     queryFn: async () => {
-      if (!startDate || !endDate) return [];
+      const startDate = `${year}-01-01`;
+      const endDate = `${year}-12-31`;
       const { data } = await api.get(
         `/crew-earnings/crew/${crewId}?startDate=${startDate}&endDate=${endDate}`
       );
       return data;
     },
-    enabled: !!startDate && !!endDate,
   });
+
+  // 날짜별로 수익을 그룹화
+  const dailyEarnings: DailyEarning[] = earnings
+    ? Object.values(
+        earnings.reduce((acc, earning) => {
+          const date = earning.earningDate;
+          if (!acc[date]) {
+            acc[date] = {
+              date,
+              totalAmount: 0,
+              earnings: [],
+            };
+          }
+          acc[date].totalAmount += Number(earning.amount);
+          acc[date].earnings.push(earning);
+          return acc;
+        }, {} as Record<string, DailyEarning>)
+      ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    : [];
 
   return (
     <div className="mt-8 bg-white rounded-lg p-6 shadow-md">
-      <h2 className="text-xl font-bold mb-4">수익 내역</h2>
-      <div className="flex gap-4 mb-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            시작일
-          </label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            종료일
-          </label>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold">방송 수익 내역</h2>
+        <select
+          value={year}
+          onChange={(e) => setYear(Number(e.target.value))}
+          className="rounded-md border-gray-300"
+        >
+          {Array.from({ length: 5 }, (_, i) => currentYear - i).map((y) => (
+            <option key={y} value={y}>
+              {y}년
+            </option>
+          ))}
+        </select>
       </div>
 
       {isLoading ? (
         <div>로딩 중...</div>
-      ) : earnings?.length ? (
+      ) : dailyEarnings.length ? (
         <div className="space-y-4">
-          {earnings.map((earning) => (
-            <div
-              key={earning.id}
-              className="flex justify-between items-center p-4 bg-gray-50 rounded-lg"
-            >
-              <div>
-                <p className="font-medium">
-                  {earning.member.name} ({earning.member.rank?.name})
-                </p>
-                <p className="text-sm text-gray-600">{earning.earningDate}</p>
-              </div>
-              <div className="text-lg font-semibold">
-                {earning.amount.toLocaleString()}원
-              </div>
+          {dailyEarnings.map((daily) => (
+            <div key={daily.date}>
+              <button
+                onClick={() =>
+                  setSelectedDate(
+                    selectedDate === daily.date ? null : daily.date
+                  )
+                }
+                className="w-full flex justify-between items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <div>
+                  <p className="font-medium">{daily.date}</p>
+                  <p className="text-sm text-gray-600">
+                    참여 멤버: {daily.earnings.length}명
+                  </p>
+                </div>
+                <div className="text-lg font-semibold">
+                  {daily.totalAmount.toLocaleString()}원
+                </div>
+              </button>
+
+              {selectedDate === daily.date && (
+                <div className="divide-y border-t">
+                  {daily.earnings
+                    .sort(
+                      (a, b) =>
+                        (a.member.rank?.level || 0) -
+                        (b.member.rank?.level || 0)
+                    )
+                    .map((earning) => (
+                      <div
+                        key={earning.id}
+                        className="flex justify-between items-center p-4 hover:bg-gray-50"
+                      >
+                        <div>
+                          <p className="font-medium">
+                            {earning.member.name}
+                            <span className="ml-2 text-sm text-gray-600">
+                              ({earning.member.rank?.name || "직급 없음"})
+                            </span>
+                          </p>
+                        </div>
+                        <div className="font-medium">
+                          {Number(earning.amount).toLocaleString()}원
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
           ))}
         </div>
       ) : (
         <div className="text-center text-gray-500">
-          {startDate && endDate
-            ? "해당 기간의 수익 내역이 없습니다."
-            : "조회할 기간을 선택해주세요."}
+          해당 연도의 수익 내역이 없습니다.
         </div>
       )}
     </div>
