@@ -3,47 +3,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
 import Link from "next/link";
-
-export interface Crew {
-  id: number;
-  name: string;
-  description: string;
-  iconUrl?: string;
-  members: {
-    id: number;
-    name: string;
-    profileImageUrl?: string;
-    broadcastUrl?: string;
-    rank: {
-      id: number;
-      name: string;
-      level: number;
-    };
-  }[];
-  ranks: {
-    id: number;
-    name: string;
-    level: number;
-  }[];
-}
-interface CrewWithEarnings extends Crew {
-  monthlyEarnings: number;
-}
+import { useState } from "react";
 
 export default function CrewList() {
   const currentDate = new Date();
-  const currentYear = currentDate.getFullYear();
-  const currentMonth = currentDate.getMonth() + 1;
+  const [year, setYear] = useState(currentDate.getFullYear());
+  const [month, setMonth] = useState(currentDate.getMonth() + 1);
 
   const {
     data: crews,
     isLoading,
     error,
-  } = useQuery<CrewWithEarnings[]>({
-    queryKey: ["crews", "rankings", currentYear, currentMonth],
+  } = useQuery({
+    queryKey: ["crews", "rankings", year, month],
     queryFn: async () => {
       const { data } = await api.get(
-        `/crews/rankings?year=${currentYear}&month=${currentMonth}`
+        `/crews/rankings?year=${year}&month=${month}`
       );
       return data;
     },
@@ -54,10 +29,38 @@ export default function CrewList() {
   if (!crews?.length) return <div>등록된 크루가 없습니다.</div>;
 
   return (
-    <div className="space-y-4">
-      <h2 className="text-xl font-bold mb-6">
-        {currentYear}년 {currentMonth}월 크루 랭킹
-      </h2>
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold">크루 랭킹</h2>
+        <div className="flex gap-4">
+          <select
+            value={year}
+            onChange={(e) => setYear(Number(e.target.value))}
+            className="rounded-md border-gray-300"
+          >
+            {Array.from(
+              { length: 5 },
+              (_, i) => currentDate.getFullYear() - i
+            ).map((y) => (
+              <option key={y} value={y}>
+                {y}년
+              </option>
+            ))}
+          </select>
+          <select
+            value={month}
+            onChange={(e) => setMonth(Number(e.target.value))}
+            className="rounded-md border-gray-300"
+          >
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+              <option key={m} value={m}>
+                {m}월
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {crews.map((crew, index) => (
           <Link
@@ -89,7 +92,9 @@ export default function CrewList() {
             </div>
             <p className="text-gray-600 mb-4">{crew.description}</p>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-500">이번 달 수익</span>
+              <span className="text-gray-500">
+                {year}년 {month}월 수익
+              </span>
               <span className="text-lg font-bold text-blue-600">
                 {crew.monthlyEarnings.toLocaleString()}원
               </span>
