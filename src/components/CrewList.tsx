@@ -62,7 +62,7 @@ export default function CrewList() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {crews.map((crew, index) => (
+        {crews.map((crew: any, index: number) => (
           <Link
             href={`/crews/${crew.id}`}
             key={crew.id}

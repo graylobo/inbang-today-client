@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/axios";
+import { useRequireAuth } from "@/hooks/useAuth";
 
 interface EarningFormProps {
   memberId: number;
@@ -15,6 +16,7 @@ export default function EarningForm({
   memberName,
   onClose,
 }: EarningFormProps) {
+  const { user } = useRequireAuth(); // 인증 체크 추가
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
@@ -35,7 +37,9 @@ export default function EarningForm({
       onClose();
     },
   });
-
+  if (!user) {
+    return null;
+  }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setShowConfirm(true);

@@ -1,14 +1,11 @@
 "use client";
 
 import { useCrewDetail } from "@/hooks/useCrewDetail";
+import { useAuthStore } from "@/store/authStore";
 import Link from "next/link";
 import EarningForm from "./EarningForm";
 import EarningHistory from "./EarningHistory";
 import { useState } from "react";
-
-interface CrewDetailProps {
-  crewId: string;
-}
 
 interface MemberCardProps {
   member: {
@@ -25,6 +22,8 @@ interface MemberCardProps {
 }
 
 function MemberCard({ member, onEarningClick }: MemberCardProps) {
+  const { user } = useAuthStore();
+
   return (
     <div className="p-4 bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex items-center space-x-4">
@@ -66,18 +65,27 @@ function MemberCard({ member, onEarningClick }: MemberCardProps) {
             </a>
           )}
         </div>
-        <button
-          onClick={onEarningClick}
-          className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm"
-        >
-          수익 입력
-        </button>
+        {user ? (
+          <button
+            onClick={onEarningClick}
+            className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm"
+          >
+            수익 입력
+          </button>
+        ) : (
+          <Link
+            href="/login"
+            className="px-3 py-1 bg-gray-500 text-white rounded-md hover:bg-gray-600 text-sm"
+          >
+            로그인하여 수익 입력
+          </Link>
+        )}
       </div>
     </div>
   );
 }
 
-export default function CrewDetail({ crewId }: CrewDetailProps) {
+export default function CrewDetail({ crewId }: { crewId: string }) {
   const { data: crew, isLoading, error } = useCrewDetail(crewId);
   const [selectedMember, setSelectedMember] = useState<{
     id: number;
@@ -94,9 +102,10 @@ export default function CrewDetail({ crewId }: CrewDetailProps) {
     .map((rank) => ({
       ...rank,
       members: crew.members
-        .filter((member) => member.rank?.id === rank.id)
+        .filter((member) => member.rank.id === rank.id)
         .sort((a, b) => a.name.localeCompare(b.name)),
-    }));
+    }))
+    .filter((group) => group.members.length > 0);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
