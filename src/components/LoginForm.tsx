@@ -11,22 +11,23 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
-  const setAuth = useAuthStore((state) => state.setAuth);
+  const { setAuth, clearStorage } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
+      clearStorage();
       const { data } = await api.post("/auth/login", {
         username,
         password,
       });
 
       setAuth(data.user, data.access_token);
-      router.push("/");
-    } catch (error) {
-      setError("로그인에 실패했습니다. 아이디와 비밀번호를 확인해주세요.");
+      router.replace("/");
+    } catch (error: any) {
+      setError(error.response?.data?.message || "로그인에 실패했습니다.");
     }
   };
 

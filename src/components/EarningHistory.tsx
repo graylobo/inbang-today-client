@@ -11,7 +11,10 @@ interface EarningHistoryProps {
 interface CrewMemberEarning {
   id: number;
   amount: number;
-  earningDate: string; // 이 속성 추가
+  earningDate: string;
+  submittedBy: {
+    username: string;
+  };
   member: {
     id: number;
     name: string;
@@ -141,6 +144,9 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
                             {earning.member.name}
                             <span className="ml-2 text-sm text-gray-600">
                               ({earning.member.rank?.name || "직급 없음"})
+                            </span>
+                            <span className="ml-2 text-xs text-gray-500">
+                              입력: {earning.submittedBy?.username}
                             </span>
                           </p>
                         </div>

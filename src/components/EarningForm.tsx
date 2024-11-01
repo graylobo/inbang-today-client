@@ -22,6 +22,14 @@ export default function EarningForm({
   const [showConfirm, setShowConfirm] = useState(false);
   const queryClient = useQueryClient();
 
+  // 날짜 제한 계산
+  const today = new Date();
+  const minDate = new Date(today);
+  minDate.setMonth(today.getMonth() - 1);
+
+  const maxDate = today.toISOString().split("T")[0];
+  const minimumDate = minDate.toISOString().split("T")[0];
+
   const { mutate, isPending, error } = useMutation({
     mutationFn: async () => {
       const { data } = await api.post("/crew-earnings", {
@@ -73,9 +81,14 @@ export default function EarningForm({
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            min={minimumDate}
+            max={maxDate}
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
             required
           />
+          <p className="mt-1 text-sm text-gray-500">
+            * 현재 날짜 기준 한 달 이내의 날짜만 선택 가능합니다.
+          </p>
         </div>
         <button
           type="submit"
