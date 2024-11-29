@@ -30,9 +30,8 @@ export default function BroadcastEarningForm({
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["crew-broadcasts", crewId],
-      });
+      queryClient.invalidateQueries({ queryKey: ["earnings"] });
+      queryClient.invalidateQueries({ queryKey: ["crew"] });
       onClose();
     },
   });
