@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/libs/api/axios";
+import { useCreateCrewBroadcastEarning } from "@/hooks/crew/useCrews";
 
 interface BroadcastEarningFormProps {
   crewId: number;
@@ -17,24 +18,8 @@ export default function BroadcastEarningForm({
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
-  const queryClient = useQueryClient();
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: async () => {
-      const { data } = await api.post("/crew-broadcasts", {
-        crewId,
-        totalAmount: parseFloat(amount),
-        broadcastDate: date,
-        description,
-      });
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["earnings"] });
-      queryClient.invalidateQueries({ queryKey: ["crew"] });
-      onClose();
-    },
-  });
+  const { mutate, isPending } = useCreateCrewBroadcastEarning(onClose);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +27,12 @@ export default function BroadcastEarningForm({
   };
 
   const handleConfirm = () => {
-    mutate();
+    mutate({
+      crewId,
+      totalAmount: parseFloat(amount),
+      broadcastDate: date,
+      description,
+    });
   };
 
   return (

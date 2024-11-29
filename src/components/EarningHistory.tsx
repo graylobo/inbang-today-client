@@ -3,39 +3,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/libs/api/axios";
 import { useState } from "react";
+import { useCrewEarningsByDate } from "@/hooks/crew/useCrews";
 
 interface EarningHistoryProps {
   crewId: string;
-}
-
-interface CrewMemberEarning {
-  id: number;
-  amount: number;
-  earningDate: string;
-  submittedBy: {
-    username: string;
-  };
-  member: {
-    id: number;
-    name: string;
-    rank: {
-      name: string;
-      level: number;
-    };
-  };
-}
-
-interface DailyEarningResponse {
-  date: string;
-  totalAmount: number;
-  earnings: CrewMemberEarning[];
-  broadcastEarning?: {
-    totalAmount: number;
-    description: string;
-    submittedBy: {
-      username: string;
-    };
-  };
 }
 
 export default function EarningHistory({ crewId }: EarningHistoryProps) {
@@ -44,17 +15,11 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
   const [month, setMonth] = useState(currentDate.getMonth() + 1);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  const { data: dailyEarnings, isLoading } = useQuery<DailyEarningResponse[]>({
-    queryKey: ["earnings", crewId, year, month],
-    queryFn: async () => {
-      const startDate = `${year}-${month.toString().padStart(2, "0")}-01`;
-      const endDate = new Date(year, month, 0).toISOString().split("T")[0];
-      const { data } = await api.get(
-        `/crew-earnings/crew/${crewId}?startDate=${startDate}&endDate=${endDate}`
-      );
-      return data;
-    },
-  });
+  const { data: dailyEarnings, isLoading } = useCrewEarningsByDate(
+    crewId,
+    year,
+    month
+  );
 
   return (
     <div className="mt-8 bg-white rounded-lg p-6 shadow-md">

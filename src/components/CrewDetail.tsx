@@ -2,12 +2,12 @@
 
 import MemberCard from "@/components/MemberCard";
 import Modal from "@/components/common/Modal";
-import { useCrewDetail } from "@/hooks/useCrewDetail";
 import Link from "next/link";
 import { useState } from "react";
 import EarningForm from "./EarningForm";
 import EarningHistory from "./EarningHistory";
 import BroadcastEarningForm from "@/components/BroadCastEarningForm";
+import { useCrewDetail } from "@/hooks/crew/useCrews";
 
 export default function CrewDetail({ crewId }: { crewId: string }) {
   const { data: crew, isLoading, error } = useCrewDetail(crewId);

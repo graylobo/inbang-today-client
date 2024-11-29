@@ -1,7 +1,6 @@
 "use client";
 
-import { getCrewsRankings } from "@/libs/api/services/crew.service";
-import { useQuery } from "@tanstack/react-query";
+import { useCrewsRankings } from "@/hooks/crew/useCrews";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -10,17 +9,7 @@ export default function CrewList() {
   const [year, setYear] = useState(currentDate.getFullYear());
   const [month, setMonth] = useState(currentDate.getMonth() + 1);
 
-  const {
-    data: crews,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ["crews", "rankings", year, month],
-    queryFn: async () => {
-      const data = await getCrewsRankings(year, month);
-      return data;
-    },
-  });
+  const { data: crews, isLoading, error } = useCrewsRankings(year, month);
 
   if (isLoading) return <div>로딩 중...</div>;
   if (error) return <div>에러가 발생했습니다.</div>;

@@ -15,7 +15,10 @@ interface MemberCardProps {
   onEarningClick: () => void;
 }
 
-export default function MemberCard({ member, onEarningClick }: MemberCardProps) {
+export default function MemberCard({
+  member,
+  onEarningClick,
+}: MemberCardProps) {
   const { user } = useAuthStore();
 
   return (

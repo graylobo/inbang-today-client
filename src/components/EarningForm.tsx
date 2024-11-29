@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/libs/api/axios";
 import { useRequireAuth } from "@/hooks/useAuth";
+import { useCreateCrewEarning } from "@/hooks/crew/useCrews";
 
 interface EarningFormProps {
   memberId: number;
@@ -20,7 +21,6 @@ export default function EarningForm({
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
-  const queryClient = useQueryClient();
 
   // 날짜 제한 계산
   const today = new Date();
@@ -30,21 +30,7 @@ export default function EarningForm({
   const maxDate = today.toISOString().split("T")[0];
   const minimumDate = minDate.toISOString().split("T")[0];
 
-  const { mutate, isPending, error } = useMutation({
-    mutationFn: async () => {
-      const { data } = await api.post("/crew-earnings", {
-        member: { id: memberId },
-        amount: parseFloat(amount),
-        earningDate: date,
-      });
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["earnings"] });
-      queryClient.invalidateQueries({ queryKey: ["crew"] });
-      onClose();
-    },
-  });
+  const { mutate, isPending, error } = useCreateCrewEarning(onClose);
   if (!user) {
     return null;
   }
@@ -54,7 +40,11 @@ export default function EarningForm({
   };
 
   const handleConfirm = () => {
-    mutate();
+    mutate({
+      member: { id: memberId },
+      amount: parseFloat(amount),
+      earningDate: date,
+    });
   };
 
   return (

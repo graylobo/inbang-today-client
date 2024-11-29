@@ -8,16 +8,20 @@ export function useRequireAuth() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 초기 렌더링 시에는 잠시 기다림
-    const timer = setTimeout(() => {
-      if (!user || !token) {
+    const checkAuth = () => {
+      const authToken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("accessToken="));
+
+      if (!authToken) {
         router.push("/login");
       }
       setIsLoading(false);
-    }, 100); // 100ms 딜레이
+    };
 
+    const timer = setTimeout(checkAuth, 100);
     return () => clearTimeout(timer);
-  }, [user, token, router]);
+  }, [router]);
 
   return { user, token, isLoading };
 }
