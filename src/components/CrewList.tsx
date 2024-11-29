@@ -1,7 +1,7 @@
 "use client";
 
+import { getCrewsRankings } from "@/libs/api/services/crew.service";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/libs/api/axios";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -17,9 +17,7 @@ export default function CrewList() {
   } = useQuery({
     queryKey: ["crews", "rankings", year, month],
     queryFn: async () => {
-      const { data } = await api.get(
-        `/crews/rankings?year=${year}&month=${month}`
-      );
+      const data = await getCrewsRankings(year, month);
       return data;
     },
   });
