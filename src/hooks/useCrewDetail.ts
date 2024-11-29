@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/libs/axios";
+import { api } from "@/libs/api/axios";
 
 interface CrewMember {
   id: number;

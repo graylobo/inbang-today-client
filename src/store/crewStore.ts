@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { api } from "@/libs/axios";
+import { api } from "@/libs/api/axios";
 
 interface Crew {
   id: number;

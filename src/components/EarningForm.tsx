@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/libs/axios";
+import { api } from "@/libs/api/axios";
 import { useRequireAuth } from "@/hooks/useAuth";
 
 interface EarningFormProps {
