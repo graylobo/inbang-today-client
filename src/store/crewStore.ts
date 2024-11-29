@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { api } from '@/lib/axios';
+import { create } from "zustand";
+import { api } from "@/libs/axios";
 
 interface Crew {
   id: number;
@@ -15,4 +15,4 @@ interface CrewStore {
 export const useCrewStore = create<CrewStore>((set) => ({
   selectedCrew: null,
   setSelectedCrew: (crew) => set({ selectedCrew: crew }),
-})); 
+}));

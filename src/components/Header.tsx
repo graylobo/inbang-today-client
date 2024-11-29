@@ -10,7 +10,7 @@ export default function Header() {
     <header className="bg-white shadow-sm">
       <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
         <Link href="/" className="text-xl font-bold text-blue-600">
-          인터넷방송 크루 랭킹
+          Crew Ranking
         </Link>
         <div>
           {user ? (

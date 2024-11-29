@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/axios";
+import { api } from "@/libs/axios";
 import Link from "next/link";
 import { useState } from "react";
 

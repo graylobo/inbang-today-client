@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <main className="min-h-screen p-8">
       <h1 className="text-3xl font-bold mb-8 text-center">
-        인터넷방송 크루 랭킹
+        Crew Ranking
       </h1>
       <Suspense fallback={<Loading />}>
         <CrewList />

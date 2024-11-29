@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { api } from '@/lib/axios';
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/libs/axios";
 
 interface CrewMember {
   id: number;
@@ -25,10 +25,10 @@ interface CrewDetail {
 
 export function useCrewDetail(crewId: string) {
   return useQuery<CrewDetail>({
-    queryKey: ['crew', crewId],
+    queryKey: ["crew", crewId],
     queryFn: async () => {
       const { data } = await api.get(`/crews/${crewId}`);
       return data;
     },
   });
-} 
+}
