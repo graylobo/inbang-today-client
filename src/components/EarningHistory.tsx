@@ -25,10 +25,17 @@ interface CrewMemberEarning {
   };
 }
 
-interface DailyEarning {
+interface DailyEarningResponse {
   date: string;
   totalAmount: number;
   earnings: CrewMemberEarning[];
+  broadcastEarning?: {
+    totalAmount: number;
+    description: string;
+    submittedBy: {
+      username: string;
+    };
+  };
 }
 
 export default function EarningHistory({ crewId }: EarningHistoryProps) {
@@ -37,7 +44,7 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
   const [month, setMonth] = useState(currentDate.getMonth() + 1);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  const { data: earnings, isLoading } = useQuery<CrewMemberEarning[]>({
+  const { data: dailyEarnings, isLoading } = useQuery<DailyEarningResponse[]>({
     queryKey: ["earnings", crewId, year, month],
     queryFn: async () => {
       const startDate = `${year}-${month.toString().padStart(2, "0")}-01`;
@@ -48,25 +55,6 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
       return data;
     },
   });
-
-  // 날짜별로 수익을 그룹화
-  const dailyEarnings: DailyEarning[] = earnings
-    ? Object.values(
-        earnings.reduce((acc, earning) => {
-          const date = earning.earningDate;
-          if (!acc[date]) {
-            acc[date] = {
-              date,
-              totalAmount: 0,
-              earnings: [],
-            };
-          }
-          acc[date].totalAmount += Number(earning.amount);
-          acc[date].earnings.push(earning);
-          return acc;
-        }, {} as Record<string, DailyEarning>)
-      ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    : [];
 
   return (
     <div className="mt-8 bg-white rounded-lg p-6 shadow-md">
@@ -103,7 +91,7 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
 
       {isLoading ? (
         <div>로딩 중...</div>
-      ) : dailyEarnings.length ? (
+      ) : dailyEarnings?.length ? (
         <div className="space-y-4">
           {dailyEarnings.map((daily) => (
             <div key={daily.date}>
@@ -117,9 +105,13 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
               >
                 <div>
                   <p className="font-medium">{daily.date}</p>
-                  <p className="text-sm text-gray-600">
-                    참여 멤버: {daily.earnings.length}명
-                  </p>
+                  {daily.broadcastEarning ? (
+                    <p className="text-sm text-gray-600">크루 방송 수익</p>
+                  ) : (
+                    <p className="text-sm text-gray-600">
+                      참여 멤버: {daily.earnings?.length || 0}명
+                    </p>
+                  )}
                 </div>
                 <div className="text-lg font-semibold">
                   {daily.totalAmount.toLocaleString()}원
@@ -128,6 +120,27 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
 
               {selectedDate === daily.date && (
                 <div className="divide-y border-t">
+                  {daily.broadcastEarning && (
+                    <div className="p-4 bg-blue-50">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium text-blue-800">
+                            크루 방송 수익
+                          </p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {daily.broadcastEarning.description || "설명 없음"}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            입력: {daily.broadcastEarning.submittedBy.username}
+                          </p>
+                        </div>
+                        <div className="font-bold text-blue-600">
+                          {daily.broadcastEarning.totalAmount.toLocaleString()}
+                          원
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   {daily.earnings
                     .sort(
                       (a, b) =>
@@ -146,7 +159,7 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
                               ({earning.member.rank?.name || "직급 없음"})
                             </span>
                             <span className="ml-2 text-xs text-gray-500">
-                              입력: {earning.submittedBy?.username}
+                              입력: {earning.submittedBy.username}
                             </span>
                           </p>
                         </div>
