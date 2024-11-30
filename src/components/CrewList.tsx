@@ -4,11 +4,15 @@ import { useCrewsRankings } from "@/hooks/crew/useCrews";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function CrewList() {
-  const currentDate = new Date();
-  const [year, setYear] = useState(currentDate.getFullYear());
-  const [month, setMonth] = useState(currentDate.getMonth() + 1);
-
+export default function CrewList({
+  initialYear,
+  initialMonth,
+}: {
+  initialYear: number;
+  initialMonth: number;
+}) {
+  const [year, setYear] = useState(initialYear);
+  const [month, setMonth] = useState(initialMonth);
   const { data: crews, isLoading, error } = useCrewsRankings(year, month);
 
   if (isLoading) return <div>로딩 중...</div>;
@@ -25,10 +29,7 @@ export default function CrewList() {
             onChange={(e) => setYear(Number(e.target.value))}
             className="rounded-md border-gray-300"
           >
-            {Array.from(
-              { length: 5 },
-              (_, i) => currentDate.getFullYear() - i
-            ).map((y) => (
+            {Array.from({ length: 5 }, (_, i) => initialYear - i).map((y) => (
               <option key={y} value={y}>
                 {y}년
               </option>

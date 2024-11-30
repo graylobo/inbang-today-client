@@ -1,23 +1,23 @@
 "use client";
 
+import BroadcastEarningForm from "@/components/BroadCastEarningForm";
 import MemberCard from "@/components/MemberCard";
 import Modal from "@/components/common/Modal";
+import { useCrewDetail } from "@/hooks/crew/useCrews";
 import Link from "next/link";
 import { useState } from "react";
 import EarningForm from "./EarningForm";
 import EarningHistory from "./EarningHistory";
-import BroadcastEarningForm from "@/components/BroadCastEarningForm";
-import { useCrewDetail } from "@/hooks/crew/useCrews";
 
 export default function CrewDetail({ crewId }: { crewId: string }) {
-  const { data: crew, isLoading, error } = useCrewDetail(crewId);
+  const { data: crew, error } = useCrewDetail(crewId);
+
   const [showBroadcastForm, setShowBroadcastForm] = useState(false);
   const [selectedMember, setSelectedMember] = useState<{
     id: number;
     name: string;
   } | null>(null);
 
-  if (isLoading) return <div>로딩 중...</div>;
   if (error) return <div>에러가 발생했습니다.</div>;
   if (!crew) return <div>크루 정보를 찾을 수 없습니다.</div>;
 

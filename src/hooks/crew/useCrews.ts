@@ -1,4 +1,9 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { api } from "@/libs/api/axios";
 import {
   createCrewBroadcastEarning,
@@ -12,32 +17,46 @@ import {
   CrewDetail,
   DailyEarningResponse,
 } from "@/hooks/crew/useCrews.type";
-
-export function useCrewsRankings(year: number, month: number) {
-  return useQuery<Crew[]>({
+export function crewsRankingsOptions(year: number, month: number) {
+  return {
     queryKey: ["crews", "rankings", year, month],
     queryFn: () => getCrewsRankings(year, month),
-  });
+  };
+}
+export function useCrewsRankings(year: number, month: number) {
+  return useSuspenseQuery<Crew[]>(crewsRankingsOptions(year, month));
 }
 
-export function useCrewDetail(crewId: string) {
-  return useQuery<CrewDetail>({
+export function crewDetailOptions(crewId: string) {
+  return {
     queryKey: ["crew", crewId],
     queryFn: () => getCrewDetail(crewId),
-  });
+  };
+}
+export function useCrewDetail(crewId: string) {
+  return useSuspenseQuery<CrewDetail>(crewDetailOptions(crewId));
 }
 
-export function useCrewEarningsByDate(
+export function crewEarningsByDateOptions(
   crewId: string,
   year: number,
   month: number
 ) {
   const startDate = `${year}-${month.toString().padStart(2, "0")}-01`;
   const endDate = new Date(year, month, 0).toISOString().split("T")[0];
-  return useQuery<DailyEarningResponse[]>({
-    queryKey: ["earnings", crewId, startDate, endDate],
+  return {
+    queryKey: ["earnings", crewId, year, month],
     queryFn: () => getCrewEarningsByDate(crewId, startDate, endDate),
-  });
+  };
+}
+export function useCrewEarningsByDate(
+  crewId: string,
+  year: number,
+  month: number
+) {
+  return useQuery<DailyEarningResponse[]>(
+    crewEarningsByDateOptions(crewId, year, month)
+  );
 }
 
 export function useCreateCrewBroadcastEarning(onClose: () => void) {
@@ -82,7 +101,7 @@ export function useCreateCrewEarning(onClose: () => void) {
       amount: number;
       earningDate: string;
     }) => {
-      const { data } = await createCrewEarning(member.id, amount, earningDate);
+      const { data } = await createCrewEarning(member, amount, earningDate);
       return data;
     },
     onSuccess: () => {

@@ -1,18 +1,17 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/libs/api/axios";
-import { useState } from "react";
 import { useCrewEarningsByDate } from "@/hooks/crew/useCrews";
+import { useDateStore } from "@/store/dateStore";
+import { useState } from "react";
 
 interface EarningHistoryProps {
   crewId: string;
 }
 
-export default function EarningHistory({ crewId }: EarningHistoryProps) {
-  const currentDate = new Date();
-  const [year, setYear] = useState(currentDate.getFullYear());
-  const [month, setMonth] = useState(currentDate.getMonth() + 1);
+export default function EarningHistory({
+  crewId,
+}: EarningHistoryProps) {
+  const { year, month, setDate } = useDateStore();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const { data: dailyEarnings, isLoading } = useCrewEarningsByDate(
@@ -28,13 +27,10 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
         <div className="flex gap-4">
           <select
             value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
+            onChange={(e) => setDate(Number(e.target.value), month)}
             className="rounded-md border-gray-300"
           >
-            {Array.from(
-              { length: 5 },
-              (_, i) => currentDate.getFullYear() - i
-            ).map((y) => (
+            {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((y) => (
               <option key={y} value={y}>
                 {y}년
               </option>
@@ -42,7 +38,7 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
           </select>
           <select
             value={month}
-            onChange={(e) => setMonth(Number(e.target.value))}
+            onChange={(e) => setDate(year, Number(e.target.value))}
             className="rounded-md border-gray-300"
           >
             {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (

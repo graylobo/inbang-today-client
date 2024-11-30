@@ -1,10 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/libs/api/axios";
-import { useRequireAuth } from "@/hooks/useAuth";
 import { useCreateCrewEarning } from "@/hooks/crew/useCrews";
+import { useRequireAuth } from "@/hooks/useAuth";
+import { useState } from "react";
 
 interface EarningFormProps {
   memberId: number;

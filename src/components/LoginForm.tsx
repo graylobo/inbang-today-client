@@ -19,7 +19,6 @@ export default function LoginForm() {
 
     try {
       const data = await login(username, password);
-
       setAuth(data.user, data.access_token);
       router.replace("/");
     } catch (error: any) {
