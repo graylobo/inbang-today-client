@@ -3,14 +3,14 @@
 import BroadcastEarningForm from "@/components/BroadCastEarningForm";
 import MemberCard from "@/components/MemberCard";
 import Modal from "@/components/common/Modal";
-import { useCrewDetail } from "@/hooks/crew/useCrews";
+import { useGetCrewByID } from "@/hooks/crew/useCrews";
 import Link from "next/link";
 import { useState } from "react";
 import EarningForm from "./EarningForm";
 import EarningHistory from "./EarningHistory";
 
 export default function CrewDetail({ crewId }: { crewId: string }) {
-  const { data: crew, error } = useCrewDetail(crewId);
+  const { data: crew, error } = useGetCrewByID(crewId);
 
   const [showBroadcastForm, setShowBroadcastForm] = useState(false);
   const [selectedMember, setSelectedMember] = useState<{

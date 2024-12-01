@@ -3,13 +3,19 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/libs/api/axios";
 import { useState } from "react";
+import {
+  useCreateCrew,
+  useDeleteCrew,
+  useGetCrews,
+  useUpdateCrew,
+} from "@/hooks/crew/useCrews";
 
 interface RankFormData {
   name: string;
   level: number;
 }
 
-interface CrewFormData {
+export interface CrewFormData {
   name: string;
   description: string;
   iconUrl?: string;
@@ -28,50 +34,26 @@ export default function AdminCrewsPage() {
 
   const queryClient = useQueryClient();
 
-  const { data: crews, isLoading } = useQuery({
-    queryKey: ["crews"],
-    queryFn: async () => {
-      const { data } = await api.get("/crews");
-      return data;
-    },
-  });
+  const { data: crews, isLoading } = useGetCrews();
 
-  const createMutation = useMutation({
-    mutationFn: (newCrew: CrewFormData) => api.post("/crews", newCrew),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crews"] });
-      resetForm();
-    },
-  });
+  const { mutate: createMutate } = useCreateCrew(resetForm);
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: CrewFormData }) =>
-      api.put(`/crews/${id}`, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crews"] });
-      resetForm();
-    },
-  });
+  const { mutate: updateMutate } = useUpdateCrew(resetForm);
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => api.delete(`/crews/${id}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crews"] });
-    },
-  });
+  const { mutate: deleteMutate } = useDeleteCrew();
 
-  const resetForm = () => {
+  function resetForm() {
     setFormData({ name: "", description: "", iconUrl: "", ranks: [] });
     setSelectedCrew(null);
     setIsEditing(false);
-  };
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isEditing && selectedCrew) {
-      updateMutation.mutate({ id: selectedCrew.id, data: formData });
+      updateMutate({ id: selectedCrew.id, formData });
     } else {
-      createMutation.mutate(formData);
+      createMutate(formData);
     }
   };
 
@@ -304,7 +286,7 @@ export default function AdminCrewsPage() {
                           "정말로 이 크루를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
                         )
                       ) {
-                        deleteMutation.mutate(crew.id);
+                        deleteMutate(crew.id);
                       }
                     }}
                     className="px-3 py-1 text-sm text-red-600 hover:text-red-700"

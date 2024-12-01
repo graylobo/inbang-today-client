@@ -16,10 +16,15 @@ export interface Crew {
 export interface CrewMember {
   id: number;
   name: string;
+  profileImageUrl?: string;
+  broadcastUrl?: string;
+  crew: {
+    id: number;
+    name: string;
+  };
   rank: {
     id: number;
     name: string;
-    level: number;
   };
 }
 

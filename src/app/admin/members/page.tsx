@@ -1,10 +1,17 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useCreateCrewMember,
+  useGetCrewMembers,
+  useGetCrewRanksByCrewID,
+  useGetCrews,
+} from "@/hooks/crew/useCrews";
+import { CrewMember } from "@/hooks/crew/useCrews.type";
 import { api } from "@/libs/api/axios";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
-interface MemberFormData {
+export interface CrewMemberFormData {
   name: string;
   profileImageUrl?: string;
   broadcastUrl?: string;
@@ -12,87 +19,16 @@ interface MemberFormData {
   rankId: number;
 }
 
-interface Member {
-  id: number;
-  name: string;
-  profileImageUrl?: string;
-  broadcastUrl?: string;
-  crew: {
-    id: number;
-    name: string;
-  };
-  rank: {
-    id: number;
-    name: string;
-  };
-}
-
 export default function AdminMembersPage() {
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+  const [selectedMember, setSelectedMember] = useState<CrewMember | null>(null);
   const [selectedCrewId, setSelectedCrewId] = useState<number | "all">("all");
-  const [formData, setFormData] = useState<MemberFormData>({
+  const [formData, setFormData] = useState<CrewMemberFormData>({
     name: "",
     profileImageUrl: "",
     broadcastUrl: "",
     crewId: 0,
     rankId: 0,
-  });
-
-  const queryClient = useQueryClient();
-
-  // 크루 목록 조회
-  const { data: crews } = useQuery({
-    queryKey: ["crews"],
-    queryFn: async () => {
-      const { data } = await api.get("/crews");
-      return data;
-    },
-  });
-
-  // 선택된 크루의 계급 목록 조회
-  const { data: ranks } = useQuery({
-    queryKey: ["ranks", formData.crewId],
-    queryFn: async () => {
-      if (!formData.crewId) return [];
-      const { data } = await api.get(`/crew-ranks/crew/${formData.crewId}`);
-      return data;
-    },
-    enabled: !!formData.crewId,
-  });
-
-  // 모든 멤버 조회
-  const { data: members, isLoading } = useQuery({
-    queryKey: ["members"],
-    queryFn: async () => {
-      const { data } = await api.get("/crew-members");
-      return data as Member[];
-    },
-  });
-
-  const createMutation = useMutation({
-    mutationFn: (newMember: MemberFormData) =>
-      api.post("/crew-members", newMember),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["members"] });
-      resetForm();
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: MemberFormData }) =>
-      api.put(`/crew-members/${id}`, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["members"] });
-      resetForm();
-    },
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => api.delete(`/crew-members/${id}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["members"] });
-    },
   });
 
   const resetForm = () => {
@@ -107,6 +43,35 @@ export default function AdminMembersPage() {
     setIsEditing(false);
   };
 
+  const queryClient = useQueryClient();
+
+  // 크루 목록 조회
+  const { data: crews } = useGetCrews();
+
+  // 선택된 크루의 계급 목록 조회
+  const { data: ranks } = useGetCrewRanksByCrewID(formData.crewId.toString());
+
+  // 모든 멤버 조회
+  const { data: members, isLoading } = useGetCrewMembers();
+
+  const createMutation = useCreateCrewMember(resetForm);
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }: { id: number; data: CrewMemberFormData }) =>
+      api.put(`/crew-members/${id}`, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+      resetForm();
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => api.delete(`/crew-members/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+    },
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isEditing && selectedMember) {
@@ -116,7 +81,7 @@ export default function AdminMembersPage() {
     }
   };
 
-  const handleEdit = (member: Member) => {
+  const handleEdit = (member: CrewMember) => {
     setSelectedMember(member);
     setFormData({
       name: member.name,

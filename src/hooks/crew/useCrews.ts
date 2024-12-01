@@ -4,19 +4,43 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { api } from "@/libs/api/axios";
 import {
+  createCrew,
   createCrewBroadcastEarning,
   createCrewEarning,
-  getCrewDetail,
+  createCrewMember,
+  deleteCrew,
+  getCrewByID,
   getCrewEarningsByDate,
+  getCrewMembers,
+  getCrewRanksByCrewID,
+  getCrews,
   getCrewsRankings,
+  updateCrew,
 } from "@/libs/api/services/crew.service";
 import {
   Crew,
   CrewDetail,
+  CrewMember,
   DailyEarningResponse,
 } from "@/hooks/crew/useCrews.type";
+import { CrewMemberFormData } from "@/app/admin/members/page";
+import { CrewFormData } from "@/app/admin/crews/page";
+
+export function useGetCrews() {
+  return useQuery<Crew[]>({
+    queryKey: ["crews"],
+    queryFn: () => getCrews(),
+  });
+}
+
+export function useGetCrewRanksByCrewID(crewId: string) {
+  return useQuery({
+    queryKey: ["ranks", crewId],
+    queryFn: () => getCrewRanksByCrewID(crewId),
+  });
+}
+
 export function crewsRankingsOptions(year: number, month: number) {
   return {
     queryKey: ["crews", "rankings", year, month],
@@ -30,10 +54,10 @@ export function useCrewsRankings(year: number, month: number) {
 export function crewDetailOptions(crewId: string) {
   return {
     queryKey: ["crew", crewId],
-    queryFn: () => getCrewDetail(crewId),
+    queryFn: () => getCrewByID(crewId),
   };
 }
-export function useCrewDetail(crewId: string) {
+export function useGetCrewByID(crewId: string) {
   return useSuspenseQuery<CrewDetail>(crewDetailOptions(crewId));
 }
 
@@ -108,6 +132,67 @@ export function useCreateCrewEarning(onClose: () => void) {
       queryClient.invalidateQueries({ queryKey: ["earnings"] });
       queryClient.invalidateQueries({ queryKey: ["crew"] });
       onClose();
+    },
+  });
+}
+
+export function useGetCrewMembers() {
+  return useQuery<CrewMember[]>({
+    queryKey: ["members"],
+    queryFn: () => getCrewMembers(),
+  });
+}
+
+export function useCreateCrewMember(resetForm: () => void) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (member: CrewMemberFormData) => createCrewMember(member),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+      resetForm();
+    },
+  });
+}
+
+export function useCreateCrew(resetForm: () => void) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (formData: CrewFormData) => createCrew(formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["crews"] });
+      resetForm();
+    },
+    onError: (error) => {
+      if (error.message === "CONFLICT") {
+        alert("크루 이름이 중복되었습니다.");
+      }
+    },
+  });
+}
+
+export function useUpdateCrew(resetForm: () => void) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      formData,
+    }: {
+      id: number;
+      formData: CrewFormData;
+    }) => updateCrew(id, formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["crews"] });
+      resetForm();
+    },
+  });
+}
+
+export function useDeleteCrew() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => deleteCrew(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["crews"] });
     },
   });
 }

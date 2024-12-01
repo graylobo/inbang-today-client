@@ -23,7 +23,7 @@ api.interceptors.response.use(
       // 401 에러 처리는 클라이언트 사이드에서 처리
       return Promise.reject(new Error("UNAUTHORIZED"));
     }
-    return Promise.reject(error);
+    return Promise.reject(new Error("CONFLICT"));
   }
 );
 
