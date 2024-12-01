@@ -2,7 +2,7 @@ import { Suspense, useState } from "react";
 import CrewList from "@/components/CrewList";
 import Loading from "@/components/Loading";
 import { PrefetchProvider } from "@/providers/pre-fetch-provider";
-import { crewsRankingsOptions } from "@/hooks/crew/useCrews";
+import { crewsRankingsOptions } from "@/hooks/crew/useCrews.option";
 
 export default function Home() {
   const currentDate = new Date();

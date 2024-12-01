@@ -2,9 +2,11 @@
 
 import {
   useCreateCrewMember,
+  useDeleteCrewMember,
   useGetCrewMembers,
   useGetCrewRanksByCrewID,
   useGetCrews,
+  useUpdateCrewMember,
 } from "@/hooks/crew/useCrews";
 import { CrewMember } from "@/hooks/crew/useCrews.type";
 import { api } from "@/libs/api/axios";
@@ -54,30 +56,18 @@ export default function AdminMembersPage() {
   // 모든 멤버 조회
   const { data: members, isLoading } = useGetCrewMembers();
 
-  const createMutation = useCreateCrewMember(resetForm);
+  const { mutate: createCrewMember } = useCreateCrewMember(resetForm);
 
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: CrewMemberFormData }) =>
-      api.put(`/crew-members/${id}`, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["members"] });
-      resetForm();
-    },
-  });
+  const { mutate: updateCrewMember } = useUpdateCrewMember(resetForm);
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => api.delete(`/crew-members/${id}`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["members"] });
-    },
-  });
+  const { mutate: deleteCrewMember } = useDeleteCrewMember();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isEditing && selectedMember) {
-      updateMutation.mutate({ id: selectedMember.id, data: formData });
+      updateCrewMember({ id: selectedMember.id, member: formData });
     } else {
-      createMutation.mutate(formData);
+      createCrewMember(formData);
     }
   };
 
@@ -287,7 +277,7 @@ export default function AdminMembersPage() {
                           "정말로 이 멤버를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
                         )
                       ) {
-                        deleteMutation.mutate(member.id);
+                        deleteCrewMember(member.id);
                       }
                     }}
                     className="px-3 py-1 text-sm text-red-600 hover:text-red-700"

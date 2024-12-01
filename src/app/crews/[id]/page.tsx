@@ -2,7 +2,7 @@ import CrewDetail from "@/components/CrewDetail";
 import {
   crewDetailOptions,
   crewEarningsByDateOptions,
-} from "@/hooks/crew/useCrews";
+} from "@/hooks/crew/useCrews.option";
 import { PrefetchProvider } from "@/providers/pre-fetch-provider";
 
 export default function CrewDetailPage({ params }: { params: { id: string } }) {

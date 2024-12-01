@@ -73,6 +73,16 @@ export async function createCrewMember(member: CrewMemberFormData) {
   return data;
 }
 
+export async function updateCrewMember(id: number, member: CrewMemberFormData) {
+  const { data } = await api.put(`/crew-members/${id}`, member);
+  return data;
+}
+
+export async function deleteCrewMember(id: number) {
+  const { data } = await api.delete(`/crew-members/${id}`);
+  return data;
+}
+
 export async function createCrew(formData: CrewFormData) {
   const { data } = await api.post("/crews", formData);
   return data;

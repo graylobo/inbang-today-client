@@ -1,31 +1,35 @@
+import { CrewFormData } from "@/app/admin/crews/page";
+import { CrewMemberFormData } from "@/app/admin/members/page";
 import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
-import {
-  createCrew,
-  createCrewBroadcastEarning,
-  createCrewEarning,
-  createCrewMember,
-  deleteCrew,
-  getCrewByID,
-  getCrewEarningsByDate,
-  getCrewMembers,
-  getCrewRanksByCrewID,
-  getCrews,
-  getCrewsRankings,
-  updateCrew,
-} from "@/libs/api/services/crew.service";
+  crewDetailOptions,
+  crewEarningsByDateOptions,
+  crewsRankingsOptions,
+} from "@/hooks/crew/useCrews.option";
 import {
   Crew,
   CrewDetail,
   CrewMember,
   DailyEarningResponse,
 } from "@/hooks/crew/useCrews.type";
-import { CrewMemberFormData } from "@/app/admin/members/page";
-import { CrewFormData } from "@/app/admin/crews/page";
+import {
+  createCrew,
+  createCrewBroadcastEarning,
+  createCrewEarning,
+  createCrewMember,
+  deleteCrew,
+  deleteCrewMember,
+  getCrewMembers,
+  getCrewRanksByCrewID,
+  getCrews,
+  updateCrew,
+  updateCrewMember,
+} from "@/libs/api/services/crew.service";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 
 export function useGetCrews() {
   return useQuery<Crew[]>({
@@ -41,38 +45,14 @@ export function useGetCrewRanksByCrewID(crewId: string) {
   });
 }
 
-export function crewsRankingsOptions(year: number, month: number) {
-  return {
-    queryKey: ["crews", "rankings", year, month],
-    queryFn: () => getCrewsRankings(year, month),
-  };
-}
 export function useCrewsRankings(year: number, month: number) {
   return useSuspenseQuery<Crew[]>(crewsRankingsOptions(year, month));
 }
 
-export function crewDetailOptions(crewId: string) {
-  return {
-    queryKey: ["crew", crewId],
-    queryFn: () => getCrewByID(crewId),
-  };
-}
 export function useGetCrewByID(crewId: string) {
   return useSuspenseQuery<CrewDetail>(crewDetailOptions(crewId));
 }
 
-export function crewEarningsByDateOptions(
-  crewId: string,
-  year: number,
-  month: number
-) {
-  const startDate = `${year}-${month.toString().padStart(2, "0")}-01`;
-  const endDate = new Date(year, month, 0).toISOString().split("T")[0];
-  return {
-    queryKey: ["earnings", crewId, year, month],
-    queryFn: () => getCrewEarningsByDate(crewId, startDate, endDate),
-  };
-}
 export function useCrewEarningsByDate(
   crewId: string,
   year: number,
@@ -150,6 +130,33 @@ export function useCreateCrewMember(resetForm: () => void) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["members"] });
       resetForm();
+    },
+  });
+}
+
+export function useUpdateCrewMember(resetForm: () => void) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      member,
+    }: {
+      id: number;
+      member: CrewMemberFormData;
+    }) => updateCrewMember(id, member),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+      resetForm();
+    },
+  });
+}
+
+export function useDeleteCrewMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => deleteCrewMember(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["members"] });
     },
   });
 }
