@@ -2,6 +2,7 @@
 
 import { CrewFormData } from "@/app/admin/crews/page";
 import { CrewMemberFormData } from "@/app/admin/members/page";
+import { SignatureFormData } from "@/app/admin/signatures/page";
 import { api } from "@/libs/api/axios";
 
 export async function getCrews() {
@@ -97,3 +98,24 @@ export async function deleteCrew(id: number) {
   const { data } = await api.delete(`/crews/${id}`);
   return data;
 }
+
+export async function getCrewSignatures(crewId: number) {
+  const { data } = await api.get(`/crew-signatures/crew/${crewId}`);
+  return data;
+}
+
+export async function createCrewSignature(formData: SignatureFormData) {
+  const { data } = await api.post("/crew-signatures", formData);
+  return data;
+}
+
+export async function updateCrewSignature(id: number, formData: SignatureFormData) {
+  const { data } = await api.put(`/crew-signatures/${id}`, formData);
+  return data;
+}
+
+export async function deleteCrewSignature(id: number) {
+  const { data } = await api.delete(`/crew-signatures/${id}`);
+  return data;
+}
+

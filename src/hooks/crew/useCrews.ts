@@ -1,5 +1,6 @@
 import { CrewFormData } from "@/app/admin/crews/page";
 import { CrewMemberFormData } from "@/app/admin/members/page";
+import { SignatureFormData } from "@/app/admin/signatures/page";
 import {
   crewDetailOptions,
   crewEarningsByDateOptions,
@@ -16,13 +17,17 @@ import {
   createCrewBroadcastEarning,
   createCrewEarning,
   createCrewMember,
+  createCrewSignature,
   deleteCrew,
   deleteCrewMember,
+  deleteCrewSignature,
   getCrewMembers,
   getCrewRanksByCrewID,
   getCrews,
+  getCrewSignatures,
   updateCrew,
   updateCrewMember,
+  updateCrewSignature,
 } from "@/libs/api/services/crew.service";
 import {
   useMutation,
@@ -200,6 +205,52 @@ export function useDeleteCrew() {
     mutationFn: async (id: number) => deleteCrew(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["crews"] });
+    },
+  });
+}
+
+export function useGetCrewSignatures(crewId: number) {
+  return useQuery({
+    queryKey: ["signatures", crewId],
+    queryFn: () => getCrewSignatures(crewId),
+  });
+}
+
+export function useCreateCrewSignature(resetForm: () => void) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (formData: SignatureFormData) =>
+      createCrewSignature(formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["signatures"] });
+      resetForm();
+    },
+  });
+}
+
+export function useUpdateCrewSignature(resetForm: () => void) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      formData,
+    }: {
+      id: number;
+      formData: SignatureFormData;
+    }) => updateCrewSignature(id, formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["signatures"] });
+      resetForm();
+    },
+  });
+}
+
+export function useDeleteCrewSignature() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => deleteCrewSignature(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["signatures"] });
     },
   });
 }
