@@ -7,7 +7,6 @@ import {
   useGetCrewSignatures,
   useUpdateCrewSignature,
 } from "@/hooks/crew/useCrews";
-import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 export interface SignatureFormData {
@@ -15,7 +14,7 @@ export interface SignatureFormData {
   starballoonCount: number;
   songName: string;
   signatureImageUrl: string;
-  danceVideoUrl?: string;
+  danceVideoUrls: string[];
   description?: string;
 }
 
@@ -27,7 +26,7 @@ export default function SignaturesPage() {
     starballoonCount: 0,
     songName: "",
     signatureImageUrl: "",
-    danceVideoUrl: "",
+    danceVideoUrls: [""],
     description: "",
   });
 
@@ -37,7 +36,7 @@ export default function SignaturesPage() {
       starballoonCount: 0,
       songName: "",
       signatureImageUrl: "",
-      danceVideoUrl: "",
+      danceVideoUrls: [""],
       description: "",
     });
     setIsEditing(false);
@@ -114,11 +113,12 @@ export default function SignaturesPage() {
             </label>
             <input
               type="number"
-              value={formData.starballoonCount}
+              value={formData.starballoonCount || ""}
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  starballoonCount: Number(e.target.value),
+                  starballoonCount:
+                    e.target.value === "" ? 0 : Number(e.target.value),
                 })
               }
               className="mt-1 block w-full rounded-md border-gray-300"
