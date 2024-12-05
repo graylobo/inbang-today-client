@@ -1,6 +1,8 @@
 "use client";
 
 import { useRequireAuth } from "@/hooks/useAuth";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export default function AdminLayout({
   children,
@@ -8,6 +10,8 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const { user, isLoading } = useRequireAuth();
+  const pathname = usePathname();
+
   if (isLoading) {
     return <div>권한을 확인하는 중...</div>;
   }
@@ -15,6 +19,11 @@ export default function AdminLayout({
   if (!user?.isAdmin) {
     return null;
   }
+
+  const navItems = [
+    { href: "/admin/crews", label: "크루 관리" },
+    { href: "/admin/members", label: "멤버 관리" },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -26,18 +35,19 @@ export default function AdminLayout({
                 <span className="text-lg font-bold">관리자 페이지</span>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <a
-                  href="/admin/crews"
-                  className="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  크루 관리
-                </a>
-                <a
-                  href="/admin/members"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  멤버 관리
-                </a>
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                      pathname === item.href
+                        ? "border-indigo-500 text-gray-900"
+                        : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
