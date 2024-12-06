@@ -142,3 +142,8 @@ export async function deleteComment(id: number, password?: string) {
   const res = await api.delete(`/comments/${id}`, { params: { password } });
   return res.data;
 }
+
+export async function verifyCommentPassword(id: number, password?: string) {
+  const res = await api.post(`/comments/${id}/verify-password`, { password });
+  return res.data;
+}

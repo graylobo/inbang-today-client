@@ -19,11 +19,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // 401 에러 처리는 클라이언트 사이드에서 처리
-      return Promise.reject(new Error("UNAUTHORIZED"));
-    }
-    return Promise.reject(new Error("CONFLICT"));
+    return Promise.reject(new Error(error.response?.data.message));
   }
 );
 

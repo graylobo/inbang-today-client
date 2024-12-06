@@ -1,6 +1,6 @@
 "use client";
 
-import { useCreateComment } from "@/hooks/board/useBoards";
+import { useCreateComment, useCreateReply } from "@/hooks/board/useBoards";
 import { Post, User } from "@/libs/api/services/board.service";
 import { useState } from "react";
 
@@ -24,14 +24,24 @@ export default function CommentForm({
   });
 
   const createComment = useCreateComment(onSuccess);
+  const createReply = useCreateReply(onSuccess);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createComment.mutate({
-      ...formData,
-      postId: post.id,
-      parentId,
-    });
+
+    if (parentId) {
+      createReply.mutate({
+        ...formData,
+        postId: post.id,
+        parentId,
+      });
+    } else {
+      createComment.mutate({
+        ...formData,
+        postId: post.id,
+      });
+    }
+
     setFormData({ content: "", authorName: "", password: "" });
   };
 

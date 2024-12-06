@@ -15,6 +15,7 @@ import {
   CreateCommentDto,
   CreatePostDto,
   CreateReplyDto,
+  verifyCommentPassword,
 } from "@/libs/api/services/board.service";
 
 // 게시판 관련 hooks
@@ -156,6 +157,22 @@ export const useDeleteComment = (onSuccess?: () => void) => {
       deleteComment(id, password),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["comments"] });
+      onSuccess?.();
+    },
+  });
+};
+
+export const useVerifyCommentPassword = (
+  onSuccess?: () => void,
+  onError?: () => void
+) => {
+  return useMutation({
+    mutationFn: (data: { id: number; password: string }) =>
+      verifyCommentPassword(data.id, data.password),
+    onError: () => {
+      onError?.();
+    },
+    onSuccess: () => {
       onSuccess?.();
     },
   });

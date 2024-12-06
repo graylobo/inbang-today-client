@@ -1,9 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useUpdateComment, useDeleteComment } from "@/hooks/board/useBoards";
+import {
+  useUpdateComment,
+  useDeleteComment,
+  useVerifyCommentPassword,
+} from "@/hooks/board/useBoards";
 import { User, Post, Comment } from "@/libs/api/services/board.service";
 import CommentForm from "@/components/board/CommentForm";
+import { api } from "@/libs/api/axios";
 
 interface CommentItemProps {
   comment: Comment;
@@ -36,6 +41,16 @@ export default function CommentItem({
     setPassword("");
     setShowPasswordModal(false);
   });
+  const verifyCommentPassword = useVerifyCommentPassword(
+    () => {
+      setIsEditing(true);
+      setShowPasswordModal(false);
+    },
+    () => {
+      alert("비밀번호가 일치하지 않습니다.");
+      setShowPasswordModal(false);
+    }
+  );
 
   const handleAction = (type: "edit" | "delete") => {
     if (!user && comment.password) {
@@ -50,11 +65,13 @@ export default function CommentItem({
     }
   };
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (action === "edit") {
-      setIsEditing(true);
-      setShowPasswordModal(false);
+      await verifyCommentPassword.mutate({
+        id: comment.id,
+        password,
+      });
     } else {
       handleDelete();
     }
@@ -77,13 +94,20 @@ export default function CommentItem({
 
   return (
     <div className="space-y-4">
-      <div className="bg-gray-50 p-4 rounded-lg">
+      <div
+        className={`${
+          comment.parent ? "border-l-4 border-gray-200 pl-4" : ""
+        } bg-gray-50 p-4 rounded-lg`}
+      >
         {/* 댓글 내용 */}
         <div className="flex justify-between items-start mb-2">
           <div>
             <span className="font-medium">
               {comment.author ? comment.author.username : comment.authorName}
             </span>
+            {comment.parent && (
+              <span className="ml-2 text-sm text-blue-500">답글</span>
+            )}
             <span className="text-sm text-gray-500 ml-2">
               {new Date(comment.createdAt).toLocaleString()}
             </span>
