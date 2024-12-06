@@ -14,9 +14,9 @@ const menuItems = [
   },
   {
     icon: Drafts,
-    primaryText: "Drafts",
+    primaryText: "커뮤니티",
     subItems: [
-      { primaryText: "Draft 1", href: "/drafts" },
+      { primaryText: "게시판", href: "/boards" },
       { primaryText: "Draft 2", href: "/drafts" },
     ],
   },

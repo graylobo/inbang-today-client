@@ -12,7 +12,6 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <Providers>
-          <Header />
           <BaseLayout>{children}</BaseLayout>
         </Providers>
       </body>
