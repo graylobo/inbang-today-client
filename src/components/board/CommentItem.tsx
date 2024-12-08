@@ -105,9 +105,6 @@ export default function CommentItem({
             <span className="font-medium">
               {comment.author ? comment.author.username : comment.authorName}
             </span>
-            {comment.parent && (
-              <span className="ml-2 text-sm text-blue-500">답글</span>
-            )}
             <span className="text-sm text-gray-500 ml-2">
               {new Date(comment.createdAt).toLocaleString()}
             </span>
@@ -139,7 +136,7 @@ export default function CommentItem({
           </div>
         </div>
 
-        {/* 수정 폼 */}
+        {/* 댓글 내용 */}
         {isEditing ? (
           <form onSubmit={handleUpdate} className="mt-2">
             <textarea
@@ -167,12 +164,19 @@ export default function CommentItem({
             </div>
           </form>
         ) : (
-          <p className="whitespace-pre-wrap">{comment.content}</p>
+          <p className="whitespace-pre-wrap">
+            {comment.parent && (
+              <span className="text-blue-600">
+                @{comment.parent.author?.username || comment.parent.authorName}{" "}
+              </span>
+            )}
+            {comment.content}
+          </p>
         )}
 
         {/* 답글 폼 */}
         {replyTo === comment.id && (
-          <div className="mt-4 pl-4 border-l-2 border-gray-200">
+          <div className="mt-4">
             <CommentForm
               post={post}
               user={user}
@@ -183,7 +187,7 @@ export default function CommentItem({
         )}
       </div>
 
-      {/* 답글 목록 */}
+      {/* 대댓글 목록 */}
       {comment.replies?.length > 0 && (
         <div className="pl-8 space-y-4">
           {comment.replies.map((reply) => (
