@@ -10,4 +10,4 @@ export default function CrewDetailPage({ params }: { params: { id: string } }) {
       </PrefetchProvider>
     </main>
   );
-} 
+}

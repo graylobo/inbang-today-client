@@ -10,24 +10,29 @@ import {
 import { useState } from "react";
 
 export interface SignatureFormData {
+  signatureId?: number;
   crewId: number;
   starballoonCount: number;
   songName: string;
   signatureImageUrl: string;
-  danceVideoUrls: string[];
   description?: string;
+  dances: {
+    memberId: number;
+    danceVideoUrl: string;
+    performedAt: string;
+  }[];
 }
 
 export default function SignaturesPage() {
   const [selectedCrewID, setSelectedCrewID] = useState<number>(0);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState<any>({
+  const [formData, setFormData] = useState<SignatureFormData>({
     crewId: 0,
     starballoonCount: 0,
     songName: "",
     signatureImageUrl: "",
-    danceVideoUrls: [""],
     description: "",
+    dances: [{ memberId: 0, danceVideoUrl: "", performedAt: "" }],
   });
 
   const resetForm = () => {
@@ -36,8 +41,8 @@ export default function SignaturesPage() {
       starballoonCount: 0,
       songName: "",
       signatureImageUrl: "",
-      danceVideoUrls: [""],
       description: "",
+      dances: [{ memberId: 0, danceVideoUrl: "", performedAt: "" }],
     });
     setIsEditing(false);
   };
@@ -56,9 +61,9 @@ export default function SignaturesPage() {
     e.preventDefault();
     const submitData = { ...formData, crewId: selectedCrewID };
 
-    if (isEditing) {
+    if (isEditing && formData.signatureId) {
       updateMutation.mutate({
-        id: formData.id as number,
+        id: formData.signatureId,
         formData: submitData,
       });
     } else {
@@ -68,6 +73,7 @@ export default function SignaturesPage() {
 
   const handleEdit = (signature: any) => {
     setFormData({
+      id: signature.id,
       ...signature,
       crewId: selectedCrewID,
     });
@@ -78,6 +84,33 @@ export default function SignaturesPage() {
     if (window.confirm("정말로 이 시그니처를 삭제하시겠습니까?")) {
       deleteMutation.mutate(id);
     }
+  };
+
+  const handleAddDance = () => {
+    setFormData({
+      ...formData,
+      dances: [
+        ...formData.dances,
+        { memberId: 0, danceVideoUrl: "", performedAt: "" },
+      ],
+    });
+  };
+
+  const handleDanceChange = (
+    index: number,
+    field: string,
+    value: string | number
+  ) => {
+    const newDances = [...formData.dances];
+    newDances[index] = { ...newDances[index], [field]: value };
+    setFormData({ ...formData, dances: newDances });
+  };
+
+  const handleRemoveDance = (index: number) => {
+    setFormData({
+      ...formData,
+      dances: formData.dances.filter((_, i) => i !== index),
+    });
   };
 
   return (
@@ -164,23 +197,6 @@ export default function SignaturesPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              춤 영상 URL
-            </label>
-            <input
-              type="text"
-              value={formData.danceVideoUrl}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  danceVideoUrl: e.target.value,
-                })
-              }
-              className="mt-1 block w-full rounded-md border-gray-300"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
               설명
             </label>
             <textarea
@@ -194,6 +210,93 @@ export default function SignaturesPage() {
               className="mt-1 block w-full rounded-md border-gray-300"
               rows={3}
             />
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-lg font-medium">춤 영상 정보</h3>
+              <button
+                type="button"
+                onClick={handleAddDance}
+                className="px-3 py-1 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              >
+                영상 추가
+              </button>
+            </div>
+
+            {formData.dances.map((dance, index) => (
+              <div key={index} className="p-4 border rounded-md space-y-3">
+                <div className="flex justify-between">
+                  <h4 className="font-medium">영상 #{index + 1}</h4>
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveDance(index)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      삭제
+                    </button>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    크루원
+                  </label>
+                  <select
+                    value={dance.memberId}
+                    onChange={(e) =>
+                      handleDanceChange(
+                        index,
+                        "memberId",
+                        Number(e.target.value)
+                      )
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300"
+                    required
+                  >
+                    <option value={0}>크루원 선택</option>
+                    {crews
+                      ?.find((c) => c.id === selectedCrewID)
+                      ?.members.map((member: any) => (
+                        <option key={member.id} value={member.id}>
+                          {member.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    영상 URL
+                  </label>
+                  <input
+                    type="text"
+                    value={dance.danceVideoUrl}
+                    onChange={(e) =>
+                      handleDanceChange(index, "danceVideoUrl", e.target.value)
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    촬영 일자
+                  </label>
+                  <input
+                    type="date"
+                    value={dance.performedAt}
+                    onChange={(e) =>
+                      handleDanceChange(index, "performedAt", e.target.value)
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300"
+                    required
+                  />
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="flex justify-end space-x-3">
