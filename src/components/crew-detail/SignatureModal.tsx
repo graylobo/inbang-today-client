@@ -83,34 +83,37 @@ export default function SignatureModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 p-4 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center">
       <div
         className={
           isFullscreen
             ? "w-full h-full bg-white rounded-lg flex flex-col"
-            : "w-[min(90vw,1200px)] h-[min(90vh,800px)] bg-white rounded-lg flex flex-col"
+            : "w-[900px] h-[650px] bg-white rounded-lg flex flex-col"
         }
       >
         {/* 헤더 */}
-        <div className="flex justify-between items-center p-4 border-b shrink-0">
-          <h2 className="text-xl font-bold">
+        <div className="flex justify-between items-center p-3 border-b shrink-0">
+          <h2 className="text-lg font-bold truncate">
             {signature.songName} ({signature.starballoonCount}별)
           </h2>
-          <div className="flex gap-2">
+          <div className="flex gap-2 shrink-0">
             <button
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2 hover:bg-gray-100 rounded"
+              className="p-1.5 hover:bg-gray-100 rounded text-sm"
             >
               {isFullscreen ? "축소" : "확대"}
             </button>
-            <button onClick={onClose} className="p-2 hover:bg-gray-100 rounded">
+            <button
+              onClick={onClose}
+              className="p-1.5 hover:bg-gray-100 rounded text-sm"
+            >
               닫기
             </button>
           </div>
         </div>
 
         {/* 네비게이션 */}
-        <div className="p-4 bg-gray-50 shrink-0 relative">
+        <div className="p-3 bg-gray-50 shrink-0 relative">
           {showArrows && (
             <>
               <button
@@ -152,13 +155,13 @@ export default function SignatureModal({
         </div>
 
         {/* 비디오 영역 */}
-        <div className="flex-1 p-4 overflow-y-auto">
-          <div className="h-full flex items-center justify-center">
+        <div className="flex-1 p-3 min-h-0">
+          <div className="h-full flex items-center">
             <div
-              className="w-full bg-black rounded-lg overflow-hidden mx-auto"
+              className="w-full bg-black rounded-lg overflow-hidden"
               style={{
                 aspectRatio: "1.8/1",
-                maxHeight: "100%",
+                maxHeight: "500px",
               }}
             >
               {currentDance?.danceVideoUrl && (
