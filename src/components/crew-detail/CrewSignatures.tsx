@@ -3,40 +3,49 @@
 import SignatureModal from "@/components/crew-detail/SignatureModal";
 import { useGetCrewSignatures } from "@/hooks/crew/useCrews";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function CrewSignatures({ crewId }: { crewId: string }) {
   const { data: signatures } = useGetCrewSignatures(parseInt(crewId));
   const [selectedSignature, setSelectedSignature] = useState<any>(null);
+  const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
+
+  const handleImageError = (imageUrl: string) => {
+    setFailedImages((prev) => new Set(prev).add(imageUrl));
+  };
+
+  const isValidImage = (imageUrl: string) => {
+    return (
+      imageUrl && imageUrl.startsWith("http") && !failedImages.has(imageUrl)
+    );
+  };
 
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {signatures?.map((signature: any) => (
         <div
           key={signature.id}
-          className="bg-white dark:bg-dark-bg p-6 rounded-lg shadow-md dark:shadow-none dark:border dark:border-gray-700 cursor-pointer hover:shadow-lg dark:hover:border-gray-600 transition-all"
+          className="relative bg-gray-900 rounded-lg overflow-hidden cursor-pointer hover:scale-105 transition-transform duration-200"
           onClick={() => setSelectedSignature(signature)}
         >
-          <div className="space-y-4">
-            <div className="flex justify-between items-start">
-              <h3 className="text-xl font-bold dark:text-gray-100">
-                별풍선 {signature.starballoonCount}개
-              </h3>
+          {isValidImage(signature.signatureImageUrl) && (
+            <div className="relative aspect-[16/9]">
+              <Image
+                src={signature.signatureImageUrl}
+                alt={`${signature.songName} 시그니처 이미지`}
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                onError={() => handleImageError(signature.signatureImageUrl)}
+                unoptimized
+              />
             </div>
-            <div>
-              <p className="text-lg font-medium dark:text-gray-200">
-                {signature.songName}
-              </p>
-              {signature.description && (
-                <p className="text-gray-600 dark:text-gray-400 mt-2">
-                  {signature.description}
-                </p>
-              )}
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {signature.dances?.length}개의 영상
-              </p>
-            </div>
+          )}
+
+          <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/80 to-transparent">
+            <h3 className="text-white font-bold">
+              {signature.songName} ({signature.starballoonCount})
+            </h3>
           </div>
         </div>
       ))}
