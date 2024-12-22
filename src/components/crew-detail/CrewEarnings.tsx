@@ -13,7 +13,7 @@ export default function CrewEarnings({ crewId }: { crewId: string }) {
       <div className="mb-8 flex justify-end">
         <button
           onClick={() => setShowBroadcastForm(true)}
-          className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+          className="px-4 py-2 bg-green-500 dark:bg-green-600 text-white rounded-md hover:bg-green-600 dark:hover:bg-green-700 transition-colors"
         >
           크루 방송 수익 입력
         </button>
@@ -33,4 +33,4 @@ export default function CrewEarnings({ crewId }: { crewId: string }) {
       </Modal>
     </div>
   );
-} 
+}

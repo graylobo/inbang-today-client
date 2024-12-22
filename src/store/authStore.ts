@@ -1,11 +1,6 @@
+import { User } from "@/libs/api/services/board.service";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-
-interface User {
-  id: number;
-  username: string;
-  isAdmin: boolean;
-}
 
 interface AuthState {
   user: User | null;

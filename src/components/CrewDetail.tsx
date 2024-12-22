@@ -5,7 +5,6 @@ import CrewInfo from "@/components/crew-detail/CrewInfo";
 import CrewSignatures from "@/components/crew-detail/CrewSignatures";
 import LiveStreamer from "@/components/crew-detail/LiveStreamer";
 import { useGetCrewByID } from "@/hooks/crew/useCrews";
-import { useLiveStreamers } from "@/hooks/useLiveStreamers";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -32,15 +31,17 @@ export default function CrewDetail({ crewId }: { crewId: string }) {
       <div className="mb-8">
         <Link
           href="/"
-          className="text-blue-500 hover:text-blue-700 mb-4 inline-block"
+          className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4 inline-block"
         >
           ← 목록으로 돌아가기
         </Link>
-        <h1 className="text-3xl font-bold mb-2">{crew.name}</h1>
-        <p className="text-gray-600">{crew.description}</p>
+        <h1 className="text-3xl font-bold mb-2 dark:text-gray-100">
+          {crew.name}
+        </h1>
+        <p className="text-gray-600 dark:text-gray-300">{crew.description}</p>
       </div>
 
-      <div className="border-b border-gray-200 mb-6">
+      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
         <nav className="-mb-px flex space-x-8">
           {TABS.map(({ id, label }) => (
             <button
@@ -50,8 +51,8 @@ export default function CrewDetail({ crewId }: { crewId: string }) {
                 py-4 px-1 border-b-2 font-medium text-sm
                 ${
                   activeTab === id
-                    ? "border-blue-500 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                    ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
                 }
               `}
             >

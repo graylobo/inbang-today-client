@@ -18,20 +18,22 @@ interface LiveStreamerProps {
 export default function LiveStreamer({ crew }: LiveStreamerProps) {
   const { streamers, isLoading } = useLiveStreamers();
 
-  if (isLoading) return <div>로딩 중...</div>;
-  if (!streamers?.length) return <div>현재 방송 중인 스트리머가 없습니다.</div>;
-
-  // 현재 크루에 속한 스트리머만 필터링
-  //   const crewStreamers = streamers.filter((streamer: Streamer) =>
-  //     crew.members.some(
-  //       (member: any) => member.broadcastUrl === streamer.profileUrl
-  //     )
-  //   );
+  if (isLoading) return <div className="dark:text-gray-300">로딩 중...</div>;
+  if (!streamers?.length)
+    return (
+      <div className="dark:text-gray-300">
+        현재 방송 중인 스트리머가 없습니다.
+      </div>
+    );
 
   const crewStreamers = streamers;
 
   if (!crewStreamers.length) {
-    return <div>현재 방송 중인 크루원이 없습니다.</div>;
+    return (
+      <div className="dark:text-gray-300">
+        현재 방송 중인 크루원이 없습니다.
+      </div>
+    );
   }
 
   return (
@@ -42,7 +44,7 @@ export default function LiveStreamer({ crew }: LiveStreamerProps) {
           href={streamer.profileUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="block bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+          className="block bg-white dark:bg-dark-bg rounded-lg shadow-md dark:shadow-none dark:border dark:border-gray-700 overflow-hidden hover:shadow-lg dark:hover:border-gray-600 transition-all"
         >
           <div className="relative">
             <img
@@ -62,9 +64,11 @@ export default function LiveStreamer({ crew }: LiveStreamerProps) {
                 alt={streamer.nickname}
                 className="w-10 h-10 rounded-full"
               />
-              <span className="font-medium">{streamer.nickname}</span>
+              <span className="font-medium dark:text-gray-100">
+                {streamer.nickname}
+              </span>
             </div>
-            <h3 className="text-gray-800 font-medium line-clamp-2">
+            <h3 className="text-gray-800 dark:text-gray-200 font-medium line-clamp-2">
               {streamer.title}
             </h3>
           </div>

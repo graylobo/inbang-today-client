@@ -27,7 +27,7 @@ export default function CrewList({
           <select
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
-            className="rounded-md border-gray-300"
+            className="rounded-md border-gray-300 bg-white dark:bg-dark-bg dark:border-gray-600 dark:text-gray-200"
           >
             {Array.from({ length: 5 }, (_, i) => initialYear - i).map((y) => (
               <option key={y} value={y}>
@@ -38,7 +38,7 @@ export default function CrewList({
           <select
             value={month}
             onChange={(e) => setMonth(Number(e.target.value))}
-            className="rounded-md border-gray-300"
+            className="rounded-md border-gray-300 bg-white dark:bg-dark-bg dark:border-gray-600 dark:text-gray-200"
           >
             {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
               <option key={m} value={m}>
@@ -54,9 +54,11 @@ export default function CrewList({
           <Link
             href={`/crews/${crew.id}`}
             key={crew.id}
-            className="block p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow relative"
+            className="block p-6 bg-white dark:bg-dark-bg rounded-lg shadow-lg hover:shadow-xl transition-all relative 
+            border border-transparent dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600
+            dark:shadow-none"
           >
-            <div className="absolute -top-3 -left-3 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold">
+            <div className="absolute -top-3 -left-3 w-8 h-8 bg-blue-500 dark:bg-blue-600 text-white rounded-full flex items-center justify-center font-bold">
               {index + 1}
             </div>
             <div className="flex items-center space-x-4 mb-4">
@@ -67,23 +69,29 @@ export default function CrewList({
                   className="w-12 h-12 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-500 text-xl">🏢</span>
+                <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                  <span className="text-gray-500 dark:text-gray-400 text-xl">
+                    🏢
+                  </span>
                 </div>
               )}
               <div>
-                <h2 className="text-xl font-bold">{crew.name}</h2>
-                <p className="text-sm text-gray-500">
+                <h2 className="text-xl font-bold dark:text-gray-100">
+                  {crew.name}
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   멤버 {crew.members.length}명
                 </p>
               </div>
             </div>
-            <p className="text-gray-600 mb-4">{crew.description}</p>
+            <p className="text-gray-600 dark:text-gray-300 mb-4">
+              {crew.description}
+            </p>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-gray-500">
+              <span className="text-gray-500 dark:text-gray-400">
                 {year}년 {month}월 수익
               </span>
-              <span className="text-lg font-bold text-blue-600">
+              <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
                 {crew.monthlyEarnings.toLocaleString()}원
               </span>
             </div>

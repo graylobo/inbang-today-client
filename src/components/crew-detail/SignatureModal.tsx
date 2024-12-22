@@ -45,12 +45,10 @@ export default function SignatureModal({
     try {
       const videoUrl = new URL(url);
 
-      // YouTube URL 처리
       if (
         videoUrl.hostname.includes("youtube.com") ||
         videoUrl.hostname.includes("youtu.be")
       ) {
-        // 일반 YouTube URL을 임베드 URL로 변환
         const videoId = url.includes("youtu.be")
           ? url.split("/").pop()
           : new URLSearchParams(videoUrl.search).get("v");
@@ -58,12 +56,8 @@ export default function SignatureModal({
         return `https://www.youtube.com/embed/${videoId}`;
       }
 
-      // 다른 플랫폼의 경우 추가 처리 가능
-      // if (videoUrl.hostname.includes('vimeo.com')) { ... }
-
       return url;
     } catch {
-      // 상대 경로인 경우 절대 경로로 변환
       return url.startsWith("http") ? url : `https://${url}`;
     }
   };
@@ -71,7 +65,7 @@ export default function SignatureModal({
   const handleScroll = (direction: "left" | "right") => {
     if (!scrollContainerRef.current) return;
 
-    const scrollAmount = 200; // 스크롤할 픽셀 양
+    const scrollAmount = 200;
     const newScrollLeft =
       scrollContainerRef.current.scrollLeft +
       (direction === "left" ? -scrollAmount : scrollAmount);
@@ -87,25 +81,25 @@ export default function SignatureModal({
       <div
         className={
           isFullscreen
-            ? "w-full h-full bg-white rounded-lg flex flex-col"
-            : "w-[900px] h-[650px] bg-white rounded-lg flex flex-col"
+            ? "w-full h-full bg-white dark:bg-gray-800 rounded-lg flex flex-col"
+            : "w-[900px] h-[650px] bg-white dark:bg-gray-800 rounded-lg flex flex-col"
         }
       >
         {/* 헤더 */}
-        <div className="flex justify-between items-center p-3 border-b shrink-0">
-          <h2 className="text-lg font-bold truncate">
+        <div className="flex justify-between items-center p-3 border-b dark:border-gray-700 shrink-0">
+          <h2 className="text-lg font-bold truncate dark:text-gray-100">
             {signature.songName} ({signature.starballoonCount}별)
           </h2>
           <div className="flex gap-2 shrink-0">
             <button
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-1.5 hover:bg-gray-100 rounded text-sm"
+              className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm text-gray-700 dark:text-gray-300 transition-colors"
             >
               {isFullscreen ? "축소" : "확대"}
             </button>
             <button
               onClick={onClose}
-              className="p-1.5 hover:bg-gray-100 rounded text-sm"
+              className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm text-gray-700 dark:text-gray-300 transition-colors"
             >
               닫기
             </button>
@@ -113,18 +107,18 @@ export default function SignatureModal({
         </div>
 
         {/* 네비게이션 */}
-        <div className="p-3 bg-gray-50 shrink-0 relative">
+        <div className="p-3 bg-gray-50 dark:bg-gray-900 shrink-0 relative">
           {showArrows && (
             <>
               <button
                 onClick={() => handleScroll("left")}
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow hover:bg-gray-100"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 ←
               </button>
               <button
                 onClick={() => handleScroll("right")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow hover:bg-gray-100"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 →
               </button>
@@ -141,7 +135,7 @@ export default function SignatureModal({
                 className={`px-4 py-2 rounded whitespace-nowrap transition-colors flex-shrink-0 ${
                   selectedDanceIndex === index
                     ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
                 }`}
               >
                 {dance.member?.name} (

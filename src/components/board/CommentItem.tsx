@@ -96,23 +96,25 @@ export default function CommentItem({
     <div className="space-y-4">
       <div
         className={`${
-          comment.parent ? "border-l-4 border-gray-200 pl-4" : ""
-        } bg-gray-50 p-4 rounded-lg`}
+          comment.parent
+            ? "border-l-4 border-gray-200 dark:border-gray-700 pl-4"
+            : ""
+        } bg-gray-50 dark:bg-gray-800 p-4 rounded-lg`}
       >
         {/* 댓글 내용 */}
         <div className="flex justify-between items-start mb-2">
           <div>
-            <span className="font-medium">
+            <span className="font-medium dark:text-gray-100">
               {comment.author ? comment.author.username : comment.authorName}
             </span>
-            <span className="text-sm text-gray-500 ml-2">
+            <span className="text-sm text-gray-500 dark:text-gray-400 ml-2">
               {new Date(comment.createdAt).toLocaleString()}
             </span>
           </div>
           <div className="flex space-x-2 text-sm">
             <button
               onClick={() => onReplyClick(comment.id)}
-              className="text-blue-600 hover:text-blue-800"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
             >
               답글
             </button>
@@ -121,13 +123,13 @@ export default function CommentItem({
               <>
                 <button
                   onClick={() => handleAction("edit")}
-                  className="text-gray-600 hover:text-gray-800"
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                 >
                   수정
                 </button>
                 <button
                   onClick={() => handleAction("delete")}
-                  className="text-red-600 hover:text-red-800"
+                  className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
                 >
                   삭제
                 </button>
@@ -142,7 +144,7 @@ export default function CommentItem({
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="w-full rounded-md border-gray-300"
+              className="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               rows={2}
               required
             />
@@ -150,23 +152,23 @@ export default function CommentItem({
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="px-3 py-1 text-gray-600 hover:text-gray-800"
+                className="px-3 py-1 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
               >
                 취소
               </button>
               <button
                 type="submit"
                 disabled={updateComment.isPending}
-                className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+                className="px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
                 {updateComment.isPending ? "수정 중..." : "수정"}
               </button>
             </div>
           </form>
         ) : (
-          <p className="whitespace-pre-wrap">
+          <p className="whitespace-pre-wrap dark:text-gray-300">
             {comment.parent && (
-              <span className="text-blue-600">
+              <span className="text-blue-600 dark:text-blue-400">
                 @{comment.parent.author?.username || comment.parent.authorName}{" "}
               </span>
             )}
@@ -205,15 +207,17 @@ export default function CommentItem({
 
       {/* 비밀번호 모달 */}
       {showPasswordModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg">
-            <h3 className="text-lg font-medium mb-4">비밀번호 확인</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4 dark:text-gray-100">
+              비밀번호 확인
+            </h3>
             <form onSubmit={handlePasswordSubmit}>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-md border-gray-300 mb-4"
+                className="block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 mb-4"
                 placeholder="비밀번호를 입력하세요"
                 required
               />
@@ -221,13 +225,13 @@ export default function CommentItem({
                 <button
                   type="button"
                   onClick={() => setShowPasswordModal(false)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                  className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                 >
                   취소
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
                 >
                   확인
                 </button>

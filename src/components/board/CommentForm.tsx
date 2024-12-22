@@ -50,7 +50,7 @@ export default function CommentForm({
       {post.board?.isAnonymous && !user && (
         <div className="flex gap-4">
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               작성자명
             </label>
             <input
@@ -59,12 +59,12 @@ export default function CommentForm({
               onChange={(e) =>
                 setFormData({ ...formData, authorName: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border-gray-300"
+              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               required
             />
           </div>
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
               비밀번호
             </label>
             <input
@@ -73,7 +73,7 @@ export default function CommentForm({
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border-gray-300"
+              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               required
             />
           </div>
@@ -87,14 +87,14 @@ export default function CommentForm({
             setFormData({ ...formData, content: e.target.value })
           }
           placeholder="댓글을 입력하세요"
-          className="flex-1 rounded-md border-gray-300"
+          className="flex-1 rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           rows={2}
           required
         />
         <button
           type="submit"
           disabled={createComment.isPending}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
+          className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors disabled:opacity-50"
         >
           {createComment.isPending ? "등록 중..." : "등록"}
         </button>

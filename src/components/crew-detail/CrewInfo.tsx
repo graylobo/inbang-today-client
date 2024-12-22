@@ -25,10 +25,13 @@ export default function CrewInfo({ crew }: { crew: any }) {
   return (
     <div className="space-y-8">
       {rankGroups.map((rankGroup: any) => (
-        <div key={rankGroup.id} className="bg-white rounded-lg p-6 shadow-md">
-          <h2 className="text-xl font-semibold mb-4 flex items-center">
+        <div
+          key={rankGroup.id}
+          className="bg-white dark:bg-dark-bg rounded-lg p-6 shadow-md dark:shadow-none dark:border dark:border-gray-700"
+        >
+          <h2 className="text-xl font-semibold mb-4 flex items-center dark:text-gray-100">
             <span className="mr-2">{rankGroup.name}</span>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-gray-500 dark:text-gray-400">
               ({rankGroup.members.length}명)
             </span>
           </h2>
@@ -64,4 +67,4 @@ export default function CrewInfo({ crew }: { crew: any }) {
       </Modal>
     </div>
   );
-} 
+}
