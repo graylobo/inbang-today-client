@@ -1,5 +1,4 @@
 import { Providers } from "@/app/providers";
-import Header from "@/components/Header";
 import "./globals.css";
 import BaseLayout from "@/layouts/Base";
 

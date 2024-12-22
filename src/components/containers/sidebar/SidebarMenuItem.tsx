@@ -1,3 +1,5 @@
+"use client";
+
 import { ExpandLess, ExpandMore, Description } from "@mui/icons-material";
 import {
   ListItemButton,
@@ -37,11 +39,26 @@ function SidebarMenuItem({
       setMenuOpen(!menuOpen);
     }
   };
+
   return (
     <>
       <ListItemButton
         onClick={handleMenuItemClick}
-        {...(openSidebar && { sx: { ml: 2 * level } })}
+        sx={{
+          ml: openSidebar ? 2 * level : 0,
+          "&:hover": {
+            backgroundColor: "var(--drawer-hover-bg)",
+          },
+          "& .MuiListItemIcon-root": {
+            color: "var(--drawer-icon)",
+          },
+          "& .MuiListItemText-primary": {
+            color: "var(--drawer-text)",
+          },
+          "& .MuiSvgIcon-root": {
+            color: "var(--drawer-icon)",
+          },
+        }}
       >
         {item.icon ? (
           <ListItemIcon>
