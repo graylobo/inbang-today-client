@@ -83,7 +83,7 @@ export default function SignatureModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center my-0">
       <div
         className={
           isFullscreen

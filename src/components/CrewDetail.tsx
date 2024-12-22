@@ -3,7 +3,9 @@
 import CrewEarnings from "@/components/crew-detail/CrewEarnings";
 import CrewInfo from "@/components/crew-detail/CrewInfo";
 import CrewSignatures from "@/components/crew-detail/CrewSignatures";
+import LiveStreamer from "@/components/crew-detail/LiveStreamer";
 import { useGetCrewByID } from "@/hooks/crew/useCrews";
+import { useLiveStreamers } from "@/hooks/useLiveStreamers";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -11,6 +13,7 @@ const TABS = [
   { id: "info", label: "크루 정보", Component: CrewInfo },
   { id: "earnings", label: "방송 수익", Component: CrewEarnings },
   { id: "signatures", label: "시그니처", Component: CrewSignatures },
+  { id: "live", label: "방송 중인 스트리머", Component: LiveStreamer },
 ] as const;
 
 type TabType = (typeof TABS)[number]["id"];
