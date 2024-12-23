@@ -3,6 +3,7 @@ import Loading from "@/components/Loading";
 import { crewsRankingsOptions } from "@/hooks/crew/useCrews.option";
 import { PrefetchProvider } from "@/providers/pre-fetch-provider";
 import { Suspense } from "react";
+export const dynamic = "force-dynamic";
 
 export default function Home() {
   const currentDate = new Date();
