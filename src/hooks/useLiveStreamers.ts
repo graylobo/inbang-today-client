@@ -7,7 +7,7 @@ export const useLiveStreamers = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const socket = io("http://localhost:4000");
+    const socket = io("http://api.inbangtoday.com");
 
     // // 초기 데이터 로딩
     // fetch("http://your-server-url/live-streamers")
