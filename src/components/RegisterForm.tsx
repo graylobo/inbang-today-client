@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { api } from "@/libs/api/axios";
+import { register } from "@/libs/api/services/auth.service";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function RegisterForm() {
   const [username, setUsername] = useState("");
@@ -22,10 +22,7 @@ export default function RegisterForm() {
     }
 
     try {
-      await api.post("/auth/register", {
-        username,
-        password,
-      });
+      await register(username, password);
 
       router.push("/login?registered=true");
     } catch (error: any) {

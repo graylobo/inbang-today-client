@@ -7,3 +7,8 @@ export async function login(username: string, password: string) {
   cookies().set("accessToken", data.access_token);
   return data;
 }
+
+export async function register(username: string, password: string) {
+  const { data } = await api.post("/auth/register", { username, password });
+  return data;
+}
