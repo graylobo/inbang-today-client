@@ -28,7 +28,7 @@ export default function BaseLayout({ children }: any) {
   };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", padding: 0 }}>
       <CssBaseline />
       <NavBar
         openSidebar={openSidebar}
@@ -37,7 +37,7 @@ export default function BaseLayout({ children }: any) {
       />
       <Sidebar openSidebar={openSidebar} />
 
-      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+      <Box component="main" sx={{ flexGrow: 1, px: 3 }}>
         <DrawerHeader />
         {children}
       </Box>

@@ -1,9 +1,8 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useCreatePost } from '@/hooks/board/useBoards';
-import { Board } from '@/types/board';
-import { User } from '@/types/user';
+import { useState } from "react";
+import { useCreatePost } from "@/hooks/board/useBoards";
+import { Board, User } from "@/libs/api/services/board.service";
 
 interface PostFormProps {
   board: Board;
@@ -13,10 +12,10 @@ interface PostFormProps {
 
 export default function PostForm({ board, onSuccess, user }: PostFormProps) {
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    authorName: '',
-    password: '',
+    title: "",
+    content: "",
+    authorName: "",
+    password: "",
   });
 
   const createPost = useCreatePost(onSuccess);
@@ -36,9 +35,7 @@ export default function PostForm({ board, onSuccess, user }: PostFormProps) {
         <input
           type="text"
           value={formData.title}
-          onChange={(e) =>
-            setFormData({ ...formData, title: e.target.value })
-          }
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
           className="mt-1 block w-full rounded-md border-gray-300"
           required
         />
@@ -96,9 +93,9 @@ export default function PostForm({ board, onSuccess, user }: PostFormProps) {
           disabled={createPost.isPending}
           className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
         >
-          {createPost.isPending ? '등록 중...' : '등록'}
+          {createPost.isPending ? "등록 중..." : "등록"}
         </button>
       </div>
     </form>
   );
-} 
+}

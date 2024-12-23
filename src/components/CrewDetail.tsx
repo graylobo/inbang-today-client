@@ -27,7 +27,7 @@ export default function CrewDetail({ crewId }: { crewId: string }) {
   const ActiveComponent = TABS.find((tab) => tab.id === activeTab)?.Component;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto ">
       <div className="mb-8">
         <Link
           href="/"

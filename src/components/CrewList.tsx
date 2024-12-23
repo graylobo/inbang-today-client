@@ -66,7 +66,7 @@ export default function CrewList({
                 <img
                   src={crew.iconUrl}
                   alt={crew.name}
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-12 h-12 rounded-full object-contain"
                 />
               ) : (
                 <div className="w-12 h-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">

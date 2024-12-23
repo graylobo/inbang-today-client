@@ -6,28 +6,22 @@ import { SidebarDrawer } from "./style";
 const menuItems = [
   {
     icon: Send,
-    primaryText: "Sent mail",
-    subItems: [
-      { primaryText: "Sent Item 1", href: "/sent-mail" },
-      { primaryText: "Sent Item 2", href: "/sent-mail" },
-    ],
+    primaryText: "SOOP",
+    subItems: [{ primaryText: "엑셀 랭킹", href: "/" }],
   },
   {
     icon: Drafts,
     primaryText: "커뮤니티",
-    subItems: [
-      { primaryText: "게시판", href: "/boards" },
-      { primaryText: "Draft 2", href: "/drafts" },
-    ],
+    subItems: [{ primaryText: "게시판", href: "/boards" }],
   },
-  {
-    icon: MoveToInbox,
-    primaryText: "Inbox",
-    subItems: [
-      { primaryText: "Starred", href: "/inbox" },
-      { primaryText: "All mail", href: "/inbox" },
-    ],
-  },
+  // {
+  //   icon: MoveToInbox,
+  //   primaryText: "Inbox",
+  //   subItems: [
+  //     { primaryText: "Starred", href: "/inbox" },
+  //     { primaryText: "All mail", href: "/inbox" },
+  //   ],
+  // },
 ];
 
 type SidebarProps = {
