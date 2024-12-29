@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
+import Image from "next/image";
 import Link from "next/link";
+import { isValidImageUrl } from "@/libs/utils";
 
 interface MemberCardProps {
   member: {
@@ -20,22 +23,27 @@ export default function MemberCard({
   onEarningClick,
 }: MemberCardProps) {
   const { user } = useAuthStore();
+  const [imgError, setImgError] = useState(false);
+  const showDefaultAvatar =
+    !isValidImageUrl(member.profileImageUrl) || imgError;
 
   return (
     <div className="p-4 bg-white dark:bg-dark-bg rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md dark:shadow-none transition-all">
       <div className="flex items-center space-x-4">
         <div className="relative w-16 h-16">
-          {member.profileImageUrl ? (
+          {!showDefaultAvatar ? (
             <a
               href={member.broadcastUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="block w-full h-full"
             >
-              <img
-                src={member.profileImageUrl}
+              <Image
+                src={member.profileImageUrl!}
                 alt={member.name}
+                fill
                 className="w-full h-full rounded-full object-cover cursor-pointer"
+                onError={() => setImgError(true)}
               />
             </a>
           ) : (

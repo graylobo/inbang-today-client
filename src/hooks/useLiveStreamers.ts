@@ -5,9 +5,12 @@ import io from "socket.io-client";
 export const useLiveStreamers = () => {
   const [streamers, setStreamers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
+  console.log(
+    "process.env.NEXT_PUBLIC_API_URL",
+    process.env.NEXT_PUBLIC_API_URL
+  );
   useEffect(() => {
-    const socket = io("http://api.inbangtoday.com");
+    const socket = io(process.env.NEXT_PUBLIC_API_URL);
 
     // // 초기 데이터 로딩
     // fetch("http://your-server-url/live-streamers")
