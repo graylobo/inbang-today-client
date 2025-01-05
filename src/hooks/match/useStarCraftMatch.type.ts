@@ -1,3 +1,9 @@
+export interface StarCraftMatchQuery {
+  streamerId: number;
+  startDate?: string;
+  endDate?: string;
+}
+
 export interface StarCraftMatch {
   opponent: {
     id: number;

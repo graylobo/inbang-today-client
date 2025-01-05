@@ -1,14 +1,17 @@
-import { StarCraftMatch } from "@/hooks/match/useStarCraftMatch.type";
+import {
+  StarCraftMatch,
+  StarCraftMatchQuery,
+} from "@/hooks/match/useStarCraftMatch.type";
 import { getStarCraftGameMatch } from "@/libs/api/services/starcrarft-game-match.service";
 import { useQuery } from "@tanstack/react-query";
 
-export const useStarCraftMatch = (streamerId: number | null) => {
+export const useStarCraftMatch = (query: StarCraftMatchQuery | null) => {
   return useQuery<StarCraftMatch[]>({
-    queryKey: ["starcraft-game-match", streamerId],
+    queryKey: ["starcraft-game-match", query],
     queryFn: async () => {
-      if (!streamerId) return [];
-      return getStarCraftGameMatch(streamerId);
+      if (!query?.streamerId) return [];
+      return getStarCraftGameMatch(query);
     },
-    enabled: !!streamerId,
+    enabled: !!query?.streamerId,
   });
 };

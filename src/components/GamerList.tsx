@@ -8,9 +8,22 @@ import { useState } from "react";
 
 function StarTier() {
   const [selectedStreamer, setSelectedStreamer] = useState<number | null>(null);
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30일 전
+    endDate: new Date().toISOString().split('T')[0], // 오늘
+  });
+
   const { data: streamers } = useGetStreamers();
   const { data: liveStreamers } = useGetLiveStreamers();
-  const { data: gameMatch } = useStarCraftMatch(selectedStreamer);
+  const { data: gameMatch } = useStarCraftMatch(
+    selectedStreamer
+      ? {
+          streamerId: selectedStreamer,
+          startDate: dateRange.startDate,
+          endDate: dateRange.endDate,
+        }
+      : null
+  );
 
   const [showOnlyLive, setShowOnlyLive] = useState(false);
 
@@ -44,15 +57,34 @@ function StarTier() {
 
   return (
     <div>
-      {/* 토글 버튼 */}
+      {/* 토글 버튼과 날짜 선택 */}
       <div className="flex justify-between items-center mb-4 p-4">
-        <button
-          onClick={() => setSelectedStreamer(null)}
-          className={`px-4 py-2 rounded-lg font-medium transition-colors
-            ${selectedStreamer ? "bg-gray-500 text-white" : "hidden"}`}
-        >
-          전적 비교 취소
-        </button>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setSelectedStreamer(null)}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors
+              ${selectedStreamer ? "bg-gray-500 text-white" : "hidden"}`}
+          >
+            전적 비교 취소
+          </button>
+          {selectedStreamer && (
+            <>
+              <input
+                type="date"
+                value={dateRange.startDate}
+                onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                className="rounded-lg border-gray-300"
+              />
+              <span className="text-gray-500">~</span>
+              <input
+                type="date"
+                value={dateRange.endDate}
+                onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                className="rounded-lg border-gray-300"
+              />
+            </>
+          )}
+        </div>
         <button
           onClick={() => setShowOnlyLive(!showOnlyLive)}
           className={`px-4 py-2 rounded-lg font-medium transition-colors
