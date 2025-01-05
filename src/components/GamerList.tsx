@@ -7,9 +7,10 @@ import Image from "next/image";
 import { useState } from "react";
 
 function StarTier() {
+  const [selectedStreamer, setSelectedStreamer] = useState<number | null>(null);
   const { data: streamers } = useGetStreamers();
   const { data: liveStreamers } = useGetLiveStreamers();
-  const { data: gameMatch } = useStarCraftMatch();
+  const { data: gameMatch } = useStarCraftMatch(selectedStreamer);
 
   const [showOnlyLive, setShowOnlyLive] = useState(false);
 
@@ -27,7 +28,6 @@ function StarTier() {
     }
   };
 
-  console.log("liveStreamers", liveStreamers);
   // 스트리머가 현재 라이브 중인지 확인하는 함수
   const isStreamerLive = (soopId: string) => {
     return liveStreamers?.some((live) => live.profileUrl.includes(soopId));
@@ -45,17 +45,22 @@ function StarTier() {
   return (
     <div>
       {/* 토글 버튼 */}
-      <div className="flex justify-end mb-4 p-4">
+      <div className="flex justify-between items-center mb-4 p-4">
+        <button
+          onClick={() => setSelectedStreamer(null)}
+          className={`px-4 py-2 rounded-lg font-medium transition-colors
+            ${selectedStreamer ? "bg-gray-500 text-white" : "hidden"}`}
+        >
+          전적 비교 취소
+        </button>
         <button
           onClick={() => setShowOnlyLive(!showOnlyLive)}
-          className={`
-            px-4 py-2 rounded-lg font-medium transition-colors
+          className={`px-4 py-2 rounded-lg font-medium transition-colors
             ${
               showOnlyLive
                 ? "bg-red-500 text-white hover:bg-red-600"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-            }
-          `}
+            }`}
         >
           {showOnlyLive ? "🔴 라이브 방송만 보기" : "전체 스트리머 보기"}
         </button>
@@ -65,13 +70,26 @@ function StarTier() {
       <div className="grid grid-cols-6 gap-4 p-4">
         {filteredStreamers?.map((streamer) => {
           const liveInfo = getLiveStreamInfo(streamer.soopId);
+          const matchInfo = gameMatch?.find(
+            (match) => match.opponent.id === streamer.id
+          );
+          const isSelected = selectedStreamer === streamer.id;
 
           return (
             <div
               key={streamer.id}
+              onClick={() =>
+                setSelectedStreamer(isSelected ? null : streamer.id)
+              }
               className={`relative rounded-lg overflow-hidden ${getRaceColor(
                 streamer.race
-              )} group`}
+              )} group cursor-pointer
+                ${
+                  selectedStreamer && !isSelected && !matchInfo
+                    ? "opacity-40"
+                    : ""
+                }
+                ${isSelected ? "ring-4 ring-yellow-400" : ""}`}
             >
               {/* Image Container */}
               <div className="relative aspect-square">
@@ -133,19 +151,21 @@ function StarTier() {
               </div>
 
               {/* Footer Info */}
-              <div
-                className={`flex items-center p-2 ${getRaceColor(
-                  streamer.race
-                )} text-white`}
-              >
-                <div className="flex-1">
+              <div className={`p-2 ${getRaceColor(streamer.race)} text-white`}>
+                <div className="flex items-center justify-between">
                   <div className="font-bold">{streamer.name}</div>
-                  <div className="text-sm opacity-75">{streamer.tier}</div>
+                  {liveInfo && (
+                    <span className="px-2 py-1 bg-red-500 text-white text-xs rounded">
+                      LIVE
+                    </span>
+                  )}
                 </div>
-                {liveInfo && (
-                  <span className="px-2 py-1 bg-red-500 text-white text-xs rounded">
-                    LIVE
-                  </span>
+                <div className="text-sm opacity-75">{streamer.tier}</div>
+                {matchInfo && (
+                  <div className="mt-1 text-xs bg-black bg-opacity-30 p-1 rounded">
+                    {matchInfo.wins}승 {matchInfo.losses}패 (
+                    {Math.round(matchInfo.winRate)}%)
+                  </div>
                 )}
               </div>
             </div>
