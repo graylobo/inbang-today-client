@@ -7,8 +7,12 @@ const menuItems = [
   {
     icon: Send,
     primaryText: "SOOP",
-    subItems: [{ primaryText: "엑셀 랭킹", href: "/" }],
+    subItems: [
+      { primaryText: "엑셀 랭킹", href: "/" },
+      { primaryText: "스타 랭킹", href: "/star-tier" },
+    ],
   },
+
   {
     icon: Drafts,
     primaryText: "커뮤니티",
