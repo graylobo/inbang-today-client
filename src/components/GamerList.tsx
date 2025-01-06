@@ -1,16 +1,23 @@
+"use client";
 import { useStarCraftMatch } from "@/hooks/match/useStarCraftMatch";
 import {
   useGetLiveStreamers,
   useGetStreamers,
 } from "@/hooks/streamer/useStreamer";
+import { useClickOutside } from "@/hooks/useClickOutSide";
 import Image from "next/image";
-import { useState } from "react";
+import { useMemo, useState, useRef } from "react";
 
 function StarTier() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const [selectedStreamer, setSelectedStreamer] = useState<number | null>(null);
+  const [showOnlyLive, setShowOnlyLive] = useState(false);
+  const [showOnlyMatched, setShowOnlyMatched] = useState(false);
   const [dateRange, setDateRange] = useState({
-    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30일 전
-    endDate: new Date().toISOString().split('T')[0], // 오늘
+    startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0],
+    endDate: new Date().toISOString().split("T")[0],
   });
 
   const { data: streamers } = useGetStreamers();
@@ -24,8 +31,6 @@ function StarTier() {
         }
       : null
   );
-
-  const [showOnlyLive, setShowOnlyLive] = useState(false);
 
   // 종족별 배경색 설정
   const getRaceColor = (race: string) => {
@@ -50,13 +55,64 @@ function StarTier() {
     return liveStreamers?.find((live) => live.profileUrl.includes(soopId));
   };
 
-  // 표시할 스트리머 필터링
-  const filteredStreamers = showOnlyLive
-    ? streamers?.filter((streamer) => isStreamerLive(streamer.soopId))
-    : streamers;
+  // 필터링 및 정렬 로직 수정
+  const filteredStreamers = useMemo(() => {
+    if (!streamers) return [];
+
+    // 1. 먼저 필터링
+    let filtered = streamers.filter((streamer) => {
+      // 라이브 방송 필터
+      if (showOnlyLive && !isStreamerLive(streamer.soopId)) {
+        return false;
+      }
+
+      // 전적 존재 필터
+      if (showOnlyMatched && selectedStreamer) {
+        // 선택된 스트리머는 항상 포함
+        if (streamer.id === selectedStreamer) return true;
+
+        const hasMatch = gameMatch?.some(
+          (match) => match.opponent.id === streamer.id
+        );
+        if (!hasMatch) return false;
+      }
+
+      return true;
+    });
+
+    // 2. 선택된 스트리머를 첫 번째로 정렬
+    if (selectedStreamer) {
+      filtered.sort((a, b) => {
+        if (a.id === selectedStreamer) return -1;
+        if (b.id === selectedStreamer) return 1;
+        return 0;
+      });
+    }
+
+    return filtered;
+  }, [streamers, selectedStreamer, showOnlyLive, showOnlyMatched, gameMatch]);
+
+  useClickOutside(containerRef, () => {
+    if (selectedStreamer) {
+      setSelectedStreamer(null);
+      setShowOnlyMatched(false);
+    }
+  });
+
+  // 기간 설정 함수 추가
+  const handlePeriodSelect = (months: number) => {
+    const end = new Date();
+    const start = new Date();
+    start.setMonth(start.getMonth() - months);
+
+    setDateRange({
+      startDate: start.toISOString().split("T")[0],
+      endDate: end.toISOString().split("T")[0],
+    });
+  };
 
   return (
-    <div>
+    <div ref={containerRef}>
       {/* 토글 버튼과 날짜 선택 */}
       <div className="flex justify-between items-center mb-4 p-4">
         <div className="flex items-center gap-4">
@@ -69,19 +125,72 @@ function StarTier() {
           </button>
           {selectedStreamer && (
             <>
-              <input
-                type="date"
-                value={dateRange.startDate}
-                onChange={(e) => setDateRange(prev => ({ ...prev, startDate: e.target.value }))}
-                className="rounded-lg border-gray-300"
-              />
-              <span className="text-gray-500">~</span>
-              <input
-                type="date"
-                value={dateRange.endDate}
-                onChange={(e) => setDateRange(prev => ({ ...prev, endDate: e.target.value }))}
-                className="rounded-lg border-gray-300"
-              />
+              <div>
+                <div>
+                  <input
+                    type="date"
+                    value={dateRange.startDate}
+                    onChange={(e) =>
+                      setDateRange((prev) => ({
+                        ...prev,
+                        startDate: e.target.value,
+                      }))
+                    }
+                    className="rounded-lg border-gray-300"
+                  />
+                  <span className="text-gray-500">~</span>
+                  <input
+                    type="date"
+                    value={dateRange.endDate}
+                    onChange={(e) =>
+                      setDateRange((prev) => ({
+                        ...prev,
+                        endDate: e.target.value,
+                      }))
+                    }
+                    className="rounded-lg border-gray-300"
+                  />
+                </div>
+                <div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handlePeriodSelect(1)}
+                      className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm"
+                    >
+                      1개월
+                    </button>
+                    <button
+                      onClick={() => handlePeriodSelect(3)}
+                      className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm"
+                    >
+                      3개월
+                    </button>
+                    <button
+                      onClick={() => handlePeriodSelect(6)}
+                      className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm"
+                    >
+                      6개월
+                    </button>
+                    <button
+                      onClick={() => handlePeriodSelect(12)}
+                      className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm"
+                    >
+                      1년
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowOnlyMatched(!showOnlyMatched)}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors
+                  ${
+                    showOnlyMatched
+                      ? "bg-blue-500 text-white hover:bg-blue-600"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+              >
+                {showOnlyMatched ? "전체 보기" : "전적 있는 상대만 보기"}
+              </button>
             </>
           )}
         </div>
@@ -91,7 +200,7 @@ function StarTier() {
             ${
               showOnlyLive
                 ? "bg-red-500 text-white hover:bg-red-600"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
         >
           {showOnlyLive ? "🔴 라이브 방송만 보기" : "전체 스트리머 보기"}
@@ -115,14 +224,23 @@ function StarTier() {
               }
               className={`relative rounded-lg overflow-hidden ${getRaceColor(
                 streamer.race
-              )} group cursor-pointer
+              )} group cursor-pointer transition-all duration-200
                 ${
                   selectedStreamer && !isSelected && !matchInfo
                     ? "opacity-40"
                     : ""
                 }
-                ${isSelected ? "ring-4 ring-yellow-400" : ""}`}
+                ${
+                  isSelected ? "ring-4 ring-yellow-400 transform scale-105" : ""
+                }`}
             >
+              {/* 선택된 스트리머 표시 */}
+              {isSelected && (
+                <div className="absolute top-2 left-2 bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-bold z-10">
+                  선택됨
+                </div>
+              )}
+
               {/* Image Container */}
               <div className="relative aspect-square">
                 <Image
