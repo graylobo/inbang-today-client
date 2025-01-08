@@ -313,7 +313,7 @@ function StarTier() {
                   )}
                 </div>
                 <div className="text-sm opacity-75">{streamer.tier}</div>
-                {matchInfo && (
+                {matchInfo ? (
                   <div className="mt-1 space-y-1">
                     <div className="text-xs bg-black bg-opacity-30 p-1 rounded">
                       {matchInfo.wins}승 {matchInfo.losses}패 (
@@ -332,7 +332,26 @@ function StarTier() {
                       />
                     </div>
                   </div>
-                )}
+                ) : isSelected && data?.streamer ? (
+                  <div className="mt-1 space-y-1">
+                    <div className="text-xs bg-black bg-opacity-30 p-1 rounded">
+                      {data.streamer.wins}승 {data.streamer.losses}패 (
+                      {Math.round(data.streamer.winRate)}%)
+                    </div>
+                    <div className="h-1.5 bg-gray-200 rounded overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${
+                          data.streamer.winRate === 100
+                            ? "bg-blue-500"
+                            : data.streamer.winRate >= 50
+                            ? "bg-green-500"
+                            : "bg-red-500"
+                        }`}
+                        style={{ width: `${data.streamer.winRate}%` }}
+                      />
+                    </div>
+                  </div>
+                ) : null}
               </div>
             </div>
           );
