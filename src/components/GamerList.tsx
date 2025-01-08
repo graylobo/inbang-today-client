@@ -22,7 +22,7 @@ function StarTier() {
 
   const { data: streamers } = useGetStreamers();
   const { data: liveStreamers } = useGetLiveStreamers();
-  const { data: gameMatch } = useStarCraftMatch(
+  const { data } = useStarCraftMatch(
     selectedStreamer
       ? {
           streamerId: selectedStreamer,
@@ -31,6 +31,8 @@ function StarTier() {
         }
       : null
   );
+
+  const { streamer, opponents } = data || {};
 
   // 종족별 배경색 설정
   const getRaceColor = (race: string) => {
@@ -71,7 +73,7 @@ function StarTier() {
         // 선택된 스트리머는 항상 포함
         if (streamer.id === selectedStreamer) return true;
 
-        const hasMatch = gameMatch?.some(
+        const hasMatch = opponents?.some(
           (match) => match.opponent.id === streamer.id
         );
         if (!hasMatch) return false;
@@ -90,7 +92,7 @@ function StarTier() {
     }
 
     return filtered;
-  }, [streamers, selectedStreamer, showOnlyLive, showOnlyMatched, gameMatch]);
+  }, [streamers, selectedStreamer, showOnlyLive, showOnlyMatched, opponents]);
 
   useClickOutside(containerRef, () => {
     if (selectedStreamer) {
@@ -211,7 +213,7 @@ function StarTier() {
       <div className="grid grid-cols-6 gap-4 p-4">
         {filteredStreamers?.map((streamer) => {
           const liveInfo = getLiveStreamInfo(streamer.soopId);
-          const matchInfo = gameMatch?.find(
+          const matchInfo = opponents?.find(
             (match) => match.opponent.id === streamer.id
           );
           const isSelected = selectedStreamer === streamer.id;
@@ -312,9 +314,23 @@ function StarTier() {
                 </div>
                 <div className="text-sm opacity-75">{streamer.tier}</div>
                 {matchInfo && (
-                  <div className="mt-1 text-xs bg-black bg-opacity-30 p-1 rounded">
-                    {matchInfo.wins}승 {matchInfo.losses}패 (
-                    {Math.round(matchInfo.winRate)}%)
+                  <div className="mt-1 space-y-1">
+                    <div className="text-xs bg-black bg-opacity-30 p-1 rounded">
+                      {matchInfo.wins}승 {matchInfo.losses}패 (
+                      {Math.round(matchInfo.winRate)}%)
+                    </div>
+                    <div className="h-1.5 bg-gray-200 rounded overflow-hidden">
+                      <div
+                        className={`h-full transition-all duration-300 ${
+                          matchInfo.winRate === 100
+                            ? "bg-blue-500"
+                            : matchInfo.winRate >= 50
+                            ? "bg-green-500"
+                            : "bg-red-500"
+                        }`}
+                        style={{ width: `${matchInfo.winRate}%` }}
+                      />
+                    </div>
                   </div>
                 )}
               </div>

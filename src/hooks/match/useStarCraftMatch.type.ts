@@ -4,7 +4,7 @@ export interface StarCraftMatchQuery {
   endDate?: string;
 }
 
-export interface StarCraftMatch {
+export interface OpponentStats {
   opponent: {
     id: number;
     name: string;
@@ -14,4 +14,15 @@ export interface StarCraftMatch {
   losses: number;
   totalGames: number;
   winRate: number;
+}
+
+
+export interface StarCraftMatch {
+  streamer: {
+    totalGames: number;
+    wins: number;
+    losses: number;
+    winRate: number;
+  };
+  opponents: OpponentStats[];
 }
