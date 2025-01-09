@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useCreatePost } from "@/hooks/board/useBoards";
 import { Board, User } from "@/libs/api/services/board.service";
+import Tiptap from "@/components/editor/Tiptap";
 
 interface PostFormProps {
   board: Board;
@@ -75,15 +76,14 @@ export default function PostForm({ board, onSuccess, user }: PostFormProps) {
       )}
 
       <div>
-        <label className="block text-sm font-medium text-gray-700">내용</label>
-        <textarea
-          value={formData.content}
-          onChange={(e) =>
-            setFormData({ ...formData, content: e.target.value })
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          내용
+        </label>
+        <Tiptap
+          content={formData.content}
+          onChange={(newContent) =>
+            setFormData((prev) => ({ ...prev, content: newContent }))
           }
-          rows={6}
-          className="mt-1 block w-full rounded-md border-gray-300"
-          required
         />
       </div>
 

@@ -22,12 +22,12 @@ export default function BoardPage({ params }: { params: { slug: string } }) {
     <div className="max-w-4xl mx-auto p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold dark:text-gray-100">{board.name}</h1>
-        <button
-          onClick={() => setShowPostForm(true)}
+        <Link
+          href={`/boards/${board.slug}/write`}
           className="px-4 py-2 bg-blue-500 dark:bg-blue-600 text-white rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
         >
           글쓰기
-        </button>
+        </Link>
       </div>
 
       <div className="bg-white dark:bg-dark-bg rounded-lg shadow dark:shadow-none dark:border dark:border-gray-700 overflow-hidden">
