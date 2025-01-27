@@ -4,12 +4,13 @@ import { cookies } from "next/headers";
 
 const api = axios.create({
   baseURL: "http://localhost:4000",
+  withCredentials: true,
 });
 
 api.interceptors.request.use((config) => {
   const cookieStore = cookies();
   const token = cookieStore.get("accessToken")?.value;
-
+  config.withCredentials = true;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -19,7 +20,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    return Promise.reject(new Error(error.response?.data.message));
+    return Promise.reject(error.response?.data);
   }
 );
 

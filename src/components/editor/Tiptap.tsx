@@ -59,9 +59,9 @@ const MenuBar = ({
           if (file) {
             const reader = new FileReader();
             reader.onload = async () => {
-              if (typeof reader.result === 'string') {
+              if (typeof reader.result === "string") {
                 const formData = new FormData();
-                formData.append('upload', file);
+                formData.append("upload", file);
 
                 try {
                   const response = await fetch(
@@ -84,7 +84,7 @@ const MenuBar = ({
             };
             reader.readAsDataURL(file);
           }
-          e.target.value = ''; // 입력 초기화
+          e.target.value = ""; // 입력 초기화
         }}
       />
       <button
