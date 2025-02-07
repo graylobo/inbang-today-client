@@ -1,4 +1,6 @@
 "use client";
+import LiveScreen from "@/components/streaming/LiveScreen";
+import StreamerCard from "@/components/streaming/StreamerCard";
 import { useStarCraftMatch } from "@/hooks/match/useStarCraftMatch";
 import {
   useGetLiveStreamers,
@@ -217,152 +219,15 @@ function StarTier() {
         {/* 기존 스트리머 그리드 */}
         <div className="grid grid-cols-6 gap-4 p-4">
           {filteredStreamers?.map((streamer) => {
-            const liveInfo = getLiveStreamInfo(streamer.soopId);
-            const matchInfo = opponents?.find(
-              (match) => match.opponent.id === streamer.id
-            );
-            const isSelected = selectedStreamer === streamer.id;
-
             return (
-              <div
+              <StreamerCard
                 key={streamer.id}
-                onClick={() =>
-                  setSelectedStreamer(isSelected ? null : streamer.id)
-                }
-                className={`relative rounded-lg overflow-hidden ${getRaceColor(
-                  streamer.race
-                )} group cursor-pointer transition-all duration-200
-                  ${
-                    selectedStreamer && !isSelected && !matchInfo
-                      ? "opacity-40"
-                      : ""
-                  }
-                  ${
-                    isSelected
-                      ? "ring-4 ring-yellow-400 transform scale-105"
-                      : ""
-                  }`}
-              >
-                {/* 선택된 스트리머 표시 */}
-                {isSelected && (
-                  <div className="absolute top-2 left-2 bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-bold z-10">
-                    선택됨
-                  </div>
-                )}
-
-                {/* Image Container */}
-                <div className="relative aspect-square">
-                  <Image
-                    src={`https://profile.img.sooplive.co.kr/LOGO/${streamer.soopId?.slice(
-                      0,
-                      2
-                    )}/${streamer.soopId}/${streamer.soopId}.jpg`}
-                    alt={streamer.name}
-                    fill
-                    className="object-cover"
-                  />
-
-                  {/* Large Preview Modal - Only shows when streamer is live and on hover */}
-                  {liveInfo && (
-                    <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                      <div
-                        className="bg-black rounded-lg overflow-hidden shadow-2xl"
-                        style={{ width: "800px" }}
-                      >
-                        {/* Thumbnail */}
-                        <div
-                          className="relative w-full"
-                          style={{ height: "450px" }}
-                        >
-                          <Image
-                            src={liveInfo.thumbnail}
-                            alt="Stream thumbnail"
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        {/* Stream Info */}
-                        <div className="p-4 bg-black bg-opacity-90">
-                          <h3 className="text-white font-bold text-xl mb-2">
-                            {liveInfo.title}
-                          </h3>
-                          <div className="flex items-center text-gray-300">
-                            <svg
-                              className="w-5 h-5 mr-2"
-                              fill="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                              <path
-                                fillRule="evenodd"
-                                d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                            <span className="text-lg">
-                              {liveInfo.viewCount.toLocaleString()} 시청
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Footer Info */}
-                <div
-                  className={`p-2 ${getRaceColor(streamer.race)} text-white`}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="font-bold">{streamer.name}</div>
-                    {liveInfo && (
-                      <span className="px-2 py-1 bg-red-500 text-white text-xs rounded">
-                        LIVE
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-sm opacity-75">{streamer.tier}</div>
-                  {matchInfo ? (
-                    <div className="mt-1 space-y-1">
-                      <div className="text-xs bg-black bg-opacity-30 p-1 rounded">
-                        {matchInfo.wins}승 {matchInfo.losses}패 (
-                        {Math.round(matchInfo.winRate)}%)
-                      </div>
-                      <div className="h-1.5 bg-gray-200 rounded overflow-hidden">
-                        <div
-                          className={`h-full transition-all duration-300 ${
-                            matchInfo.winRate === 100
-                              ? "bg-blue-500"
-                              : matchInfo.winRate >= 50
-                              ? "bg-green-500"
-                              : "bg-red-500"
-                          }`}
-                          style={{ width: `${matchInfo.winRate}%` }}
-                        />
-                      </div>
-                    </div>
-                  ) : isSelected && data?.streamer ? (
-                    <div className="mt-1 space-y-1">
-                      <div className="text-xs bg-black bg-opacity-30 p-1 rounded">
-                        {data.streamer.wins}승 {data.streamer.losses}패 (
-                        {Math.round(data.streamer.winRate)}%)
-                      </div>
-                      <div className="h-1.5 bg-gray-200 rounded overflow-hidden">
-                        <div
-                          className={`h-full transition-all duration-300 ${
-                            data.streamer.winRate === 100
-                              ? "bg-blue-500"
-                              : data.streamer.winRate >= 50
-                              ? "bg-green-500"
-                              : "bg-red-500"
-                          }`}
-                          style={{ width: `${data.streamer.winRate}%` }}
-                        />
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
+                streamer={streamer}
+                opponents={opponents}
+                selectedStreamer={selectedStreamer}
+                setSelectedStreamer={setSelectedStreamer}
+                dateRange={dateRange}
+              />
             );
           })}
         </div>
