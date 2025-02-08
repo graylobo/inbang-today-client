@@ -11,6 +11,7 @@ function StreamerCard({
   setSelectedStreamer,
   dateRange,
   streamerGridRef,
+  showOnlyLive
 }: {
   streamer: any;
   opponents: any;
@@ -18,6 +19,7 @@ function StreamerCard({
   setSelectedStreamer: any;
   dateRange: any;
   streamerGridRef: any;
+  showOnlyLive: boolean;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [liveScreenPosition, setLiveScreenPosition] = useState<{
@@ -87,7 +89,7 @@ function StreamerCard({
       window.removeEventListener("scroll", calculatePosition);
       window.removeEventListener("resize", calculatePosition);
     };
-  }, [streamer]);
+  }, [showOnlyLive]);
 
   const getLiveStreamInfo = (soopId: string) => {
     return liveStreamers?.find((live) => live.profileUrl.includes(soopId));

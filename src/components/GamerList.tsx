@@ -229,6 +229,7 @@ function StarTier() {
                 setSelectedStreamer={setSelectedStreamer}
                 dateRange={dateRange}
                 streamerGridRef={streamerGridRef}
+                showOnlyLive={showOnlyLive}
               />
             );
           })}
