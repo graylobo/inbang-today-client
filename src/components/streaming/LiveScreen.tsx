@@ -31,7 +31,7 @@ function LiveScreen({
   }
   return (
     <div
-      className="fixed z-[9999] opacity-0 invisible group-hover/card:opacity-100 group-hover/card:visible transition-all duration-200 pointer-events-none"
+      className="fixed z-[9999] transition-all duration-200 pointer-events-none"
       style={{
         top: position.top !== undefined ? `${position.top}px` : undefined,
         bottom:
