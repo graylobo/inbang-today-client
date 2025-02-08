@@ -38,24 +38,23 @@ function StreamerCard({
 
   useEffect(() => {
     const calculatePosition = () => {
-      if (!cardRef.current) return;
+      if (!cardRef.current || !streamerGridRef.current) return;
 
       const cardRect = cardRef.current.getBoundingClientRect();
-      const streamerGridRect = streamerGridRef.current?.getBoundingClientRect();
+      const streamerGridRect = streamerGridRef.current.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
+      const liveScreenWidth = 500; // LiveScreen의 고정 너비
 
-      const viewportWidth = window.innerWidth;
-
-      const cardWidth = cardRect.width;
-
+      // LiveScreen의 중심을 카드의 중심과 일치시키기 위한 계산
       const cardCenterX = cardRect.left + cardRect.width / 2;
+      const idealLeft = cardCenterX - liveScreenWidth / 2;
 
-      const minLeft = streamerGridRect?.left + 10; // 왼쪽 여백
-      const maxLeft = viewportWidth - 10; // 오른쪽 여백
-      const idealLeft = cardCenterX - cardWidth / 2;
+      // streamerGridRef의 경계 설정
+      const minLeft = streamerGridRect.left;
+      const maxLeft = streamerGridRect.right - liveScreenWidth;
+
+      // 경계를 벗어나지 않도록 left 값 조정
       const adjustedLeft = Math.max(minLeft, Math.min(maxLeft, idealLeft));
-
-      cardRef.current.style.setProperty("--preview-left", `${adjustedLeft}px`);
 
       // 카드의 상단이 뷰포트의 상단에서 얼마나 떨어져 있는지
       const distanceFromTop = cardRect.top;
