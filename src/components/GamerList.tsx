@@ -64,7 +64,7 @@ function StarTier() {
   const filteredStreamers = useMemo(() => {
     if (!streamers) return [];
 
-    // 1. 먼저 필터링
+    // 필터링만 적용하고 정렬은 제거
     let filtered = streamers.filter((streamer) => {
       // 라이브 방송 필터
       if (showOnlyLive && !isStreamerLive(streamer.soopId)) {
@@ -84,15 +84,6 @@ function StarTier() {
 
       return true;
     });
-
-    // 2. 선택된 스트리머를 첫 번째로 정렬
-    if (selectedStreamer) {
-      filtered.sort((a, b) => {
-        if (a.id === selectedStreamer) return -1;
-        if (b.id === selectedStreamer) return 1;
-        return 0;
-      });
-    }
 
     return filtered;
   }, [streamers, selectedStreamer, showOnlyLive, showOnlyMatched, opponents]);
