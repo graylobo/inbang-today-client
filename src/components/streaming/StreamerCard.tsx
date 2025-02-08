@@ -2,7 +2,7 @@ import LiveScreen from "@/components/streaming/LiveScreen";
 import { useStarCraftMatch } from "@/hooks/match/useStarCraftMatch";
 import { useGetLiveStreamers } from "@/hooks/streamer/useStreamer";
 import Image from "next/image";
-import React from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 function StreamerCard({
   streamer,
@@ -17,6 +17,11 @@ function StreamerCard({
   setSelectedStreamer: any;
   dateRange: any;
 }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [liveScreenPosition, setLiveScreenPosition] = useState<{
+    top?: number;
+    bottom?: number;
+  }>({});
   const { data: liveStreamers } = useGetLiveStreamers();
   const { data } = useStarCraftMatch(
     selectedStreamer
@@ -27,10 +32,49 @@ function StreamerCard({
         }
       : null
   );
+
+  useEffect(() => {
+    const calculatePosition = () => {
+      if (!cardRef.current) return;
+
+      const cardRect = cardRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+
+      // 카드의 상단이 뷰포트의 상단에서 얼마나 떨어져 있는지
+      const distanceFromTop = cardRect.top;
+      // 카드의 하단이 뷰포트의 하단에서 얼마나 떨어져 있는지
+      const distanceFromBottom = viewportHeight - cardRect.bottom;
+
+      // 위쪽과 아래쪽 중 더 많은 공간이 있는 쪽에 LiveScreen 배치
+      if (distanceFromTop > distanceFromBottom) {
+        setLiveScreenPosition({
+          bottom: viewportHeight - cardRect.top,
+        });
+      } else {
+        setLiveScreenPosition({
+          top: cardRect.bottom,
+        });
+      }
+    };
+
+    // 스크롤 이벤트 리스너 등록
+    window.addEventListener("scroll", calculatePosition);
+    window.addEventListener("resize", calculatePosition);
+
+    // 초기 위치 계산
+    calculatePosition();
+
+    // 클린업 함수
+    return () => {
+      window.removeEventListener("scroll", calculatePosition);
+      window.removeEventListener("resize", calculatePosition);
+    };
+  }, []);
+
   const getLiveStreamInfo = (soopId: string) => {
     return liveStreamers?.find((live) => live.profileUrl.includes(soopId));
   };
-  
+
   const liveInfo = getLiveStreamInfo(streamer.soopId);
   const matchInfo = opponents?.find(
     (match: any) => match.opponent.id === streamer.id
@@ -38,14 +82,20 @@ function StreamerCard({
   const isSelected = selectedStreamer === streamer.id;
   return (
     <div
+      ref={cardRef}
       key={streamer.id}
       onClick={() => setSelectedStreamer(isSelected ? null : streamer.id)}
       className={`relative rounded-lg overflow-hidden ${getRaceColor(
         streamer.race
-      )} group cursor-pointer transition-all duration-200
+      )} group/card cursor-pointer transition-all duration-200
       ${selectedStreamer && !isSelected && !matchInfo ? "opacity-40" : ""}
       ${isSelected ? "ring-4 ring-yellow-400 transform scale-105" : ""}`}
     >
+      {/* Large Preview Modal - Only shows when streamer is live and on hover */}
+      {liveInfo && (
+        <LiveScreen liveInfo={liveInfo} position={liveScreenPosition} />
+      )}
+
       {/* 선택된 스트리머 표시 */}
       {isSelected && (
         <div className="absolute top-2 left-2 bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-bold z-10">
@@ -64,9 +114,6 @@ function StreamerCard({
           fill
           className="object-cover"
         />
-
-        {/* Large Preview Modal - Only shows when streamer is live and on hover */}
-        {liveInfo && <LiveScreen liveInfo={liveInfo} />}
       </div>
 
       {/* Footer Info */}
@@ -125,7 +172,6 @@ function StreamerCard({
 }
 
 export default StreamerCard;
-
 
 // 종족별 배경색 설정
 const getRaceColor = (race: string) => {

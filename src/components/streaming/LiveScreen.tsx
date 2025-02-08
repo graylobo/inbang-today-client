@@ -1,12 +1,30 @@
 import Image from "next/image";
 import React from "react";
 
-function LiveScreen({ liveInfo }: { liveInfo: any }) {
+interface Position {
+  top?: number;
+  bottom?: number;
+}
+
+function LiveScreen({
+  liveInfo,
+  position,
+}: {
+  liveInfo: any;
+  position: Position;
+}) {
   return (
-    <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+    <div
+      className="fixed left-1/2 -translate-x-1/2 z-50 opacity-0 invisible group-hover/card:opacity-100 group-hover/card:visible transition-all duration-200"
+      style={{
+        top: position.top !== undefined ? `${position.top}px` : undefined,
+        bottom:
+          position.bottom !== undefined ? `${position.bottom}px` : undefined,
+      }}
+    >
       <div
         className="bg-black rounded-lg overflow-hidden shadow-2xl"
-        style={{ width: "800px" }}
+        style={{ width: "600px" }}
       >
         {/* Thumbnail */}
         <div className="relative w-full" style={{ height: "450px" }}>
