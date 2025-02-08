@@ -10,17 +10,20 @@ function StreamerCard({
   selectedStreamer,
   setSelectedStreamer,
   dateRange,
+  streamerGridRef,
 }: {
   streamer: any;
   opponents: any;
   selectedStreamer: any;
   setSelectedStreamer: any;
   dateRange: any;
+  streamerGridRef: any;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [liveScreenPosition, setLiveScreenPosition] = useState<{
     top?: number;
     bottom?: number;
+    left?: number;
   }>({});
   const { data: liveStreamers } = useGetLiveStreamers();
   const { data } = useStarCraftMatch(
@@ -38,7 +41,21 @@ function StreamerCard({
       if (!cardRef.current) return;
 
       const cardRect = cardRef.current.getBoundingClientRect();
+      const streamerGridRect = streamerGridRef.current?.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
+
+      const viewportWidth = window.innerWidth;
+
+      const cardWidth = cardRect.width;
+
+      const cardCenterX = cardRect.left + cardRect.width / 2;
+
+      const minLeft = streamerGridRect?.left + 10; // 왼쪽 여백
+      const maxLeft = viewportWidth - 10; // 오른쪽 여백
+      const idealLeft = cardCenterX - cardWidth / 2;
+      const adjustedLeft = Math.max(minLeft, Math.min(maxLeft, idealLeft));
+
+      cardRef.current.style.setProperty("--preview-left", `${adjustedLeft}px`);
 
       // 카드의 상단이 뷰포트의 상단에서 얼마나 떨어져 있는지
       const distanceFromTop = cardRect.top;
@@ -49,10 +66,12 @@ function StreamerCard({
       if (distanceFromTop > distanceFromBottom) {
         setLiveScreenPosition({
           bottom: viewportHeight - cardRect.top,
+          left: adjustedLeft,
         });
       } else {
         setLiveScreenPosition({
           top: cardRect.bottom,
+          left: adjustedLeft,
         });
       }
     };
@@ -69,7 +88,7 @@ function StreamerCard({
       window.removeEventListener("scroll", calculatePosition);
       window.removeEventListener("resize", calculatePosition);
     };
-  }, []);
+  }, [streamer]);
 
   const getLiveStreamInfo = (soopId: string) => {
     return liveStreamers?.find((live) => live.profileUrl.includes(soopId));

@@ -15,6 +15,7 @@ function StarTier() {
   const [selectedStreamer, setSelectedStreamer] = useState<number | null>(null);
   const [showOnlyLive, setShowOnlyLive] = useState(false);
   const [showOnlyMatched, setShowOnlyMatched] = useState(false);
+  const streamerGridRef = useRef<HTMLDivElement>(null);
   const [dateRange, setDateRange] = useState({
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
       .toISOString()
@@ -217,7 +218,7 @@ function StarTier() {
       {/* 네비게이션 바의 높이만큼 상단 여백 추가 */}
       <div className="pt-20">
         {/* 기존 스트리머 그리드 */}
-        <div className="grid grid-cols-6 gap-4 p-4">
+        <div className="grid grid-cols-8 gap-4 p-4" ref={streamerGridRef}>
           {filteredStreamers?.map((streamer) => {
             return (
               <StreamerCard
@@ -227,6 +228,7 @@ function StarTier() {
                 selectedStreamer={selectedStreamer}
                 setSelectedStreamer={setSelectedStreamer}
                 dateRange={dateRange}
+                streamerGridRef={streamerGridRef}
               />
             );
           })}
