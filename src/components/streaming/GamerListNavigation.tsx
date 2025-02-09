@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef, useLayoutEffect } from "react";
 import { useLayoutStore } from "@/store/layout";
 
 function GamerListNavigation({
@@ -10,6 +10,7 @@ function GamerListNavigation({
   setShowOnlyMatched,
   showOnlyLive,
   setShowOnlyLive,
+  onHeightChange,
 }: {
   selectedStreamer: number | null;
   setSelectedStreamer: (streamer: number | null) => void;
@@ -19,8 +20,37 @@ function GamerListNavigation({
   setShowOnlyMatched: (matched: boolean) => void;
   showOnlyLive: boolean;
   setShowOnlyLive: (live: boolean) => void;
+  onHeightChange: (height: number) => void;
 }) {
   const { openSidebar } = useLayoutStore();
+  const navRef = useRef<HTMLDivElement>(null);
+
+  const updateHeight = () => {
+    if (navRef.current) {
+      const height = navRef.current.offsetHeight;
+      onHeightChange(height);
+    }
+  };
+
+  // 리사이즈 이벤트에 대한 디바운스 처리
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(updateHeight, 100);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  // 컨텐츠가 변경될 때마다 높이 업데이트
+  useLayoutEffect(() => {
+    updateHeight();
+  }, [selectedStreamer, showOnlyMatched, showOnlyLive, openSidebar]);
 
   const handlePeriodSelect = (months: number) => {
     const end = new Date();
@@ -34,6 +64,7 @@ function GamerListNavigation({
   };
   return (
     <div
+      ref={navRef}
       className={`fixed top-[64px] ${
         openSidebar ? "left-[240px]" : "left-0"
       } right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-300`}

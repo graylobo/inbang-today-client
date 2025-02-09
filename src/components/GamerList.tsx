@@ -17,6 +17,8 @@ function StarTier() {
   const [showOnlyLive, setShowOnlyLive] = useState(false);
   const [showOnlyMatched, setShowOnlyMatched] = useState(false);
   const streamerGridRef = useRef<HTMLDivElement>(null);
+  const [navHeight, setNavHeight] = useState(80); // 기본 높이
+
   const [dateRange, setDateRange] = useState({
     startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
       .toISOString()
@@ -118,10 +120,14 @@ function StarTier() {
         setShowOnlyMatched={setShowOnlyMatched}
         showOnlyLive={showOnlyLive}
         setShowOnlyLive={setShowOnlyLive}
+        onHeightChange={setNavHeight}
       />
 
       {/* 네비게이션 바의 높이만큼 상단 여백 추가 */}
-      <div className="pt-20">
+      <div
+        className="transition-all duration-300"
+        style={{ marginTop: navHeight }}
+      >
         {/* 기존 스트리머 그리드 */}
         <div
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-4 p-4"
