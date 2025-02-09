@@ -17,12 +17,7 @@ interface CommentItemProps {
   replies: Comment[];
 }
 
-export default function CommentItem({
-  comment,
-  user,
-  post,
-  replies,
-}: CommentItemProps) {
+export default function CommentItem({ comment, user, post, replies }: CommentItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
   const [showReplyForm, setShowReplyForm] = useState(false);
@@ -40,7 +35,8 @@ export default function CommentItem({
   );
 
   const isAuthor = user && comment.author && user.id === comment.author.id;
-  const isPostAuthor = user && post.author && user.id === post.author.id;
+  const isPostAuthor = comment.author?.id === post.author?.id || 
+                      comment.authorName === post.authorName;
 
   const handleDelete = async () => {
     if (!window.confirm("정말로 이 댓글을 삭제하시겠습니까?")) return;
@@ -57,18 +53,18 @@ export default function CommentItem({
   };
 
   const renderContent = (comment: Comment) => {
-    if (!comment.parent || !comment.parent.author?.username) {
-      return comment.content;
+    if (comment.parent) {
+      const replyToUsername = comment.parent.author?.username || comment.parent.authorName;
+      return (
+        <>
+          <span className="text-blue-500 dark:text-blue-400 mr-1">
+            @{replyToUsername}
+          </span>
+          {comment.content}
+        </>
+      );
     }
-
-    return (
-      <>
-        <span className="text-blue-500 dark:text-blue-400 mr-1">
-          @{comment.parent.author.username}
-        </span>
-        {comment.content}
-      </>
-    );
+    return comment.content;
   };
 
   return (
@@ -84,13 +80,7 @@ export default function CommentItem({
       </div>
       <div className="flex-grow">
         <div className="flex items-center space-x-2">
-          <span
-            className={`font-medium ${
-              isPostAuthor
-                ? "text-blue-500 dark:text-blue-400"
-                : "dark:text-gray-200"
-            }`}
-          >
+          <span className={`font-medium ${isPostAuthor ? 'text-blue-500 dark:text-blue-400' : 'dark:text-gray-200'}`}>
             {comment.author ? comment.author.username : comment.authorName}
             {isPostAuthor && (
               <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-0.5 rounded">
@@ -169,6 +159,21 @@ export default function CommentItem({
           </>
         )}
 
+        {showReplyForm && (
+          <div className="mt-4 ml-8">
+            <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+              {`@${comment.author?.username || comment.authorName}에게 답글 작성`}
+            </div>
+            <CommentForm
+              post={post}
+              user={user}
+              parentId={comment.id}
+              replyToUsername={comment.author?.username || comment.authorName}
+              onSuccess={() => setShowReplyForm(false)}
+            />
+          </div>
+        )}
+
         {replies.length > 0 && (
           <>
             <button
@@ -177,7 +182,7 @@ export default function CommentItem({
             >
               <svg
                 className={`w-4 h-4 transform transition-transform ${
-                  showReplies ? "rotate-180" : ""
+                  showReplies ? 'rotate-180' : ''
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -207,17 +212,6 @@ export default function CommentItem({
               </div>
             )}
           </>
-        )}
-
-        {showReplyForm && (
-          <div className="mt-4 ml-8">
-            <CommentForm
-              post={post}
-              user={user}
-              parentId={comment.id}
-              onSuccess={() => setShowReplyForm(false)}
-            />
-          </div>
         )}
       </div>
     </div>

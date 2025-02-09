@@ -8,6 +8,7 @@ interface CommentFormProps {
   post: Post;
   user: User | null;
   parentId?: number;
+  replyToUsername?: string;
   onSuccess?: () => void;
 }
 
@@ -15,10 +16,11 @@ export default function CommentForm({
   post,
   user,
   parentId,
+  replyToUsername,
   onSuccess,
 }: CommentFormProps) {
   const [formData, setFormData] = useState({
-    content: "",
+    content: replyToUsername ? `@${replyToUsername} ` : "",
     authorName: "",
     password: "",
   });
