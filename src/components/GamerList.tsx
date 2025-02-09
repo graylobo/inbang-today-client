@@ -209,7 +209,10 @@ function StarTier() {
       {/* 네비게이션 바의 높이만큼 상단 여백 추가 */}
       <div className="pt-20">
         {/* 기존 스트리머 그리드 */}
-        <div className="grid grid-cols-8 gap-4 p-4" ref={streamerGridRef}>
+        <div
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4 p-4"
+          ref={streamerGridRef}
+        >
           {filteredStreamers?.map((streamer) => {
             return (
               <StreamerCard
