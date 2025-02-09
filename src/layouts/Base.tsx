@@ -5,6 +5,7 @@ import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import { styled } from "@mui/material/styles";
 import * as React from "react";
+import { useLayoutStore } from "@/store/layout";
 
 export const DRAWER_WIDTH = 240;
 export const DrawerHeader = styled("div")(({ theme }) => ({
@@ -17,7 +18,7 @@ export const DrawerHeader = styled("div")(({ theme }) => ({
 }));
 
 export default function BaseLayout({ children }: any) {
-  const [openSidebar, setOpenSidebar] = React.useState(true);
+  const { openSidebar, setOpenSidebar } = useLayoutStore();
 
   const handleSidebarOpen = () => {
     setOpenSidebar(true);

@@ -1,4 +1,5 @@
 import React from "react";
+import { useLayoutStore } from "@/store/layout";
 
 function GamerListNavigation({
   selectedStreamer,
@@ -19,6 +20,8 @@ function GamerListNavigation({
   showOnlyLive: boolean;
   setShowOnlyLive: (live: boolean) => void;
 }) {
+  const { openSidebar } = useLayoutStore();
+
   const handlePeriodSelect = (months: number) => {
     const end = new Date();
     const start = new Date();
@@ -30,7 +33,11 @@ function GamerListNavigation({
     });
   };
   return (
-    <div className="fixed top-[64px] left-[240px] right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+    <div
+      className={`fixed top-[64px] ${
+        openSidebar ? "left-[240px]" : "left-0"
+      } right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-300`}
+    >
       <div className="px-4">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center gap-4">
