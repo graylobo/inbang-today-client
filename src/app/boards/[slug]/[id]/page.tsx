@@ -79,13 +79,10 @@ export default function PostPage({
             </div>
             <span>조회 {post.viewCount}</span>
           </div>
-          <div className="prose dark:prose-invert max-w-none">
-            {post.content.split("\n").map((line, i) => (
-              <p key={i} className="dark:text-gray-300">
-                {line}
-              </p>
-            ))}
-          </div>
+          <div
+            className="prose dark:prose-invert max-w-none"
+            dangerouslySetInnerHTML={{ __html: post.content }}
+          />
         </div>
       </article>
 
