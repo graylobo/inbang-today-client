@@ -38,19 +38,19 @@ function GamerListNavigation({
         openSidebar ? "left-[240px]" : "left-0"
       } right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-300`}
     >
-      <div className="px-4">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-4">
+      <div className="p-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => setSelectedStreamer(null)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors
+              className={`shrink-0 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap
             ${selectedStreamer ? "bg-gray-500 text-white" : "hidden"}`}
             >
               전적 비교 취소
             </button>
             {selectedStreamer && (
               <>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <input
                     type="date"
                     value={dateRange.startDate}
@@ -62,7 +62,7 @@ function GamerListNavigation({
                         })
                       )
                     }
-                    className="rounded-lg border-gray-300"
+                    className="shrink-0 rounded-lg border-gray-300 w-[140px]"
                   />
                   <span className="text-gray-500">~</span>
                   <input
@@ -74,31 +74,31 @@ function GamerListNavigation({
                         endDate: e.target.value,
                       }))
                     }
-                    className="rounded-lg border-gray-300"
+                    className="shrink-0 rounded-lg border-gray-300 w-[140px]"
                   />
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => handlePeriodSelect(1)}
-                    className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm text-gray-800 dark:text-gray-200"
+                    className="shrink-0 px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm text-gray-800 dark:text-gray-200 whitespace-nowrap"
                   >
                     1개월
                   </button>
                   <button
                     onClick={() => handlePeriodSelect(3)}
-                    className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm text-gray-800 dark:text-gray-200"
+                    className="shrink-0 px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm text-gray-800 dark:text-gray-200 whitespace-nowrap"
                   >
                     3개월
                   </button>
                   <button
                     onClick={() => handlePeriodSelect(6)}
-                    className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm text-gray-800 dark:text-gray-200"
+                    className="shrink-0 px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm text-gray-800 dark:text-gray-200 whitespace-nowrap"
                   >
                     6개월
                   </button>
                   <button
                     onClick={() => handlePeriodSelect(12)}
-                    className="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm text-gray-800 dark:text-gray-200"
+                    className="shrink-0 px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-sm text-gray-800 dark:text-gray-200 whitespace-nowrap"
                   >
                     1년
                   </button>
@@ -106,11 +106,11 @@ function GamerListNavigation({
               </>
             )}
           </div>
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-2">
             {selectedStreamer && (
               <button
                 onClick={() => setShowOnlyMatched(!showOnlyMatched)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors
+                className={`shrink-0 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap
               ${
                 showOnlyMatched
                   ? "bg-blue-500 text-white hover:bg-blue-600"
@@ -122,7 +122,7 @@ function GamerListNavigation({
             )}
             <button
               onClick={() => setShowOnlyLive(!showOnlyLive)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors
+              className={`shrink-0 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap
             ${
               showOnlyLive
                 ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
