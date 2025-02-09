@@ -12,31 +12,46 @@ interface CommentSectionProps {
 }
 
 export default function CommentSection({ post, user }: CommentSectionProps) {
-  const { data: comments, isLoading } = useComments(post.id);
-  const [replyTo, setReplyTo] = useState<number | null>(null);
+  const { data: comments = [], isLoading } = useComments(post.id);
 
-  if (isLoading)
-    return <div className="dark:text-gray-300">댓글을 불러오는 중...</div>;
+  // 최상위 댓글만 필터링
+  const parentComments = comments.filter(comment => !comment.parent);
+
+  // 각 댓글의 모든 대댓글을 가져옴 (대댓글의 대댓글 포함)
+  const getReplies = (commentId: number) => {
+    return comments.filter(reply => {
+      let currentParent = reply.parent;
+      // 대댓글 체인을 따라 올라가면서 최상위 부모를 찾음
+      while (currentParent) {
+        if (currentParent.id === commentId) {
+          return true;
+        }
+        currentParent = currentParent.parent;
+      }
+      return false;
+    });
+  };
+
+  if (isLoading) return <div>댓글을 불러오는 중...</div>;
 
   return (
     <div className="mt-8">
       <h2 className="text-xl font-bold mb-4 dark:text-gray-100">
-        댓글 {comments?.length || 0}개
+        댓글 {comments.length}개
       </h2>
-
-      <CommentForm post={post} user={user} onSuccess={() => setReplyTo(null)} />
-
-      <div className="mt-6 space-y-6">
-        {comments?.map((comment) => (
-          <CommentItem
-            key={comment.id}
-            comment={comment}
+      <CommentForm 
+        post={post} 
+        user={user} 
+        onSuccess={() => {}}
+      />
+      <div className="mt-8 space-y-6">
+        {parentComments.map((comment) => (
+          <CommentItem 
+            key={comment.id} 
+            comment={comment} 
             user={user}
             post={post}
-            replyTo={replyTo}
-            onReplyClick={(commentId) =>
-              setReplyTo(replyTo === commentId ? null : commentId)
-            }
+            replies={getReplies(comment.id)}
           />
         ))}
       </div>

@@ -8,7 +8,7 @@ interface CommentFormProps {
   post: Post;
   user: User | null;
   parentId?: number;
-  onSuccess: () => void;
+  onSuccess?: () => void;
 }
 
 export default function CommentForm({

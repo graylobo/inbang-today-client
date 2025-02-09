@@ -5,6 +5,7 @@ export interface User {
   id: number;
   username: string;
   isAdmin: boolean;
+  profileImage: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -37,6 +38,7 @@ export interface Comment {
   authorName?: string;
   password?: string;
   parent?: Comment;
+  parentId?: number;
   replies: Comment[];
   createdAt: string;
   updatedAt: string;
