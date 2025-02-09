@@ -8,10 +8,11 @@ import { Markdown } from "tiptap-markdown";
 import { useCallback, useEffect } from "react";
 
 interface TiptapProps {
-  content: string;
-  onChange?: (content: string) => void;
+  content?: string;
+  onChange: (content: string) => void;
+  editable?: boolean;
+  initialContent?: string;
 }
-
 const MenuBar = ({
   editor,
   onImageUpload,
@@ -25,6 +26,7 @@ const MenuBar = ({
     <div className="flex gap-2 p-2 border-b dark:border-gray-700">
       <button
         onClick={() => editor.chain().focus().toggleBold().run()}
+        type="button"
         className={`p-2 rounded ${
           editor.isActive("bold")
             ? "bg-gray-200 dark:bg-gray-700"
@@ -34,6 +36,7 @@ const MenuBar = ({
         <strong>B</strong>
       </button>
       <button
+        type="button"
         onClick={() => editor.chain().focus().toggleItalic().run()}
         className={`p-2 rounded ${
           editor.isActive("italic")
@@ -44,6 +47,7 @@ const MenuBar = ({
         <em>I</em>
       </button>
       <button
+        type="button"
         onClick={onImageUpload}
         className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
       >
@@ -88,6 +92,7 @@ const MenuBar = ({
         }}
       />
       <button
+        type="button"
         onClick={() => {
           const url = window.prompt("링크 URL을 입력하세요:");
           if (url) {
@@ -103,6 +108,7 @@ const MenuBar = ({
         🔗
       </button>
       <button
+        type="button"
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
         className={`p-2 rounded ${
           editor.isActive("codeBlock")
@@ -116,7 +122,12 @@ const MenuBar = ({
   );
 };
 
-const Tiptap = ({ content, onChange }: TiptapProps) => {
+const Tiptap = ({
+  content,
+  onChange,
+  editable,
+  initialContent,
+}: TiptapProps) => {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -128,12 +139,17 @@ const Tiptap = ({ content, onChange }: TiptapProps) => {
       }),
       Markdown,
     ],
-    content,
+    content: initialContent || content || "",
+    editable,
     onUpdate: ({ editor }) => {
       onChange?.(editor.getHTML());
     },
   });
-
+  useEffect(() => {
+    if (editor && content !== undefined && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [editor, content]);
   const addImage = useCallback(
     async (file: File) => {
       if (!editor) return;
