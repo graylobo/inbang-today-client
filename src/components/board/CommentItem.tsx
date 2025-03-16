@@ -56,12 +56,12 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
     if (comment.parent) {
       const replyToUsername = comment.parent.author?.username || comment.parent.authorName;
       return (
-        <>
-          <span className="text-blue-500 dark:text-blue-400 mr-1">
+        <div className="flex items-start gap-2">
+          <span className="text-blue-500 dark:text-blue-400 shrink-0">
             @{replyToUsername}
           </span>
-          {comment.content}
-        </>
+          <span>{comment.content}</span>
+        </div>
       );
     }
     return comment.content;
@@ -161,14 +161,16 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
 
         {showReplyForm && (
           <div className="mt-4 ml-8">
-            <div className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-              {`@${comment.author?.username || comment.authorName}에게 답글 작성`}
+            <div className="mb-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+              <span className="text-blue-500 dark:text-blue-400">
+                @{comment.author?.username || comment.authorName}
+              </span>
+              <span>님에게 답글 작성</span>
             </div>
             <CommentForm
               post={post}
               user={user}
               parentId={comment.id}
-              replyToUsername={comment.author?.username || comment.authorName}
               onSuccess={() => setShowReplyForm(false)}
             />
           </div>
@@ -200,15 +202,17 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
 
             {showReplies && (
               <div className="mt-4 space-y-4 ml-8">
-                {replies.map((reply) => (
-                  <CommentItem
-                    key={reply.id}
-                    comment={reply}
-                    user={user}
-                    post={post}
-                    replies={[]}
-                  />
-                ))}
+                {replies
+                  .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+                  .map((reply) => (
+                    <CommentItem
+                      key={reply.id}
+                      comment={reply}
+                      user={user}
+                      post={post}
+                      replies={[]}
+                    />
+                  ))}
               </div>
             )}
           </>
