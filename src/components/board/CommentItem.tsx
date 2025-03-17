@@ -9,6 +9,7 @@ import {
 import CommentForm from "./CommentForm";
 import { Comment, Post, User } from "@/libs/api/services/board.service";
 import Image from "next/image";
+import { maskIpAddress } from "@/utils/ipUtils";
 
 interface CommentItemProps {
   comment: Comment;
@@ -136,7 +137,7 @@ export default function CommentItem({
           </span>
           {post.board.isAnonymous && comment.ipAddress && (
             <span className="text-xs text-gray-500 dark:text-gray-400">
-              ({comment.ipAddress.split(".").slice(0, 2).join(".")}.***.*)
+              ({maskIpAddress(comment.ipAddress)})
             </span>
           )}
           <span className="text-sm text-gray-500 dark:text-gray-400">

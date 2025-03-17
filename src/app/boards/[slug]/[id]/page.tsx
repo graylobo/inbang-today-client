@@ -5,6 +5,7 @@ import { useAuthStore } from "@/store/authStore";
 import CommentSection from "@/components/board/CommentSection";
 import { usePost, useDeletePost } from "@/hooks/board/useBoards";
 import { useRouter } from "next/navigation";
+import { maskIpAddress } from "@/utils/ipUtils";
 
 export default function PostPage({
   params,
@@ -77,7 +78,7 @@ export default function PostPage({
               {post.board.isAnonymous && post.ipAddress && (
                 <>
                   <span className="mx-2">·</span>
-                  <span>({post.ipAddress.split('.').slice(0, 2).join('.')}.***.*))</span>
+                  <span>({maskIpAddress(post.ipAddress)})</span>
                 </>
               )}
               <span className="mx-2">·</span>

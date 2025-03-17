@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import PostForm from "@/components/board/PostForm";
 import Modal from "@/components/common/Modal";
 import { useBoardBySlug, usePosts } from "@/hooks/board/useBoards";
+import { maskIpAddress } from "@/utils/ipUtils";
 
 export default function BoardPage({ params }: { params: { slug: string } }) {
   const { user } = useAuthStore();
@@ -57,10 +58,7 @@ export default function BoardPage({ params }: { params: { slug: string } }) {
                       {board.isAnonymous && post.ipAddress && (
                         <>
                           <span className="mx-2">·</span>
-                          <span>
-                            ({post.ipAddress.split(".").slice(0, 2).join(".")}
-                            .***.*))
-                          </span>
+                          <span>({maskIpAddress(post.ipAddress)})</span>
                         </>
                       )}
                       <span className="mx-2">·</span>
