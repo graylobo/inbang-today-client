@@ -19,6 +19,7 @@ export default function EditPostPage({
     title: "",
     content: "",
     password: "",
+    authorName: "",
   });
 
   const updatePost = useUpdatePost(() => {
@@ -31,6 +32,7 @@ export default function EditPostPage({
         title: post.title,
         content: post.content,
         password: "",
+        authorName: post.authorName || "",
       });
     }
   }, [post]);
@@ -55,6 +57,7 @@ export default function EditPostPage({
           title: formData.title,
           content: formData.content,
           boardId: post.board.id,
+          authorName: post.board.isAnonymous ? formData.authorName : undefined,
         },
         password: post.board.isAnonymous ? formData.password : undefined,
       });
@@ -93,20 +96,39 @@ export default function EditPostPage({
         </div>
 
         {post.board.isAnonymous && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              비밀번호
-            </label>
-            <input
-              type="password"
-              value={formData.password}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, password: e.target.value }))
-              }
-              required
-              className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-            />
-          </div>
+          <>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                작성자명
+              </label>
+              <input
+                type="text"
+                value={formData.authorName}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    authorName: e.target.value,
+                  }))
+                }
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                비밀번호
+              </label>
+              <input
+                type="password"
+                value={formData.password}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, password: e.target.value }))
+                }
+                required
+                className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+              />
+            </div>
+          </>
         )}
 
         <div>

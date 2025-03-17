@@ -129,25 +129,29 @@ export const useCreateReply = (onSuccess?: () => void) => {
   });
 };
 
-export const useUpdateComment = (onSuccess?: () => void) => {
+export function useUpdateComment(onSuccess?: () => void) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
       content,
       password,
+      authorName,
     }: {
       id: number;
       content: string;
       password?: string;
-    }) => updateComment(id, content, password),
+      authorName?: string;
+    }) => {
+      return updateComment(id, content, password, authorName);
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["comments"] });
-      onSuccess?.();
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      if (onSuccess) onSuccess();
     },
   });
-};
+}
 
 export const useDeleteComment = (onSuccess?: () => void) => {
   const queryClient = useQueryClient();

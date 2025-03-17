@@ -42,7 +42,7 @@ export default function PostForm({ board, onSuccess, user }: PostFormProps) {
         />
       </div>
 
-      {board.isAnonymous && !user && (
+      {board.isAnonymous && (
         <>
           <div>
             <label className="block text-sm font-medium text-gray-700">

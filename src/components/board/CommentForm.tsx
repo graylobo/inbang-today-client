@@ -49,7 +49,7 @@ export default function CommentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {post.board?.isAnonymous && !user && (
+      {post.board?.isAnonymous && (
         <div className="flex gap-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">

@@ -17,12 +17,21 @@ interface CommentItemProps {
   replies: Comment[];
 }
 
-export default function CommentItem({ comment, user, post, replies }: CommentItemProps) {
+export default function CommentItem({
+  comment,
+  user,
+  post,
+  replies,
+}: CommentItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [password, setPassword] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    content: comment.content,
+    authorName: comment.authorName || "",
+  });
 
   const updateComment = useUpdateComment(() => setIsEditing(false));
   const deleteComment = useDeleteComment();
@@ -35,8 +44,17 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
   );
 
   const isAuthor = user && comment.author && user.id === comment.author.id;
-  const isPostAuthor = comment.author?.id === post.author?.id || 
-                      comment.authorName === post.authorName;
+  const isPostAuthor =
+    comment.author?.id === post.author?.id ||
+    comment.authorName === post.authorName;
+
+  const handleEdit = () => {
+    if (comment.password) {
+      setShowPasswordModal(true);
+    } else {
+      setIsEditing(true);
+    }
+  };
 
   const handleDelete = async () => {
     if (!window.confirm("정말로 이 댓글을 삭제하시겠습니까?")) return;
@@ -54,7 +72,8 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
 
   const renderContent = (comment: Comment) => {
     if (comment.parent) {
-      const replyToUsername = comment.parent.author?.username || comment.parent.authorName;
+      const replyToUsername =
+        comment.parent.author?.username || comment.parent.authorName;
       return (
         <div className="flex items-start gap-2">
           <span className="text-blue-500 dark:text-blue-400 shrink-0">
@@ -80,7 +99,13 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
       </div>
       <div className="flex-grow">
         <div className="flex items-center space-x-2">
-          <span className={`font-medium ${isPostAuthor ? 'text-blue-500 dark:text-blue-400' : 'dark:text-gray-200'}`}>
+          <span
+            className={`font-medium ${
+              isPostAuthor
+                ? "text-blue-500 dark:text-blue-400"
+                : "dark:text-gray-200"
+            }`}
+          >
             {comment.author ? comment.author.username : comment.authorName}
             {isPostAuthor && (
               <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-0.5 rounded">
@@ -95,14 +120,29 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
 
         {isEditing ? (
           <div className="mt-2">
+            {post.board.isAnonymous && (
+              <div className="mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  작성자명
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.authorName}
+                  onChange={(e) =>
+                    setEditFormData({
+                      ...editFormData,
+                      authorName: e.target.value,
+                    })
+                  }
+                  className="w-full p-2 border rounded dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+                  required
+                />
+              </div>
+            )}
             <textarea
-              value={comment.content}
+              value={editFormData.content}
               onChange={(e) =>
-                updateComment.mutate({
-                  id: comment.id,
-                  content: e.target.value,
-                  password: comment.password ? password : undefined,
-                })
+                setEditFormData({ ...editFormData, content: e.target.value })
               }
               className="w-full p-2 border rounded dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
             />
@@ -117,7 +157,10 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
                 onClick={() => {
                   updateComment.mutate({
                     id: comment.id,
-                    content: comment.content,
+                    content: editFormData.content,
+                    authorName: post.board.isAnonymous
+                      ? editFormData.authorName
+                      : undefined,
                     password: comment.password ? password : undefined,
                   });
                 }}
@@ -139,10 +182,10 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
               >
                 답글
               </button>
-              {isAuthor && (
+              {isAuthor ? (
                 <>
                   <button
-                    onClick={() => setIsEditing(true)}
+                    onClick={handleEdit}
                     className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                   >
                     수정
@@ -154,6 +197,25 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
                     삭제
                   </button>
                 </>
+              ) : (
+                post.board.isAnonymous && (
+                  <>
+                    <button
+                      onClick={handleEdit}
+                      className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    >
+                      수정
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowPasswordModal(true);
+                      }}
+                      className="text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    >
+                      삭제
+                    </button>
+                  </>
+                )
               )}
             </div>
           </>
@@ -184,7 +246,7 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
             >
               <svg
                 className={`w-4 h-4 transform transition-transform ${
-                  showReplies ? 'rotate-180' : ''
+                  showReplies ? "rotate-180" : ""
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -203,7 +265,11 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
             {showReplies && (
               <div className="mt-4 space-y-4 ml-8">
                 {replies
-                  .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+                  .sort(
+                    (a, b) =>
+                      new Date(a.createdAt).getTime() -
+                      new Date(b.createdAt).getTime()
+                  )
                   .map((reply) => (
                     <CommentItem
                       key={reply.id}
@@ -218,6 +284,41 @@ export default function CommentItem({ comment, user, post, replies }: CommentIte
           </>
         )}
       </div>
+      {showPasswordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h3 className="text-lg font-medium mb-4 dark:text-gray-100">
+              비밀번호 확인
+            </h3>
+            <p className="mb-4 text-gray-600 dark:text-gray-300">
+              댓글을 수정하거나 삭제하려면 비밀번호를 입력하세요.
+            </p>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-2 border rounded mb-4 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100"
+              placeholder="비밀번호"
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setShowPasswordModal(false)}
+                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
+              >
+                취소
+              </button>
+              <button
+                onClick={() =>
+                  verifyPassword.mutate({ id: comment.id, password })
+                }
+                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                확인
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

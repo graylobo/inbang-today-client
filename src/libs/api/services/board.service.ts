@@ -131,11 +131,13 @@ export async function createReply(data: CreateReplyDto) {
 export async function updateComment(
   id: number,
   content: string,
-  password?: string
+  password?: string,
+  authorName?: string
 ) {
   const response = await api.put<Comment>(`/comments/${id}`, {
     content,
     password,
+    authorName,
   });
   return response.data;
 }
