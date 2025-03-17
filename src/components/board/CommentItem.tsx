@@ -28,6 +28,7 @@ export default function CommentItem({
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [password, setPassword] = useState("");
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [deleteMode, setDeleteMode] = useState(false);
   const [editFormData, setEditFormData] = useState({
     content: comment.content,
     authorName: comment.authorName || "",
@@ -37,8 +38,12 @@ export default function CommentItem({
   const deleteComment = useDeleteComment();
   const verifyPassword = useVerifyCommentPassword(
     () => {
-      setShowPasswordModal(false);
-      setIsEditing(true);
+      if (deleteMode) {
+        handleDeleteWithPassword();
+      } else {
+        setShowPasswordModal(false);
+        setIsEditing(true);
+      }
     },
     () => alert("비밀번호가 일치하지 않습니다.")
   );
@@ -49,21 +54,37 @@ export default function CommentItem({
     comment.authorName === post.authorName;
 
   const handleEdit = () => {
+    if (post.board.isAnonymous && !comment.author) {
+      return;
+    }
+
     if (comment.password) {
+      setDeleteMode(false);
       setShowPasswordModal(true);
     } else {
       setIsEditing(true);
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm("정말로 이 댓글을 삭제하시겠습니까?")) return;
+  const handleDeleteClick = () => {
+    if (post.board.isAnonymous && !comment.author) {
+      setDeleteMode(true);
+      setShowPasswordModal(true);
+      return;
+    }
 
+    if (window.confirm("정말로 이 댓글을 삭제하시겠습니까?")) {
+      handleDeleteWithPassword();
+    }
+  };
+
+  const handleDeleteWithPassword = async () => {
     try {
       await deleteComment.mutateAsync({
         id: comment.id,
         password: comment.password ? password : undefined,
       });
+      setShowPasswordModal(false);
     } catch (error) {
       console.error("댓글 삭제 실패:", error);
       alert("댓글 삭제에 실패했습니다.");
@@ -191,7 +212,7 @@ export default function CommentItem({
                     수정
                   </button>
                   <button
-                    onClick={handleDelete}
+                    onClick={handleDeleteClick}
                     className="text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   >
                     삭제
@@ -201,15 +222,7 @@ export default function CommentItem({
                 post.board.isAnonymous && (
                   <>
                     <button
-                      onClick={handleEdit}
-                      className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                    >
-                      수정
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowPasswordModal(true);
-                      }}
+                      onClick={handleDeleteClick}
                       className="text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                     >
                       삭제
@@ -288,10 +301,12 @@ export default function CommentItem({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
             <h3 className="text-lg font-medium mb-4 dark:text-gray-100">
-              비밀번호 확인
+              {deleteMode ? "댓글 삭제" : "비밀번호 확인"}
             </h3>
             <p className="mb-4 text-gray-600 dark:text-gray-300">
-              댓글을 수정하거나 삭제하려면 비밀번호를 입력하세요.
+              {deleteMode
+                ? "댓글을 삭제하려면 비밀번호를 입력하세요."
+                : "댓글을 수정하려면 비밀번호를 입력하세요."}
             </p>
             <input
               type="password"
@@ -302,7 +317,10 @@ export default function CommentItem({
             />
             <div className="flex justify-end space-x-2">
               <button
-                onClick={() => setShowPasswordModal(false)}
+                onClick={() => {
+                  setShowPasswordModal(false);
+                  setPassword("");
+                }}
                 className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100"
               >
                 취소
