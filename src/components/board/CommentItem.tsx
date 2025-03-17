@@ -111,13 +111,21 @@ export default function CommentItem({
   return (
     <div className="flex space-x-3">
       <div className="flex-shrink-0">
-        <Image
-          src={comment.author?.profileImage || "/default-avatar.png"}
-          alt="Profile"
-          width={40}
-          height={40}
-          className="rounded-full"
-        />
+        {!post.board.isAnonymous || comment.author ? (
+          <Image
+            src={comment.author?.profileImage || "/default-avatar.png"}
+            alt="Profile"
+            width={40}
+            height={40}
+            className="rounded-full"
+          />
+        ) : (
+          <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+            <span className="text-gray-500 dark:text-gray-400 text-xs">
+              익명
+            </span>
+          </div>
+        )}
       </div>
       <div className="flex-grow">
         <div className="flex items-center space-x-2">

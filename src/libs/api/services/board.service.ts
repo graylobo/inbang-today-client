@@ -37,6 +37,7 @@ export interface Comment {
   author: User | null;
   authorName: string | null;
   ipAddress: string | null;
+  password?: string;
   createdAt: string;
   updatedAt: string;
   post: Post;
