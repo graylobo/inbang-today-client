@@ -122,18 +122,23 @@ export default function CommentItem({
         <div className="flex items-center space-x-2">
           <span
             className={`font-medium ${
-              isPostAuthor
+              isPostAuthor && !post.board.isAnonymous
                 ? "text-blue-500 dark:text-blue-400"
                 : "dark:text-gray-200"
             }`}
           >
             {comment.author ? comment.author.username : comment.authorName}
-            {isPostAuthor && (
+            {isPostAuthor && !post.board.isAnonymous && (
               <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-0.5 rounded">
                 작성자
               </span>
             )}
           </span>
+          {post.board.isAnonymous && comment.ipAddress && (
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              ({comment.ipAddress.split(".").slice(0, 2).join(".")}.***.*)
+            </span>
+          )}
           <span className="text-sm text-gray-500 dark:text-gray-400">
             {new Date(comment.createdAt).toLocaleString()}
           </span>

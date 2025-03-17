@@ -74,6 +74,12 @@ export default function PostPage({
               ) : (
                 <span>{post.authorName}</span>
               )}
+              {post.board.isAnonymous && post.ipAddress && (
+                <>
+                  <span className="mx-2">·</span>
+                  <span>({post.ipAddress.split('.').slice(0, 2).join('.')}.***.*))</span>
+                </>
+              )}
               <span className="mx-2">·</span>
               <span>{new Date(post.createdAt).toLocaleString()}</span>
             </div>

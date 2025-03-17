@@ -21,27 +21,27 @@ export interface Post {
   id: number;
   title: string;
   content: string;
-  board: Board;
-  author?: User;
-  authorName?: string;
-  viewCount: number;
-  comments: Comment[];
+  author: User | null;
+  authorName: string | null;
+  ipAddress: string | null;
   createdAt: string;
   updatedAt: string;
+  viewCount: number;
+  board: Board;
+  comments: Comment[];
 }
 
 export interface Comment {
   id: number;
   content: string;
-  post: Post;
-  author?: User;
-  authorName?: string;
-  password?: string;
-  parent?: Comment;
-  parentId?: number;
-  replies: Comment[];
+  author: User | null;
+  authorName: string | null;
+  ipAddress: string | null;
   createdAt: string;
   updatedAt: string;
+  post: Post;
+  parent: Comment | null;
+  replies: Comment[];
 }
 
 export interface CreatePostDto {

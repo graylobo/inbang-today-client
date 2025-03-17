@@ -54,6 +54,15 @@ export default function BoardPage({ params }: { params: { slug: string } }) {
                       ) : (
                         <span>{post.authorName}</span>
                       )}
+                      {board.isAnonymous && post.ipAddress && (
+                        <>
+                          <span className="mx-2">·</span>
+                          <span>
+                            ({post.ipAddress.split(".").slice(0, 2).join(".")}
+                            .***.*))
+                          </span>
+                        </>
+                      )}
                       <span className="mx-2">·</span>
                       <span>
                         {new Date(post.createdAt).toLocaleDateString()}
