@@ -1,14 +1,7 @@
 "use server";
 import { api } from "@/libs/api/axios";
+import { User } from "@/store/authStore";
 
-export interface User {
-  id: number;
-  username: string;
-  isAdmin: boolean;
-  profileImage: string;
-  createdAt: string;
-  updatedAt: string;
-}
 export interface Board {
   id: number;
   name: string;

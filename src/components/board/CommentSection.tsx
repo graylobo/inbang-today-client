@@ -4,7 +4,8 @@ import { useState } from "react";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
 import { useComments } from "@/hooks/board/useBoards";
-import { Post, User } from "@/libs/api/services/board.service";
+import { Post } from "@/libs/api/services/board.service";
+import { User } from "@/store/authStore";
 
 interface CommentSectionProps {
   post: Post;

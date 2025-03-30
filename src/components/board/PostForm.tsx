@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useCreatePost } from "@/hooks/board/useBoards";
-import { Board, User } from "@/libs/api/services/board.service";
+import { Board } from "@/libs/api/services/board.service";
+import { User } from "@/store/authStore";
 import Tiptap from "@/components/editor/Tiptap";
 
 interface PostFormProps {

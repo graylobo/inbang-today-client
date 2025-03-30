@@ -71,7 +71,7 @@ export default function PostPage({
           <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400 mb-6">
             <div>
               {post.author ? (
-                <span>{post.author.username}</span>
+                <span>{post.author.name}</span>
               ) : (
                 <span>{post.authorName}</span>
               )}

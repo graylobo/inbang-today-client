@@ -1,7 +1,8 @@
 "use client";
 
 import { useCreateComment, useCreateReply } from "@/hooks/board/useBoards";
-import { Post, User } from "@/libs/api/services/board.service";
+import { Post } from "@/libs/api/services/board.service";
+import { User } from "@/store/authStore";
 import { useState } from "react";
 
 interface CommentFormProps {

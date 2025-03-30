@@ -7,7 +7,8 @@ import {
   useVerifyCommentPassword,
 } from "@/hooks/board/useBoards";
 import CommentForm from "./CommentForm";
-import { Comment, Post, User } from "@/libs/api/services/board.service";
+import { Comment, Post } from "@/libs/api/services/board.service";
+import { User } from "@/store/authStore";
 import Image from "next/image";
 import { maskIpAddress } from "@/utils/ipUtils";
 
@@ -95,7 +96,7 @@ export default function CommentItem({
   const renderContent = (comment: Comment) => {
     if (comment.parent) {
       const replyToUsername =
-        comment.parent.author?.username || comment.parent.authorName;
+        comment.parent.author?.name || comment.parent.authorName;
       return (
         <div className="flex items-start gap-2">
           <span className="text-blue-500 dark:text-blue-400 shrink-0">
@@ -113,7 +114,7 @@ export default function CommentItem({
       <div className="flex-shrink-0">
         {!post.board.isAnonymous || comment.author ? (
           <Image
-            src={comment.author?.profileImage || "/default-avatar.png"}
+            src={comment.author?.name || "/default-avatar.png"}
             alt="Profile"
             width={40}
             height={40}
@@ -136,7 +137,7 @@ export default function CommentItem({
                 : "dark:text-gray-200"
             }`}
           >
-            {comment.author ? comment.author.username : comment.authorName}
+            {comment.author ? comment.author.name : comment.authorName}
             {isPostAuthor && !post.board.isAnonymous && (
               <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-0.5 rounded">
                 작성자
@@ -252,7 +253,7 @@ export default function CommentItem({
           <div className="mt-4 ml-8">
             <div className="mb-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
               <span className="text-blue-500 dark:text-blue-400">
-                @{comment.author?.username || comment.authorName}
+                @{comment.author?.name || comment.authorName}
               </span>
               <span>님에게 답글 작성</span>
             </div>

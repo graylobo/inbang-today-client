@@ -51,7 +51,7 @@ export default function BoardPage({ params }: { params: { slug: string } }) {
                     </h2>
                     <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                       {post.author ? (
-                        <span>{post.author.username}</span>
+                        <span>{post.author.name}</span>
                       ) : (
                         <span>{post.authorName}</span>
                       )}
