@@ -63,7 +63,7 @@ function NavBar({
           {user ? (
             <div className="flex items-center gap-4">
               <span className="text-gray-600 dark:text-gray-300">
-                {user.username}님 환영합니다
+                {user.name}님 환영합니다
               </span>
               <button
                 onClick={logout}
