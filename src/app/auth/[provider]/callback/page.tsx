@@ -26,7 +26,7 @@ export default function AuthCallbackPage() {
         console.log("data:::", data);
         router.push(`/`);
       } catch (error) {
-        console.error("Failed to fetch user profile:", error);
+        console.log("가져오기실패:", error);
         router.push("/hoho");
       }
     };
