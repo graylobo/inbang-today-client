@@ -3,8 +3,13 @@
 import { api } from "@/libs/api/axios";
 import { API_ROUTES } from "@/libs/api/route";
 
-export async function getUserProfile() {
-  const { data } = await api.get(API_ROUTES.user.profile.get.url);
-  console.log("data:::", data);
-  return data;
-}
+export const getUserProfile = async () => {
+  // 로컬 스토리지에서 토큰 가져오기
+  const token = localStorage.getItem("access_token");
+
+  return api.get("/auth/me", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
