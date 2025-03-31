@@ -15,6 +15,7 @@ export default function AuthCallbackPage() {
       try {
         // URL에서 토큰 파라미터 추출
         const token = searchParams.get("token");
+        console.log("token:::", token);
 
         if (!token) {
           console.error("토큰이 URL에 없습니다.");
