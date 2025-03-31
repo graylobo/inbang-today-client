@@ -1,6 +1,6 @@
-"use client"; // 클라이언트 컴포넌트로 변경
-
+"use server";
 import axios from "axios";
+import { cookies } from "next/headers";
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -8,9 +8,8 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  // 클라이언트 측에서 localStorage에서 토큰 가져오기
-  const token = localStorage.getItem("access_token");
-  
+  const cookieStore = cookies();
+  const token = cookieStore.get("access_token")?.value;
   config.withCredentials = true;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
