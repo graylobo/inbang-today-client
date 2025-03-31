@@ -1,4 +1,4 @@
-"use server";
+"use client";
 
 import { api } from "@/libs/api/axios";
 import { API_ROUTES } from "@/libs/api/route";
