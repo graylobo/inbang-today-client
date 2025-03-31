@@ -162,7 +162,7 @@ export default function RegisterForm() {
               </svg>
               Google로 계속하기
             </button>
-            <button onClick={handleTestLogin}>test</button>
+            <button onClick={handleTestLogin}>test2</button>
 
             <Link
               href="/login"
