@@ -12,6 +12,7 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
+        console.log("gogo");
         const { data } = await getUserProfile();
 
         // refreshToken이 응답에 포함되어 있다면 저장
