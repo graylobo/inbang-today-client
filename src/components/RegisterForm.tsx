@@ -46,6 +46,11 @@ export default function RegisterForm() {
     }
   };
 
+  const handleTestLogin = () => {
+    console.log("clientId:::", process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+    console.log("redirectUri:::", process.env.NEXT_PUBLIC_API_URL);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -157,6 +162,7 @@ export default function RegisterForm() {
               </svg>
               Google로 계속하기
             </button>
+            <button onClick={handleTestLogin}>test</button>
 
             <Link
               href="/login"
