@@ -27,10 +27,11 @@ export default function AuthCallbackPage() {
         router.push(`/`);
       } catch (error) {
         console.error("Failed to fetch user profile:", error);
-        router.push("/signin");
+        router.push("/hoho");
       }
     };
 
+    console.log("useEffect:::");
     fetchUserProfile();
   }, [router, setUser, setTokens]);
 
