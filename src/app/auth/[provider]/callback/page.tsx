@@ -12,22 +12,24 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        console.log("gogo");
+        console.log("test1:::");
         const { data } = await getUserProfile();
+
+        console.log("test2:::");
 
         // refreshToken이 응답에 포함되어 있다면 저장
         if (data.refreshToken) {
           localStorage.setItem("refresh_token", data.refreshToken);
           setTokens(data.refreshToken);
         }
-
+        console.log("test3:::");
         setUser(data);
 
         console.log("data:::", data);
         router.push(`/`);
       } catch (error) {
         console.log("가져오기실패:", error);
-        router.push("/hoho");
+        router.push("/register");
       }
     };
 
