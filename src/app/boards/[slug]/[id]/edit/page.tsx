@@ -7,11 +7,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Tiptap from "@/components/editor/Tiptap";
 
-export default function EditPostPage({
-  params,
-}: {
-  params: { slug: string; id: string };
-}) {
+interface EditPostPageProps {
+  params: {
+    slug: string;
+    id: string;
+  };
+  searchParams: Record<string, string | string[] | undefined>;
+}
+
+export default function EditPostPage({ params }: EditPostPageProps) {
   const router = useRouter();
   const { user } = useAuthStore();
   const { data: post, isLoading } = usePost(parseInt(params.id));
