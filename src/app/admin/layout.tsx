@@ -9,13 +9,14 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoading, isAdmin, token } = useRequireAdmin();
+  const { isLoading, isAdmin } = useRequireAdmin();
   const pathname = usePathname();
   if (isLoading) {
     return <div>권한을 확인하는 중...</div>;
   }
+  console.log("isAdmizzn:::", isAdmin);
 
-  if (!user?.isAdmin) {
+  if (!isAdmin) {
     return null;
   }
 

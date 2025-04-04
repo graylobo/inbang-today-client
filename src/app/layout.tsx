@@ -8,8 +8,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko">
-      <body>
+    <html lang="ko" className="light" style={{ colorScheme: "light" }}>
+      <body className="vsc-initialized">
         <Providers>
           <BaseLayout>{children}</BaseLayout>
         </Providers>

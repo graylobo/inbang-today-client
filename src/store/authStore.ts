@@ -16,6 +16,7 @@ interface AuthState {
   refreshToken: string | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  authInitialized: boolean;
   setAuth: (user: User | null, token: string | null) => void;
   setUser: (user: User | null) => void;
   setTokens: (refreshToken: string) => void;
@@ -31,12 +32,14 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       isAuthenticated: false,
       isAdmin: false,
-      setAuth: (user, token) => set({ user, token }),
+      authInitialized: false,
+      setAuth: (user, token) => set({ user, token, authInitialized: true }),
       setUser: (user: User | null) => {
         if (!user) {
           return set({
             user: null,
             isAuthenticated: false,
+            authInitialized: true,
           });
         }
 
@@ -48,19 +51,20 @@ export const useAuthStore = create<AuthState>()(
             phoneNumber: user?.phoneNumber || "",
             name: user?.name || "",
             createdAt: user?.createdAt || "",
-            isAdmin: user?.isAdmin || false,
           },
+          isAdmin: user?.isAdmin || false,
           isAuthenticated: !!user,
+          authInitialized: true,
         });
       },
-      logout: () => set({ user: null, token: null }),
+      logout: () => set({ user: null, token: null, authInitialized: true }),
       setTokens: (refreshToken) =>
         set({
           refreshToken,
         }),
       clearStorage: () => {
         localStorage.removeItem("auth-storage");
-        set({ user: null, token: null });
+        set({ user: null, token: null, authInitialized: true });
       },
     }),
     {
