@@ -1,17 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { use, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import PostForm from "@/components/board/PostForm";
 import Modal from "@/components/common/Modal";
 import { useBoardBySlug, usePosts } from "@/hooks/board/useBoards";
 import { maskIpAddress } from "@/utils/ipUtils";
 
-export default function BoardPage({ params }: { params: { slug: string } }) {
+type BoardPageParams = Promise<{
+  slug: string;
+}>;
+
+export default function BoardPage(props: { params: BoardPageParams }) {
+  const { slug } = use(props.params);
   const { user } = useAuthStore();
   const [showPostForm, setShowPostForm] = useState(false);
-  const { data: board, isLoading: boardLoading } = useBoardBySlug(params.slug);
+  const { data: board, isLoading: boardLoading } = useBoardBySlug(slug);
   const { data: posts, isLoading: postsLoading } = usePosts(board?.id || 0);
 
   if (boardLoading || postsLoading)

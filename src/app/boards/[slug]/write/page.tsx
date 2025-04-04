@@ -4,11 +4,17 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/authStore";
 import PostForm from "@/components/board/PostForm";
 import { useBoardBySlug } from "@/hooks/board/useBoards";
+import { use } from "react";
 
-export default function WritePage({ params }: { params: { slug: string } }) {
+type WritePageParams = Promise<{
+  slug: string;
+}>;
+
+export default function WritePage(props: { params: WritePageParams }) {
+  const { slug } = use(props.params);
   const router = useRouter();
   const { user } = useAuthStore();
-  const { data: board, isLoading } = useBoardBySlug(params.slug);
+  const { data: board, isLoading } = useBoardBySlug(slug);
 
   if (isLoading) return <div className="dark:text-gray-300">로딩 중...</div>;
   if (!board)

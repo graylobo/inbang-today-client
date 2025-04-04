@@ -6,19 +6,18 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Tiptap from "@/components/editor/Tiptap";
+import { use } from "react";
+type EditPostPageParams = Promise<{
+  slug: string;
+  id: string;
+}>;
 
-interface EditPostPageProps {
-  params: {
-    slug: string;
-    id: string;
-  };
-  searchParams: Record<string, string | string[] | undefined>;
-}
+export default function EditPostPage(props: { params: EditPostPageParams }) {
+  const { slug, id } = use(props.params);
 
-export default function EditPostPage({ params }: EditPostPageProps) {
   const router = useRouter();
   const { user } = useAuthStore();
-  const { data: post, isLoading } = usePost(parseInt(params.id));
+  const { data: post, isLoading } = usePost(parseInt(id));
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -27,7 +26,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   });
 
   const updatePost = useUpdatePost(() => {
-    router.push(`/boards/${params.slug}/${params.id}`);
+    router.push(`/boards/${slug}/${id}`);
   });
 
   useEffect(() => {
@@ -48,7 +47,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
   // 작성자 확인
   const isAuthor = user && post.author && user.id === post.author.id;
   if (!isAuthor && !post.board.isAnonymous) {
-    router.push(`/boards/${params.slug}/${params.id}`);
+    router.push(`/boards/${slug}/${id}`);
     return null;
   }
 
@@ -76,7 +75,7 @@ export default function EditPostPage({ params }: EditPostPageProps) {
       <div className="mb-6 flex justify-between items-center">
         <h1 className="text-2xl font-bold dark:text-gray-100">게시글 수정</h1>
         <Link
-          href={`/boards/${params.slug}/${params.id}`}
+          href={`/boards/${slug}/${id}`}
           className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
         >
           취소

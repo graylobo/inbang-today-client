@@ -6,17 +6,21 @@ import CommentSection from "@/components/board/CommentSection";
 import { usePost, useDeletePost } from "@/hooks/board/useBoards";
 import { useRouter } from "next/navigation";
 import { maskIpAddress } from "@/utils/ipUtils";
+import { use } from "react";
 
-export default function PostPage({
-  params,
-}: {
-  params: { slug: string; id: string };
-}) {
+type PostPageParams = Promise<{
+  slug: string;
+  id: string;
+}>;
+
+export default function PostPage(props: { params: PostPageParams }) {
+  const { slug, id } = use(props.params);
+
   const { user } = useAuthStore();
   const router = useRouter();
-  const { data: post, isLoading } = usePost(parseInt(params.id));
+  const { data: post, isLoading } = usePost(parseInt(id));
   const deletePost = useDeletePost(() => {
-    router.push(`/boards/${params.slug}`);
+    router.push(`/boards/${slug}`);
   });
 
   if (isLoading) return <div className="dark:text-gray-300">로딩 중...</div>;
@@ -40,7 +44,7 @@ export default function PostPage({
     <div className="max-w-4xl mx-auto p-6">
       <div className="mb-4 flex justify-between items-center">
         <Link
-          href={`/boards/${params.slug}`}
+          href={`/boards/${slug}`}
           className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
         >
           ← 목록으로
@@ -48,7 +52,7 @@ export default function PostPage({
         {isAuthor && (
           <div className="space-x-2">
             <Link
-              href={`/boards/${params.slug}/${post.id}/edit`}
+              href={`/boards/${slug}/${post.id}/edit`}
               className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
             >
               수정
