@@ -15,6 +15,7 @@ interface AuthState {
   token: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
+  isAdmin: boolean;
   setAuth: (user: User | null, token: string | null) => void;
   setUser: (user: User | null) => void;
   setTokens: (refreshToken: string) => void;
@@ -29,6 +30,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       refreshToken: null,
       isAuthenticated: false,
+      isAdmin: false,
       setAuth: (user, token) => set({ user, token }),
       setUser: (user: User | null) => {
         if (!user) {
@@ -46,6 +48,7 @@ export const useAuthStore = create<AuthState>()(
             phoneNumber: user?.phoneNumber || "",
             name: user?.name || "",
             createdAt: user?.createdAt || "",
+            isAdmin: user?.isAdmin || false,
           },
           isAuthenticated: !!user,
         });
