@@ -65,22 +65,22 @@ export async function createCrewEarning(
 }
 
 export async function getCrewMembers() {
-  const { data } = await api.get("/crew-members");
+  const { data } = await api.get("/streamers");
   return data;
 }
 
 export async function createCrewMember(member: CrewMemberFormData) {
-  const { data } = await api.post("/crew-members", member);
+  const { data } = await api.post("/streamers", member);
   return data;
 }
 
 export async function updateCrewMember(id: number, member: CrewMemberFormData) {
-  const { data } = await api.put(`/crew-members/${id}`, member);
+  const { data } = await api.put(`/streamers/${id}`, member);
   return data;
 }
 
 export async function deleteCrewMember(id: number) {
-  const { data } = await api.delete(`/crew-members/${id}`);
+  const { data } = await api.delete(`/streamers/${id}`);
   return data;
 }
 
@@ -109,7 +109,10 @@ export async function createCrewSignature(formData: SignatureFormData) {
   return data;
 }
 
-export async function updateCrewSignature(id: number, formData: SignatureFormData) {
+export async function updateCrewSignature(
+  id: number,
+  formData: SignatureFormData
+) {
   const { data } = await api.put(`/crew-signatures/${id}`, formData);
   return data;
 }
@@ -118,4 +121,3 @@ export async function deleteCrewSignature(id: number) {
   const { data } = await api.delete(`/crew-signatures/${id}`);
   return data;
 }
-

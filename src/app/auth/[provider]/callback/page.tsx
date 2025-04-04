@@ -22,7 +22,6 @@ export default function AuthCallbackPage() {
 
         setUser(data);
 
-        console.log("data:::", data);
         router.push(`/`);
       } catch (error) {
         console.error("가져오기실패:", error);

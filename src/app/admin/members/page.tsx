@@ -9,8 +9,7 @@ import {
   useUpdateCrewMember,
 } from "@/hooks/crew/useCrews";
 import { CrewMember } from "@/hooks/crew/useCrews.type";
-import { api } from "@/libs/api/axios";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 
 export interface CrewMemberFormData {

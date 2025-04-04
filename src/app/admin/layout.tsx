@@ -14,7 +14,6 @@ export default function AdminLayout({
   if (isLoading) {
     return <div>권한을 확인하는 중...</div>;
   }
-  console.log("isAdmizzn:::", isAdmin);
 
   if (!isAdmin) {
     return null;

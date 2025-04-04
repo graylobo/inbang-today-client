@@ -47,11 +47,15 @@ export default function LiveStreamer({ crew }: LiveStreamerProps) {
           className="block bg-white dark:bg-dark-bg rounded-lg shadow-md dark:shadow-none dark:border dark:border-gray-700 overflow-hidden hover:shadow-lg dark:hover:border-gray-600 transition-all"
         >
           <div className="relative">
-            <img
-              src={streamer.thumbnail}
-              alt={streamer.title}
-              className="w-full aspect-video object-cover"
-            />
+            {streamer.thumbnail ? (
+              <img
+                src={streamer.thumbnail}
+                alt={streamer.title}
+                className="w-full aspect-video object-cover"
+              />
+            ) : (
+              <div className="w-full aspect-video bg-gray-200 dark:bg-gray-800"></div>
+            )}
             <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-sm">
               시청자 {streamer.viewCount.toLocaleString()}명
             </div>
