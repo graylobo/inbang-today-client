@@ -1,6 +1,6 @@
 "use client";
 
-import { useRequireAuth } from "@/hooks/useAuth";
+import { useRequireAdmin } from "@/hooks/useAuth";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -9,9 +9,8 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoading } = useRequireAuth();
+  const { user, isLoading, isAdmin, token } = useRequireAdmin();
   const pathname = usePathname();
-
   if (isLoading) {
     return <div>권한을 확인하는 중...</div>;
   }

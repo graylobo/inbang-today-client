@@ -1,19 +1,14 @@
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
 export function useRequireAuth() {
-  const { user, token } = useAuthStore();
+  const { user, token, isAuthenticated } = useAuthStore();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = () => {
-      const authToken = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("accessToken="));
-
-      if (!authToken) {
+      if (!isAuthenticated) {
         router.push("/login");
       }
       setIsLoading(false);
@@ -21,7 +16,22 @@ export function useRequireAuth() {
 
     const timer = setTimeout(checkAuth, 100);
     return () => clearTimeout(timer);
-  }, [router]);
+  }, [router, isAuthenticated]);
 
   return { user, token, isLoading };
+}
+
+export function useRequireAdmin() {
+  const { user, token, isAdmin } = useAuthStore();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!isAdmin) {
+      router.push("/");
+    }
+    setIsLoading(false);
+  }, [router, isAdmin]);
+
+  return { user, token, isAdmin, isLoading };
 }

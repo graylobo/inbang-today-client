@@ -4,7 +4,8 @@ import { cookies } from "next/headers";
 
 export async function login(username: string, password: string) {
   const { data } = await api.post("/auth/login", { username, password });
-  cookies().set("accessToken", data.access_token);
+  const cookieStore = await cookies();
+  cookieStore.set("access_token", data.access_token);
   return data;
 }
 

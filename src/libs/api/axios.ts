@@ -7,9 +7,10 @@ const api = axios.create({
   withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
-  const cookieStore = cookies();
+api.interceptors.request.use(async (config) => {
+  const cookieStore = await cookies();
   const token = cookieStore.get("access_token")?.value;
+  console.log("token:::", token);
   config.withCredentials = true;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
