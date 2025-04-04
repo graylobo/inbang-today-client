@@ -30,7 +30,6 @@ export default function AuthCallbackPage() {
       }
     };
 
-    console.log("useEffect:::");
     fetchUserProfile();
   }, [router, setUser, setTokens]);
 
