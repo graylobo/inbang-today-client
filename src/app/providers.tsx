@@ -50,7 +50,7 @@ function AuthInitializer() {
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class">
+    <ThemeProvider attribute="class" enableSystem defaultTheme="dark">
       <QueryClientProvider client={queryClient}>
         <AuthInitializer />
         {children}

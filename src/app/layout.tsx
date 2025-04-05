@@ -8,7 +8,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ko" className="light" style={{ colorScheme: "light" }}>
+    <html lang="ko" suppressHydrationWarning>
       <body className="vsc-initialized">
         <Providers>
           <BaseLayout>{children}</BaseLayout>
