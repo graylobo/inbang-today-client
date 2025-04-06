@@ -29,6 +29,7 @@ import {
   updateCrewMember,
   updateCrewSignature,
 } from "@/libs/api/services/crew.service";
+import { getErrorMessage } from "@/libs/utils/error-handler";
 import {
   useMutation,
   useQuery,
@@ -140,6 +141,9 @@ export function useCreateCrewMember(resetForm: () => void) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["members"] });
       resetForm();
+    },
+    onError: (error) => {
+      alert(getErrorMessage(error));
     },
   });
 }

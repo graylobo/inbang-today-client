@@ -50,7 +50,7 @@ export default function AdminMembersPage() {
   const { data: crews } = useGetCrews();
 
   // 선택된 크루의 계급 목록 조회
-  const { data: ranks } = useGetCrewRanksByCrewID(formData.crewId.toString());
+  const { data: ranks } = useGetCrewRanksByCrewID(formData.crewId?.toString());
 
   // 모든 멤버 조회
   const { data: members, isLoading } = useGetCrewMembers();
