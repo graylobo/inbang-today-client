@@ -23,6 +23,7 @@ export default function AdminLayout({
     { href: "/admin/crews", label: "크루 관리" },
     { href: "/admin/members", label: "멤버 관리" },
     { href: "/admin/signatures", label: "시그니처 관리" },
+    { href: "/admin/permissions", label: "권한 관리" },
   ];
 
   return (
