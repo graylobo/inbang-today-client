@@ -2,9 +2,7 @@ import { CrewFormData } from "@/app/admin/crews/page";
 import { CrewMemberFormData } from "@/app/admin/members/page";
 import { SignatureFormData } from "@/app/admin/signatures/page";
 import {
-  crewDetailOptions,
-  crewEarningsByDateOptions,
-  crewsRankingsOptions,
+  crewEarningsByDateOptions
 } from "@/hooks/crew/useCrews.option";
 import {
   Crew,
@@ -21,10 +19,12 @@ import {
   deleteCrew,
   deleteCrewMember,
   deleteCrewSignature,
+  getCrewByID,
   getCrewMembers,
   getCrewRanksByCrewID,
   getCrews,
   getCrewSignatures,
+  getCrewsRankings,
   updateCrew,
   updateCrewMember,
   updateCrewSignature,
@@ -32,8 +32,7 @@ import {
 import {
   useMutation,
   useQuery,
-  useQueryClient,
-  useSuspenseQuery,
+  useQueryClient
 } from "@tanstack/react-query";
 
 export function useGetCrews() {
@@ -51,11 +50,17 @@ export function useGetCrewRanksByCrewID(crewId: string) {
 }
 
 export function useCrewsRankings(year: number, month: number) {
-  return useSuspenseQuery<Crew[]>(crewsRankingsOptions(year, month));
+  return useQuery<Crew[]>({
+    queryKey: ["crews", "rankings", year, month],
+    queryFn: () => getCrewsRankings(year, month),
+  });
 }
 
 export function useGetCrewByID(crewId: string) {
-  return useSuspenseQuery<CrewDetail>(crewDetailOptions(crewId));
+  return useQuery<CrewDetail>({
+    queryKey: ["crew", crewId],
+    queryFn: () => getCrewByID(crewId),
+  });
 }
 
 export function useCrewEarningsByDate(

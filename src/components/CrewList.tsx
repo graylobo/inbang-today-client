@@ -2,7 +2,7 @@
 
 import { useCrewsRankings } from "@/hooks/crew/useCrews";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function CrewList({
   initialYear,
@@ -14,6 +14,11 @@ export default function CrewList({
   const [year, setYear] = useState(initialYear);
   const [month, setMonth] = useState(initialMonth);
   const { data: crews, isLoading, error } = useCrewsRankings(year, month);
+
+  useEffect(() => {
+    setYear(initialYear);
+    setMonth(initialMonth);
+  }, [initialYear, initialMonth]);
 
   if (isLoading) return <div>로딩 중...</div>;
   if (error) return <div>에러가 발생했습니다.</div>;
