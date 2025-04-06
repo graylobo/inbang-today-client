@@ -1,5 +1,6 @@
 "use client";
 
+import { useRegister } from "@/hooks/useAuth";
 import { register } from "@/libs/api/services/auth.service";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -11,6 +12,8 @@ export default function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
+
+  const { mutate: register } = useRegister(username, password);
 
   const handleGoogleLogin = () => {
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -32,20 +35,13 @@ export default function RegisterForm() {
     }
 
     try {
-      await register(username, password);
-
-      router.push("/login?registered=true");
+      register();
     } catch (error: any) {
       setError(
         error.response?.data?.message ||
           "회원가입에 실패했습니다. 다시 시도해주세요."
       );
     }
-  };
-
-  const handleTestLogin = () => {
-    console.log("clientId:::", process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
-    console.log("redirectUri:::", process.env.NEXT_PUBLIC_API_URL);
   };
 
   return (
@@ -159,7 +155,6 @@ export default function RegisterForm() {
               </svg>
               Google로 계속하기
             </button>
-            <button onClick={handleTestLogin}>test2</button>
 
             <Link
               href="/login"
