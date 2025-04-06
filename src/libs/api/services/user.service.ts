@@ -7,3 +7,8 @@ export async function getUserProfile() {
   const { data } = await api.get(API_ROUTES.user.profile.get.url);
   return data;
 }
+
+export async function getUsers() {
+  const { data } = await api.get(API_ROUTES.user.list.get.url);
+  return data;
+}

@@ -5,6 +5,7 @@ import { useUserPermissionsManagement } from "@/hooks/useCrewPermission";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/libs/api/axios";
+import { useGetUsers } from "@/hooks/user/useUser";
 
 export default function PermissionsManagementPage() {
   const { isLoading: isLoadingAuth } = useRequireAdmin();
@@ -14,13 +15,7 @@ export default function PermissionsManagementPage() {
     useUserPermissionsManagement();
 
   // Fetch all users
-  const { data: users, isLoading: isLoadingUsers } = useQuery({
-    queryKey: ["users"],
-    queryFn: async () => {
-      const response = await api.get("/user");
-      return response.data;
-    },
-  });
+  const { data: users, isLoading: isLoadingUsers } = useGetUsers();
 
   // Fetch all crews
   const { data: crews, isLoading: isLoadingCrews } = useQuery({

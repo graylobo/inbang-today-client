@@ -1,5 +1,5 @@
 import { User } from "@/store/authStore";
-import { getUserProfile } from "@/libs/api/services/user.service";
+import { getUserProfile, getUsers } from "@/libs/api/services/user.service";
 import { useQuery } from "@tanstack/react-query";
 
 // export function useGetUserProfile() {
@@ -8,3 +8,10 @@ import { useQuery } from "@tanstack/react-query";
 //     queryFn: () => getUserProfile(),
 //   });
 // }
+
+export function useGetUsers() {
+  return useQuery<User[]>({
+    queryKey: ["user", "list"],
+    queryFn: () => getUsers(),
+  });
+}

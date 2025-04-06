@@ -7,5 +7,9 @@ export const API_ROUTES = {
     profile: {
       get: { url: "/user/profile", method: "GET" },
     },
+    list: {
+      get: { url: "/user", method: "GET" },
+    },
+    
   },
 } as const satisfies RouteObject;
