@@ -9,7 +9,7 @@ import {
   useGetCrews,
   useUpdateCrew,
 } from "@/hooks/crew/useCrews";
-import { useCrewPermissionsList } from "@/hooks/useCrewPermission";
+import { useCrewPermissionsList } from "@/hooks/crew-permission/useCrewPermission";
 import Link from "next/link";
 
 interface RankFormData {

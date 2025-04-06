@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useRequireCrewPermission } from "@/hooks/useCrewPermission";
+import { useRequireCrewPermission } from "@/hooks/crew-permission/useCrewPermission";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/libs/api/axios";
 import { useUpdateCrew } from "@/hooks/crew/useCrews";

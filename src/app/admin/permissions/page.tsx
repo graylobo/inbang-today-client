@@ -1,50 +1,38 @@
 "use client";
 
+import {
+  useAssignCrewPermission,
+  useGetUserPermissions,
+  useRemoveCrewPermission,
+} from "@/hooks/crew-permission/useCrewPermission";
+import { useGetCrews } from "@/hooks/crew/useCrews";
 import { useRequireAdmin } from "@/hooks/useAuth";
-import { useUserPermissionsManagement } from "@/hooks/useCrewPermission";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/libs/api/axios";
 import { useGetUsers } from "@/hooks/user/useUser";
+import { useState } from "react";
 
 export default function PermissionsManagementPage() {
   const { isLoading: isLoadingAuth } = useRequireAdmin();
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
-  const { assignPermission, removePermission, isAssigning, isRemoving } =
-    useUserPermissionsManagement();
+
+  const assignPermissionMutation = useAssignCrewPermission();
+  const removePermissionMutation = useRemoveCrewPermission();
 
   // Fetch all users
   const { data: users, isLoading: isLoadingUsers } = useGetUsers();
 
   // Fetch all crews
-  const { data: crews, isLoading: isLoadingCrews } = useQuery({
-    queryKey: ["crews"],
-    queryFn: async () => {
-      const response = await api.get("/crew");
-      return response.data;
-    },
-  });
+  const { data: crews, isLoading: isLoadingCrews } = useGetCrews();
 
   // Fetch permissions for the selected user
   const {
     data: userPermissions,
     isLoading: isLoadingPermissions,
     refetch: refetchPermissions,
-  } = useQuery({
-    queryKey: ["userPermissions", selectedUserId],
-    queryFn: async () => {
-      if (!selectedUserId) return [];
-      const response = await api.get(
-        `/user-permissions/user/${selectedUserId}`
-      );
-      return response.data;
-    },
-    enabled: !!selectedUserId,
-  });
+  } = useGetUserPermissions(selectedUserId || 0);
 
   const handleUserSelect = (userId: number) => {
-    const user = users.find((u: any) => u.id === userId);
+    const user = users?.find((u: any) => u.id === userId);
     setSelectedUserId(userId);
     setSelectedUser(user);
   };
@@ -52,23 +40,21 @@ export default function PermissionsManagementPage() {
   const handleAssignPermission = async (crewId: number) => {
     if (!selectedUserId) return;
 
-    try {
-      await assignPermission({ userId: selectedUserId, crewId });
-      refetchPermissions();
-    } catch (error) {
-      console.error("Failed to assign permission:", error);
-    }
+    await assignPermissionMutation.mutateAsync({
+      userId: selectedUserId,
+      crewId,
+    });
+    refetchPermissions();
   };
 
   const handleRemovePermission = async (crewId: number) => {
     if (!selectedUserId) return;
 
-    try {
-      await removePermission({ userId: selectedUserId, crewId });
-      refetchPermissions();
-    } catch (error) {
-      console.error("Failed to remove permission:", error);
-    }
+    await removePermissionMutation.mutateAsync({
+      userId: selectedUserId,
+      crewId,
+    });
+    refetchPermissions();
   };
 
   // Check if user has permission for a crew
@@ -168,7 +154,7 @@ export default function PermissionsManagementPage() {
                             {hasPermission ? (
                               <button
                                 onClick={() => handleRemovePermission(crew.id)}
-                                disabled={isRemoving}
+                                disabled={removePermissionMutation.isPending}
                                 className="text-red-600 hover:text-red-900 disabled:opacity-50"
                               >
                                 권한 제거
@@ -176,7 +162,7 @@ export default function PermissionsManagementPage() {
                             ) : (
                               <button
                                 onClick={() => handleAssignPermission(crew.id)}
-                                disabled={isAssigning}
+                                disabled={assignPermissionMutation.isPending}
                                 className="text-green-600 hover:text-green-900 disabled:opacity-50"
                               >
                                 권한 부여
