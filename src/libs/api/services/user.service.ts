@@ -12,3 +12,5 @@ export async function getUsers() {
   const { data } = await api.get(API_ROUTES.user.list.get.url);
   return data;
 }
+
+

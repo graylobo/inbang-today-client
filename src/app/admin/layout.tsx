@@ -9,22 +9,33 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { isLoading, isAdmin } = useRequireAdmin();
+  const { isLoading, isAdmin, isSuperAdmin } = useRequireAdmin();
   const pathname = usePathname();
+
   if (isLoading) {
     return <div>권한을 확인하는 중...</div>;
   }
 
-  if (!isAdmin) {
+  if (!isAdmin && !isSuperAdmin) {
     return null;
   }
 
-  const navItems = [
+  // 모든 관리자가 접근 가능한 기본 메뉴
+  const commonNavItems = [
     { href: "/admin/crews", label: "크루 관리" },
     { href: "/admin/members", label: "멤버 관리" },
     { href: "/admin/signatures", label: "시그니처 관리" },
+  ];
+
+  // SuperAdmin만 접근 가능한 메뉴
+  const superAdminNavItems = [
     { href: "/admin/permissions", label: "권한 관리" },
   ];
+
+  // 접근 권한에 따라 보여줄 메뉴 구성
+  const navItems = isSuperAdmin
+    ? [...commonNavItems, ...superAdminNavItems]
+    : commonNavItems;
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -34,6 +45,11 @@ export default function AdminLayout({
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
                 <span className="text-lg font-bold">관리자 페이지</span>
+                {isSuperAdmin && (
+                  <span className="ml-2 px-2 py-1 text-xs font-medium bg-amber-100 text-amber-800 rounded-full">
+                    슈퍼 관리자
+                  </span>
+                )}
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 {navItems.map((item) => (

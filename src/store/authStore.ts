@@ -8,6 +8,7 @@ export interface User {
   phoneNumber: string;
   createdAt: string;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
 }
 
 interface AuthState {
@@ -16,12 +17,13 @@ interface AuthState {
   refreshToken: string | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   authInitialized: boolean;
   setAuth: (user: User | null, token: string | null) => void;
   setUser: (user: User | null) => void;
   setTokens: (refreshToken: string) => void;
   logout: () => void;
-  clearStorage: () => void; // 추가
+  clearStorage: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -32,6 +34,7 @@ export const useAuthStore = create<AuthState>()(
       refreshToken: null,
       isAuthenticated: false,
       isAdmin: false,
+      isSuperAdmin: false,
       authInitialized: false,
       setAuth: (user, token) => set({ user, token, authInitialized: true }),
       setUser: (user: User | null) => {
@@ -39,6 +42,8 @@ export const useAuthStore = create<AuthState>()(
           return set({
             user: null,
             isAuthenticated: false,
+            isAdmin: false,
+            isSuperAdmin: false,
             authInitialized: true,
           });
         }
@@ -51,20 +56,35 @@ export const useAuthStore = create<AuthState>()(
             phoneNumber: user?.phoneNumber || "",
             name: user?.name || "",
             createdAt: user?.createdAt || "",
+            isSuperAdmin: user?.isSuperAdmin || false,
           },
           isAdmin: user?.isAdmin || false,
+          isSuperAdmin: user?.isSuperAdmin || false,
           isAuthenticated: !!user,
           authInitialized: true,
         });
       },
-      logout: () => set({ user: null, token: null, authInitialized: true }),
+      logout: () =>
+        set({
+          user: null,
+          token: null,
+          isAdmin: false,
+          isSuperAdmin: false,
+          authInitialized: true,
+        }),
       setTokens: (refreshToken) =>
         set({
           refreshToken,
         }),
       clearStorage: () => {
         localStorage.removeItem("auth-storage");
-        set({ user: null, token: null, authInitialized: true });
+        set({
+          user: null,
+          token: null,
+          isAdmin: false,
+          isSuperAdmin: false,
+          authInitialized: true,
+        });
       },
     }),
     {

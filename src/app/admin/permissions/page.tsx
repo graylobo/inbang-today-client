@@ -1,35 +1,38 @@
 "use client";
 
+import { useGetCrews } from "@/hooks/crew/useCrews";
+import { useRequireSuperAdmin } from "@/hooks/useAuth";
 import {
   useAssignCrewPermission,
+  useGetAllUsers,
   useGetUserPermissions,
   useRemoveCrewPermission,
-} from "@/hooks/crew-permission/useCrewPermission";
-import { useGetCrews } from "@/hooks/crew/useCrews";
-import { useRequireAdmin } from "@/hooks/useAuth";
-import { useGetUsers } from "@/hooks/user/useUser";
+  useToggleAdminStatus,
+  useToggleSuperAdminStatus,
+} from "@/hooks/user-permission/useUserPermission";
 import { useState } from "react";
 
+// 이 페이지는 SuperAdmin만 접근 가능
 export default function PermissionsManagementPage() {
-  const { isLoading: isLoadingAuth } = useRequireAdmin();
+  const { isLoading: isLoadingAuth } = useRequireSuperAdmin();
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
-  const assignPermissionMutation = useAssignCrewPermission();
-  const removePermissionMutation = useRemoveCrewPermission();
+  // 사용자 목록 조회
+  const { data: users, isLoading: isLoadingUsers } = useGetAllUsers();
 
-  // Fetch all users
-  const { data: users, isLoading: isLoadingUsers } = useGetUsers();
-
-  // Fetch all crews
+  // 크루 목록 조회
   const { data: crews, isLoading: isLoadingCrews } = useGetCrews();
 
-  // Fetch permissions for the selected user
-  const {
-    data: userPermissions,
-    isLoading: isLoadingPermissions,
-    refetch: refetchPermissions,
-  } = useGetUserPermissions(selectedUserId || 0);
+  // 선택한 사용자의 권한 조회
+  const { data: userPermissions, isLoading: isLoadingPermissions } =
+    useGetUserPermissions(selectedUserId ?? -1);
+
+  // 권한 부여, 제거, 관리자 토글 뮤테이션
+  const assignPermission = useAssignCrewPermission();
+  const removePermission = useRemoveCrewPermission();
+  const toggleAdmin = useToggleAdminStatus();
+  const toggleSuperAdmin = useToggleSuperAdminStatus();
 
   const handleUserSelect = (userId: number) => {
     const user = users?.find((u: any) => u.id === userId);
@@ -39,25 +42,61 @@ export default function PermissionsManagementPage() {
 
   const handleAssignPermission = async (crewId: number) => {
     if (!selectedUserId) return;
-
-    await assignPermissionMutation.mutateAsync({
-      userId: selectedUserId,
-      crewId,
-    });
-    refetchPermissions();
+    assignPermission.mutate({ userId: selectedUserId, crewId });
   };
 
   const handleRemovePermission = async (crewId: number) => {
     if (!selectedUserId) return;
-
-    await removePermissionMutation.mutateAsync({
-      userId: selectedUserId,
-      crewId,
-    });
-    refetchPermissions();
+    removePermission.mutate({ userId: selectedUserId, crewId });
   };
 
-  // Check if user has permission for a crew
+  const handleToggleAdmin = async (
+    userId: number,
+    isCurrentlyAdmin: boolean
+  ) => {
+    toggleAdmin.mutate(
+      { userId, isAdmin: isCurrentlyAdmin },
+      {
+        onSuccess: () => {
+          // 선택된 사용자 업데이트
+          if (selectedUserId === userId) {
+            const updatedUser = users?.find((u: any) => u.id === userId);
+            if (updatedUser) {
+              setSelectedUser({
+                ...updatedUser,
+                isAdmin: !isCurrentlyAdmin,
+              });
+            }
+          }
+        },
+      }
+    );
+  };
+
+  const handleToggleSuperAdmin = async (
+    userId: number,
+    isCurrentlySuperAdmin: boolean
+  ) => {
+    toggleSuperAdmin.mutate(
+      { userId, isSuperAdmin: isCurrentlySuperAdmin },
+      {
+        onSuccess: () => {
+          // 선택된 사용자 업데이트
+          if (selectedUserId === userId) {
+            const updatedUser = users?.find((u: any) => u.id === userId);
+            if (updatedUser) {
+              setSelectedUser({
+                ...updatedUser,
+                isSuperAdmin: !isCurrentlySuperAdmin,
+              });
+            }
+          }
+        },
+      }
+    );
+  };
+
+  // 크루에 대한 권한 확인
   const hasPermissionForCrew = (crewId: number) => {
     if (!userPermissions) return false;
     return userPermissions.some((p: any) => p.crew.id === crewId);
@@ -69,7 +108,38 @@ export default function PermissionsManagementPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">크루 편집 권한 관리</h1>
+      <h1 className="text-2xl font-semibold">권한 관리</h1>
+      <p className="text-gray-600">
+        슈퍼 관리자, 관리자 권한 설정 및 크루 편집 권한을 관리할 수 있습니다.
+      </p>
+
+      {/* 권한 설명 섹션 */}
+      <div className="bg-indigo-50 p-4 rounded-lg shadow-sm border border-indigo-100">
+        <h2 className="text-lg font-medium text-indigo-700 mb-2">역할 안내</h2>
+        <ul className="space-y-2 text-sm text-indigo-900">
+          <li className="flex items-start">
+            <span className="inline-block mr-2 mt-0.5 px-2 py-0.5 bg-purple-100 text-purple-800 text-xs font-medium rounded-full">
+              슈퍼 관리자
+            </span>
+            <span>
+              모든 시스템 관리 권한을 가지며, 관리자 지정과 시스템 설정을
+              관리합니다.
+            </span>
+          </li>
+          <li className="flex items-start">
+            <span className="inline-block mr-2 mt-0.5 px-2 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded-full">
+              관리자
+            </span>
+            <span>일반 관리 기능과 모든 크루 조회/편집 권한이 있습니다.</span>
+          </li>
+          <li className="flex items-start">
+            <span className="inline-block mr-2 mt-0.5 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
+              크루 편집 권한
+            </span>
+            <span>특정 크루만 편집할 수 있는 제한적 권한입니다.</span>
+          </li>
+        </ul>
+      </div>
 
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-lg font-medium mb-4">사용자 선택</h2>
@@ -82,7 +152,12 @@ export default function PermissionsManagementPage() {
           {users &&
             users.map((user: any) => (
               <option key={user.id} value={user.id}>
-                {user.name} ({user.email}) {user.isAdmin ? "- 관리자" : ""}
+                {user.name} ({user.email})
+                {user.isSuperAdmin
+                  ? " - 슈퍼 관리자"
+                  : user.isAdmin
+                  ? " - 관리자"
+                  : ""}
               </option>
             ))}
         </select>
@@ -90,18 +165,81 @@ export default function PermissionsManagementPage() {
 
       {selectedUserId && (
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="mb-4">
+          <div className="mb-6">
             <h2 className="text-lg font-medium">
-              {selectedUser?.name}님의 크루 편집 권한
+              {selectedUser?.name}님의 권한 설정
             </h2>
-            {selectedUser?.isAdmin && (
-              <p className="text-amber-600 mt-2">
-                * 관리자는 기본적으로 모든 크루에 대한 편집 권한이 있습니다.
+
+            <div className="mt-4 space-y-3">
+              {/* 슈퍼 관리자 권한 토글 */}
+              <div className="flex items-center">
+                <span className="mr-3 w-32">슈퍼 관리자 권한:</span>
+                <div className="flex items-center">
+                  <button
+                    className={`px-3 py-1.5 rounded-md ${
+                      selectedUser?.isSuperAdmin
+                        ? "bg-purple-100 text-purple-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {selectedUser?.isSuperAdmin ? "활성화됨" : "비활성화됨"}
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleToggleSuperAdmin(
+                        selectedUserId,
+                        selectedUser?.isSuperAdmin
+                      )
+                    }
+                    className="ml-2 text-blue-600 hover:text-blue-800"
+                  >
+                    {selectedUser?.isSuperAdmin ? "권한 제거" : "권한 부여"}
+                  </button>
+                </div>
+              </div>
+
+              {/* 관리자 권한 토글 */}
+              <div className="flex items-center">
+                <span className="mr-3 w-32">관리자 권한:</span>
+                <div className="flex items-center">
+                  <button
+                    className={`px-3 py-1.5 rounded-md ${
+                      selectedUser?.isAdmin
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
+                    {selectedUser?.isAdmin ? "활성화됨" : "비활성화됨"}
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleToggleAdmin(selectedUserId, selectedUser?.isAdmin)
+                    }
+                    className="ml-2 text-blue-600 hover:text-blue-800"
+                    disabled={selectedUser?.isSuperAdmin}
+                  >
+                    {selectedUser?.isAdmin ? "권한 제거" : "권한 부여"}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {selectedUser?.isSuperAdmin && (
+              <p className="text-purple-600 mt-3">
+                * 슈퍼 관리자는 모든 시스템 권한을 가집니다.
+              </p>
+            )}
+
+            {!selectedUser?.isSuperAdmin && selectedUser?.isAdmin && (
+              <p className="text-amber-600 mt-3">
+                * 관리자는 모든 크루에 대한 조회가 가능하며, 아래 추가 권한을
+                부여할 수 있습니다.
               </p>
             )}
           </div>
 
-          <div className="space-y-4">
+          <div>
+            <h3 className="text-md font-medium mb-4">크루 편집 권한</h3>
             {isLoadingPermissions ? (
               <div>권한 로딩 중...</div>
             ) : (
@@ -142,31 +280,60 @@ export default function PermissionsManagementPage() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span
                               className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                hasPermission
+                                hasPermission ||
+                                selectedUser?.isSuperAdmin ||
+                                selectedUser?.isAdmin
                                   ? "bg-green-100 text-green-800"
                                   : "bg-red-100 text-red-800"
                               }`}
                             >
-                              {hasPermission ? "있음" : "없음"}
+                              {hasPermission ||
+                              selectedUser?.isSuperAdmin ||
+                              selectedUser?.isAdmin
+                                ? "있음"
+                                : "없음"}
                             </span>
+                            {(selectedUser?.isSuperAdmin ||
+                              selectedUser?.isAdmin) &&
+                              !hasPermission && (
+                                <span className="ml-2 text-xs text-gray-500">
+                                  (기본 권한)
+                                </span>
+                              )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {hasPermission ? (
-                              <button
-                                onClick={() => handleRemovePermission(crew.id)}
-                                disabled={removePermissionMutation.isPending}
-                                className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                              >
-                                권한 제거
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => handleAssignPermission(crew.id)}
-                                disabled={assignPermissionMutation.isPending}
-                                className="text-green-600 hover:text-green-900 disabled:opacity-50"
-                              >
-                                권한 부여
-                              </button>
+                            {!selectedUser?.isSuperAdmin &&
+                              !selectedUser?.isAdmin &&
+                              (hasPermission ? (
+                                <button
+                                  onClick={() =>
+                                    handleRemovePermission(crew.id)
+                                  }
+                                  className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                                  disabled={removePermission.isPending}
+                                >
+                                  {removePermission.isPending &&
+                                  removePermission.variables?.crewId === crew.id
+                                    ? "처리 중..."
+                                    : "권한 제거"}
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() =>
+                                    handleAssignPermission(crew.id)
+                                  }
+                                  className="text-green-600 hover:text-green-900 disabled:opacity-50"
+                                  disabled={assignPermission.isPending}
+                                >
+                                  {assignPermission.isPending &&
+                                  assignPermission.variables?.crewId === crew.id
+                                    ? "처리 중..."
+                                    : "권한 부여"}
+                                </button>
+                              ))}
+                            {(selectedUser?.isSuperAdmin ||
+                              selectedUser?.isAdmin) && (
+                              <span className="text-gray-400">- 기본 권한</span>
                             )}
                           </td>
                         </tr>

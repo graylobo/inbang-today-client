@@ -9,7 +9,7 @@ import {
   getPermittedCrews,
   getUserPermissions,
   removeCrewPermission,
-} from "@/libs/api/services/userPermission.service";
+} from "@/libs/api/services/user-permission.service";
 
 export function useCheckCrewPermission(crewId?: number) {
   const { user, isAdmin, authInitialized } = useAuthStore();
