@@ -6,11 +6,13 @@ import { useRequireCrewPermission } from "@/hooks/crew-permission/useCrewPermiss
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/libs/api/axios";
 import { useUpdateCrew } from "@/hooks/crew/useCrews";
+import { useAuthStore } from "@/store/authStore";
 
 export default function EditCrewPage() {
   const params = useParams();
   const crewId = Number(params.id);
   const router = useRouter();
+  const { isSuperAdmin } = useAuthStore();
   const { hasPermission, isLoading: isLoadingPermission } =
     useRequireCrewPermission(crewId);
 
@@ -18,6 +20,7 @@ export default function EditCrewPage() {
     name: "",
     description: "",
     iconUrl: "",
+    ranks: [],
   });
 
   // Fetch crew data
@@ -41,12 +44,26 @@ export default function EditCrewPage() {
         name: crew.name || "",
         description: crew.description || "",
         iconUrl: crew.iconUrl || "",
+        ranks: crew.ranks || [],
       });
     }
   }, [crew]);
 
+  // 일반 어드민은 멤버 관리 페이지로 리다이렉트
+  useEffect(() => {
+    if (!isLoadingPermission && hasPermission && !isSuperAdmin) {
+      router.push(`/admin/members?crewId=${crewId}`);
+    }
+  }, [isLoadingPermission, hasPermission, isSuperAdmin, crewId, router]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isSuperAdmin) {
+      alert(
+        "수정 권한이 없습니다. 슈퍼 관리자만 크루 정보를 수정할 수 있습니다."
+      );
+      return;
+    }
     updateCrew({ id: crewId, formData });
   };
 
@@ -74,6 +91,16 @@ export default function EditCrewPage() {
           목록으로
         </button>
       </div>
+
+      {!isSuperAdmin && (
+        <div className="bg-yellow-100 p-4 rounded-md text-yellow-800 mb-4">
+          슈퍼 관리자만 크루 정보를 수정할 수 있습니다. 멤버 관리는{" "}
+          <a href={`/admin/members?crewId=${crewId}`} className="underline">
+            이 링크
+          </a>
+          를 이용해주세요.
+        </div>
+      )}
 
       <form
         onSubmit={handleSubmit}

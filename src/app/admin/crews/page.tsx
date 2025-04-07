@@ -77,19 +77,21 @@ export default function AdminCrewsPage() {
       ranks: crew.ranks || [],
     });
     setIsEditing(true);
+
+    // 슈퍼어드민이 아닌 일반 어드민은 크루 멤버 관리 페이지로 직접 이동
     if (!isSuperAdmin && isAdmin) {
-      router.push(`/admin/crews/edit/${crew.id}`);
+      router.push(`/admin/members?crewId=${crew.id}`);
     }
   };
 
   // Filter crews to only show those the user has permission to edit
   const getEditableCrews = () => {
-    // 슈퍼 관리자와 일반 관리자는 모든 크루를 볼 수 있음
+    // 슈퍼 관리자는 모든 크루를 볼 수 있음
     if (isSuperAdmin) {
       return allCrews || [];
     }
 
-    // 일반 사용자는 허용된 크루만 볼 수 있음
+    // 일반 관리자는 허용된 크루만 볼 수 있음
     if (!permittedCrews || !allCrews) {
       return [];
     }
@@ -342,14 +344,16 @@ export default function AdminCrewsPage() {
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleEdit(crew)}
-                      className="text-indigo-600 hover:text-indigo-900"
-                    >
-                      편집
-                    </button>
+                    {isSuperAdmin && (
+                      <button
+                        onClick={() => handleEdit(crew)}
+                        className="text-indigo-600 hover:text-indigo-900"
+                      >
+                        편집
+                      </button>
+                    )}
                     <Link
-                      href={`/admin/crews/${crew.id}/members`}
+                      href={`/admin/members?crewId=${crew.id}`}
                       className="text-green-600 hover:text-green-900"
                     >
                       멤버 관리
