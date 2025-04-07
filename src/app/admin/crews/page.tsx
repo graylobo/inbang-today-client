@@ -1,16 +1,15 @@
 "use client";
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api } from "@/libs/api/axios";
-import { useState } from "react";
+import { useCrewPermissionsList } from "@/hooks/crew-permission/useCrewPermission";
 import {
   useCreateCrew,
   useDeleteCrew,
   useGetCrews,
   useUpdateCrew,
 } from "@/hooks/crew/useCrews";
-import { useCrewPermissionsList } from "@/hooks/crew-permission/useCrewPermission";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface RankFormData {
   name: string;
@@ -27,14 +26,13 @@ export interface CrewFormData {
 export default function AdminCrewsPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [selectedCrew, setSelectedCrew] = useState<any>(null);
+  const router = useRouter();
   const [formData, setFormData] = useState<CrewFormData>({
     name: "",
     description: "",
     iconUrl: "",
     ranks: [],
   });
-
-  const queryClient = useQueryClient();
 
   const { data: allCrews, isLoading: isLoadingAllCrews } = useGetCrews();
 
@@ -43,7 +41,11 @@ export default function AdminCrewsPage() {
     crews: permittedCrews,
     isLoading: isLoadingPermissions,
     isAdmin,
+    isSuperAdmin,
   } = useCrewPermissionsList();
+
+  console.log("allCrews:::", allCrews);
+  console.log("permittedCrews:::", permittedCrews);
 
   const { mutate: createMutate } = useCreateCrew(resetForm);
 
@@ -75,14 +77,19 @@ export default function AdminCrewsPage() {
       ranks: crew.ranks || [],
     });
     setIsEditing(true);
+    if (!isSuperAdmin && isAdmin) {
+      router.push(`/admin/crews/edit/${crew.id}`);
+    }
   };
 
   // Filter crews to only show those the user has permission to edit
   const getEditableCrews = () => {
-    if (isAdmin) {
-      return allCrews || []; // Admin can edit all crews
+    // 슈퍼 관리자와 일반 관리자는 모든 크루를 볼 수 있음
+    if (isSuperAdmin) {
+      return allCrews || [];
     }
 
+    // 일반 사용자는 허용된 크루만 볼 수 있음
     if (!permittedCrews || !allCrews) {
       return [];
     }
@@ -161,7 +168,8 @@ export default function AdminCrewsPage() {
 
   return (
     <div className="space-y-6">
-      {isAdmin && (
+      {/* 슈퍼 관리자만 폼을 볼 수 있음 */}
+      {isSuperAdmin && (
         <form
           onSubmit={handleSubmit}
           className="bg-white shadow-sm rounded-lg p-6"
@@ -261,82 +269,113 @@ export default function AdminCrewsPage() {
                         onClick={() => handleRemoveRank(index)}
                         className="p-1 text-red-500 hover:text-red-700"
                       >
-                        ✕
+                        ×
                       </button>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
-
-            <div className="pt-4 flex justify-end space-x-3">
-              {isEditing && (
+          </div>
+          <div className="mt-6 flex justify-end space-x-3">
+            {isEditing ? (
+              <>
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
+                  className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                 >
                   취소
                 </button>
-              )}
+                <button
+                  type="submit"
+                  className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+                >
+                  저장
+                </button>
+              </>
+            ) : (
               <button
                 type="submit"
-                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
               >
-                {isEditing ? "수정하기" : "크루 생성"}
+                크루 생성
               </button>
-            </div>
+            )}
           </div>
         </form>
       )}
 
-      <div className="bg-white shadow-sm rounded-lg p-6">
-        <h2 className="text-lg font-medium mb-4">크루 목록</h2>
-        {!isAdmin && editableCrews.length === 0 && (
-          <p className="text-gray-500">편집 권한이 있는 크루가 없습니다.</p>
-        )}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {editableCrews.map((crew: any) => (
-            <div
-              key={crew.id}
-              className="border border-gray-200 rounded-lg p-4 hover:shadow-md"
-            >
-              <div className="flex items-center space-x-3 mb-2">
-                {crew.iconUrl && (
-                  <img
-                    src={crew.iconUrl}
-                    alt={crew.name}
-                    className="w-10 h-10 rounded-full"
-                  />
-                )}
-                <h3 className="font-medium">{crew.name}</h3>
-              </div>
-              <p className="text-sm text-gray-500 mb-3 line-clamp-2">
-                {crew.description}
-              </p>
-              <div className="flex justify-end space-x-2">
-                <Link
-                  href={`/admin/crews/edit/${crew.id}`}
-                  className="text-blue-500 hover:text-blue-700 text-sm"
-                >
-                  편집
-                </Link>
-                {isAdmin && (
-                  <button
-                    onClick={() => {
-                      if (confirm("정말 삭제하시겠습니까?")) {
-                        deleteMutate(crew.id);
-                      }
-                    }}
-                    className="text-red-500 hover:text-red-700 text-sm"
-                  >
-                    삭제
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+      <div className="bg-white shadow-sm rounded-lg overflow-hidden">
+        <div className="flex justify-between items-center p-6 border-b">
+          <h2 className="text-xl font-semibold text-gray-800">
+            내가 관리할 수 있는 크루 목록
+          </h2>
         </div>
+
+        {editableCrews.length === 0 ? (
+          <div className="p-6 text-center text-gray-500">
+            {isSuperAdmin
+              ? "등록된 크루가 없습니다."
+              : "관리 권한이 있는 크루가 없습니다."}
+          </div>
+        ) : (
+          <ul className="divide-y divide-gray-200">
+            {editableCrews.map((crew) => (
+              <li key={crew.id} className="p-6 hover:bg-gray-50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    {crew.iconUrl && (
+                      <img
+                        src={crew.iconUrl}
+                        alt={crew.name}
+                        className="w-10 h-10 rounded-full"
+                      />
+                    )}
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900">
+                        {crew.name}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {crew.description || "설명 없음"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(crew)}
+                      className="text-indigo-600 hover:text-indigo-900"
+                    >
+                      편집
+                    </button>
+                    <Link
+                      href={`/admin/crews/${crew.id}/members`}
+                      className="text-green-600 hover:text-green-900"
+                    >
+                      멤버 관리
+                    </Link>
+                    {isSuperAdmin && (
+                      <button
+                        onClick={() => {
+                          if (
+                            window.confirm(
+                              "정말로 이 크루를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+                            )
+                          ) {
+                            deleteMutate(crew.id);
+                          }
+                        }}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        삭제
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

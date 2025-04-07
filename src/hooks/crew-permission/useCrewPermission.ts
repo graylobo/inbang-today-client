@@ -13,7 +13,6 @@ import {
 
 export function useCheckCrewPermission(crewId?: number) {
   const { user, isAdmin, authInitialized } = useAuthStore();
-
   return useQuery<boolean>({
     queryKey: ["crewPermission", crewId, user?.id],
     queryFn: () => {
@@ -123,7 +122,7 @@ export function useRequireCrewPermission(crewId?: number) {
 }
 
 export function useCrewPermissionsList() {
-  const { isAdmin } = useAuthStore();
+  const { isAdmin, isSuperAdmin } = useAuthStore();
   const { data: crews, isLoading, isError } = useGetPermittedCrews();
 
   return {
@@ -131,5 +130,6 @@ export function useCrewPermissionsList() {
     isLoading,
     isError,
     isAdmin,
+    isSuperAdmin,
   };
 }

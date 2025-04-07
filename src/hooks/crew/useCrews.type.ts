@@ -2,6 +2,7 @@ export interface Crew {
   id: number;
   name: string;
   description: string;
+  iconUrl?: string;
   members: {
     id: number;
     name: string;

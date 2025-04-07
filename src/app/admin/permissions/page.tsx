@@ -122,21 +122,27 @@ export default function PermissionsManagementPage() {
               슈퍼 관리자
             </span>
             <span>
-              모든 시스템 관리 권한을 가지며, 관리자 지정과 시스템 설정을
-              관리합니다.
+              모든 시스템 관리 권한과 모든 크루 편집 권한을 가집니다. 관리자
+              지정과 시스템 설정을 관리할 수 있습니다.
             </span>
           </li>
           <li className="flex items-start">
             <span className="inline-block mr-2 mt-0.5 px-2 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded-full">
               관리자
             </span>
-            <span>일반 관리 기능과 모든 크루 조회/편집 권한이 있습니다.</span>
+            <span>
+              관리자 페이지에 접근 가능하며, 부여받은 특정 크루만 편집할 수
+              있습니다.
+            </span>
           </li>
           <li className="flex items-start">
             <span className="inline-block mr-2 mt-0.5 px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
               크루 편집 권한
             </span>
-            <span>특정 크루만 편집할 수 있는 제한적 권한입니다.</span>
+            <span>
+              특정 크루만 편집할 수 있는 제한적 권한입니다. 관리자와 일반 사용자
+              모두에게 부여할 수 있습니다.
+            </span>
           </li>
         </ul>
       </div>
@@ -226,14 +232,15 @@ export default function PermissionsManagementPage() {
 
             {selectedUser?.isSuperAdmin && (
               <p className="text-purple-600 mt-3">
-                * 슈퍼 관리자는 모든 시스템 권한을 가집니다.
+                * 슈퍼 관리자는 모든 시스템 권한 및 모든 크루 편집 권한을
+                가집니다.
               </p>
             )}
 
             {!selectedUser?.isSuperAdmin && selectedUser?.isAdmin && (
               <p className="text-amber-600 mt-3">
-                * 관리자는 모든 크루에 대한 조회가 가능하며, 아래 추가 권한을
-                부여할 수 있습니다.
+                * 관리자는 관리 메뉴에 접근할 수 있으며, 아래에서 크루 편집
+                권한을 부여받을 수 있습니다.
               </p>
             )}
           </div>
@@ -280,30 +287,23 @@ export default function PermissionsManagementPage() {
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span
                               className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                hasPermission ||
-                                selectedUser?.isSuperAdmin ||
-                                selectedUser?.isAdmin
+                                hasPermission || selectedUser?.isSuperAdmin
                                   ? "bg-green-100 text-green-800"
                                   : "bg-red-100 text-red-800"
                               }`}
                             >
-                              {hasPermission ||
-                              selectedUser?.isSuperAdmin ||
-                              selectedUser?.isAdmin
+                              {hasPermission || selectedUser?.isSuperAdmin
                                 ? "있음"
                                 : "없음"}
                             </span>
-                            {(selectedUser?.isSuperAdmin ||
-                              selectedUser?.isAdmin) &&
-                              !hasPermission && (
-                                <span className="ml-2 text-xs text-gray-500">
-                                  (기본 권한)
-                                </span>
-                              )}
+                            {selectedUser?.isSuperAdmin && !hasPermission && (
+                              <span className="ml-2 text-xs text-gray-500">
+                                (기본 권한)
+                              </span>
+                            )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {!selectedUser?.isSuperAdmin &&
-                              !selectedUser?.isAdmin &&
                               (hasPermission ? (
                                 <button
                                   onClick={() =>
@@ -331,8 +331,7 @@ export default function PermissionsManagementPage() {
                                     : "권한 부여"}
                                 </button>
                               ))}
-                            {(selectedUser?.isSuperAdmin ||
-                              selectedUser?.isAdmin) && (
+                            {selectedUser?.isSuperAdmin && (
                               <span className="text-gray-400">- 기본 권한</span>
                             )}
                           </td>
