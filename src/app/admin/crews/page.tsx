@@ -33,6 +33,10 @@ export default function AdminCrewsPage() {
     iconUrl: "",
     ranks: [],
   });
+  // 계급 관리 모달 상태
+  const [isRankModalOpen, setIsRankModalOpen] = useState(false);
+  const [rankEditCrew, setRankEditCrew] = useState<any>(null);
+  const [rankFormData, setRankFormData] = useState<RankFormData[]>([]);
 
   const { data: allCrews, isLoading: isLoadingAllCrews } = useGetCrews();
 
@@ -58,6 +62,105 @@ export default function AdminCrewsPage() {
     setSelectedCrew(null);
     setIsEditing(false);
   }
+
+  // 계급 관리 모달 열기
+  const openRankModal = (crew: any) => {
+    setRankEditCrew(crew);
+    setRankFormData(crew.ranks || []);
+    setIsRankModalOpen(true);
+  };
+
+  // 계급 관리 모달 닫기
+  const closeRankModal = () => {
+    setIsRankModalOpen(false);
+    setRankEditCrew(null);
+    setRankFormData([]);
+  };
+
+  // 계급 추가
+  const handleAddRankInModal = () => {
+    // 기존 계급이 있으면 가장 높은 레벨 + 1로 설정 (숫자가 클수록 낮은 계급)
+    const newLevel =
+      rankFormData.length > 0
+        ? Math.max(...rankFormData.map((rank) => rank.level)) + 1
+        : 1;
+
+    setRankFormData([
+      ...rankFormData,
+      {
+        name: "",
+        level: newLevel,
+      },
+    ]);
+  };
+
+  // 계급 제거
+  const handleRemoveRankInModal = (index: number) => {
+    setRankFormData(rankFormData.filter((_, i) => i !== index));
+  };
+
+  // 계급 정보 변경
+  const handleRankChangeInModal = (
+    index: number,
+    field: keyof RankFormData,
+    value: string | number
+  ) => {
+    const newRanks = [...rankFormData];
+    newRanks[index] = {
+      ...newRanks[index],
+      [field]: value,
+    };
+    setRankFormData(newRanks);
+  };
+
+  // 계급 순서 이동
+  const handleMoveRankInModal = (index: number, direction: "up" | "down") => {
+    if (
+      (direction === "up" && index === 0) ||
+      (direction === "down" && index === rankFormData.length - 1)
+    ) {
+      return;
+    }
+
+    const newRanks = [...rankFormData];
+    const targetIndex = direction === "up" ? index - 1 : index + 1;
+
+    // 레벨 값 교환
+    const tempLevel = newRanks[index].level;
+    newRanks[index].level = newRanks[targetIndex].level;
+    newRanks[targetIndex].level = tempLevel;
+
+    // 배열에서 위치 교환
+    [newRanks[index], newRanks[targetIndex]] = [
+      newRanks[targetIndex],
+      newRanks[index],
+    ];
+
+    setRankFormData(newRanks);
+  };
+
+  // 계급 정보 저장
+  const saveRanks = () => {
+    if (!rankEditCrew) return;
+
+    // 유효성 검사
+    if (rankFormData.some((rank) => !rank.name.trim())) {
+      alert("모든 계급에 이름을 입력해주세요.");
+      return;
+    }
+
+    updateMutate({
+      id: rankEditCrew.id,
+      formData: {
+        name: rankEditCrew.name,
+        description: rankEditCrew.description,
+        iconUrl: rankEditCrew.iconUrl || "",
+        ranks: rankFormData,
+      },
+    });
+
+    closeRankModal();
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,13 +206,19 @@ export default function AdminCrewsPage() {
   const editableCrews = getEditableCrews();
 
   const handleAddRank = () => {
+    // 기존 계급이 있으면 가장 높은 레벨 + 1로 설정 (숫자가 클수록 낮은 계급)
+    const newLevel =
+      formData.ranks.length > 0
+        ? Math.max(...formData.ranks.map((rank) => rank.level)) + 1
+        : 1;
+
     setFormData({
       ...formData,
       ranks: [
         ...formData.ranks,
         {
           name: "",
-          level: formData.ranks.length + 1,
+          level: newLevel,
         },
       ],
     });
@@ -220,7 +329,13 @@ export default function AdminCrewsPage() {
             {/* 계급 관리 섹션 */}
             <div className="mt-6">
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-medium">계급 관리</h3>
+                <div>
+                  <h3 className="text-lg font-medium">계급 관리</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    계급은 레벨이 낮을수록 높은 계급입니다. 화살표를 이용해
+                    순서를 변경할 수 있습니다.
+                  </p>
+                </div>
                 <button
                   type="button"
                   onClick={handleAddRank}
@@ -358,6 +473,12 @@ export default function AdminCrewsPage() {
                     >
                       멤버 관리
                     </Link>
+                    <button
+                      onClick={() => openRankModal(crew)}
+                      className="text-blue-600 hover:text-blue-900"
+                    >
+                      계급 관리
+                    </button>
                     {isSuperAdmin && (
                       <button
                         onClick={() => {
@@ -381,6 +502,114 @@ export default function AdminCrewsPage() {
           </ul>
         )}
       </div>
+
+      {/* 계급 관리 모달 */}
+      {isRankModalOpen && rankEditCrew && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6 overflow-auto max-h-[90vh]">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-800">
+                &apos;{rankEditCrew.name}&apos; 크루 계급 관리
+              </h2>
+              <button
+                onClick={closeRankModal}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                <p className="text-sm text-gray-500">
+                  계급은 레벨이 낮을수록 높은 계급입니다. 화살표를 이용해 순서를
+                  변경할 수 있습니다.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleAddRankInModal}
+                  className="px-3 py-1 text-sm bg-green-500 text-white rounded-md hover:bg-green-600"
+                >
+                  계급 추가
+                </button>
+              </div>
+
+              {rankFormData.length === 0 ? (
+                <div className="text-center p-4 bg-gray-50 rounded-md">
+                  등록된 계급이 없습니다. 계급을 추가해주세요.
+                </div>
+              ) : (
+                rankFormData.map((rank, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex-shrink-0 w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-700 font-semibold">
+                      {index + 1}
+                    </div>
+                    <div className="flex-grow">
+                      <label className="block text-sm font-medium text-gray-700">
+                        계급 이름
+                      </label>
+                      <input
+                        type="text"
+                        value={rank.name}
+                        onChange={(e) =>
+                          handleRankChangeInModal(index, "name", e.target.value)
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        required
+                      />
+                    </div>
+                    <div className="flex-shrink-0 flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => handleMoveRankInModal(index, "up")}
+                        disabled={index === 0}
+                        className="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-30"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMoveRankInModal(index, "down")}
+                        disabled={index === rankFormData.length - 1}
+                        className="p-1 text-gray-500 hover:text-gray-700 disabled:opacity-30"
+                      >
+                        ↓
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveRankInModal(index)}
+                        className="p-1 text-red-500 hover:text-red-700"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="mt-6 flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={closeRankModal}
+                className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+              >
+                취소
+              </button>
+              <button
+                type="button"
+                onClick={saveRanks}
+                className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
