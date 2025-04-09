@@ -3,12 +3,7 @@ import { API_ROUTES } from "@/libs/api/route";
 import { User } from "@/store/authStore";
 
 export interface UserProfile {
-  id: string;
-  name: string;
-  email: string;
-  profileImage: string;
-  isAdmin: boolean;
-  isSuperAdmin: boolean;
+  data: User;
 }
 
 export async function getUserProfile(): Promise<UserProfile> {

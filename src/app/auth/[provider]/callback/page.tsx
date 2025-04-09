@@ -12,13 +12,14 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
+        console.log("진입");
         const { data } = await getUserProfile();
-
-        // refreshToken이 응답에 포함되어 있다면 저장
-        if (data.refreshToken) {
-          localStorage.setItem("refresh_token", data.refreshToken);
-          setTokens(data.refreshToken);
-        }
+        console.log("userProfile:::");
+        // // refreshToken이 응답에 포함되어 있다면 저장
+        // if (data.refreshToken) {
+        //   localStorage.setItem("refresh_token", data.refreshToken);
+        //   setTokens(data.refreshToken);
+        // }
 
         setUser(data);
 
