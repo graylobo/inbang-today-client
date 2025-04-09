@@ -1,8 +1,10 @@
 import SidebarMenuItem from "@/components/containers/sidebar/SidebarMenuItem";
 import { DrawerHeader } from "@/layouts/Base";
+import { useLayoutStore } from "@/store/layout";
 import { Drafts, MoveToInbox, Send } from "@mui/icons-material";
 import { List } from "@mui/material";
 import { SidebarDrawer } from "./style";
+
 const menuItems = [
   {
     icon: Send,
@@ -28,17 +30,20 @@ const menuItems = [
   // },
 ];
 
-type SidebarProps = {
-  openSidebar: boolean;
-};
+function Sidebar() {
+  const { sidebarState } = useLayoutStore();
+  const isOpen = sidebarState !== "CLOSED"; // OPEN 또는 ICON_ONLY일 때 아이템을 표시
 
-function Sidebar({ openSidebar }: SidebarProps) {
   return (
-    <SidebarDrawer variant="permanent" open={openSidebar}>
+    <SidebarDrawer variant="permanent" sidebarState={sidebarState}>
       <DrawerHeader />
       <List>
         {menuItems.map((item, index) => (
-          <SidebarMenuItem key={index} item={item} openSidebar={openSidebar} />
+          <SidebarMenuItem
+            key={index}
+            item={item}
+            openSidebar={sidebarState === "OPEN"}
+          />
         ))}
       </List>
     </SidebarDrawer>

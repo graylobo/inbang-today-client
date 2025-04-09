@@ -2,40 +2,23 @@
 
 import { AppBar } from "@/components/containers/navbar/style";
 import { useAuthStore } from "@/store/authStore";
+import { useLayoutStore } from "@/store/layout";
 import MenuIcon from "@mui/icons-material/Menu";
 import { IconButton, Toolbar } from "@mui/material";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 
-type NavBarProps = {
-  openSidebar: boolean;
-  handleDrawerOpen: () => void;
-  handleDrawerClose: () => void;
-};
-
-function NavBar({
-  openSidebar,
-  handleDrawerOpen,
-  handleDrawerClose,
-}: NavBarProps) {
+function NavBar() {
   const { user, logout } = useAuthStore();
-
-  const handleDrawerToggle = () => {
-    if (openSidebar) {
-      handleDrawerClose();
-    } else {
-      handleDrawerOpen();
-    }
-  };
+  const { sidebarState, toggleSidebar } = useLayoutStore();
 
   return (
     <AppBar
       position="fixed"
-      open={openSidebar}
+      sidebarState={sidebarState}
       className="bg-white dark:bg-dark-bg"
       elevation={0}
       sx={{
-        width: "100%",
         zIndex: (theme: any) => theme.zIndex.drawer + 1,
       }}
     >
@@ -43,8 +26,8 @@ function NavBar({
         <div className="flex items-center">
           <IconButton
             color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerToggle}
+            aria-label="toggle drawer"
+            onClick={toggleSidebar}
             edge="start"
             className="mr-5 text-gray-900 dark:text-gray-100"
           >

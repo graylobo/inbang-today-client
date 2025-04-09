@@ -1,6 +1,7 @@
 import { DRAWER_WIDTH } from "@/layouts/Base";
 import MuiDrawer from "@mui/material/Drawer";
 import { CSSObject, Theme, styled } from "@mui/material/styles";
+import { SidebarState } from "@/store/layout";
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: DRAWER_WIDTH,
@@ -22,7 +23,7 @@ const openedMixin = (theme: Theme): CSSObject => ({
   },
 });
 
-const closedMixin = (theme: Theme): CSSObject => ({
+const iconOnlyMixin = (theme: Theme): CSSObject => ({
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
@@ -39,18 +40,43 @@ const closedMixin = (theme: Theme): CSSObject => ({
   },
 });
 
+const closedMixin = (theme: Theme): CSSObject => ({
+  transition: theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: "hidden",
+  width: 0,
+  backgroundColor: "var(--drawer-bg)",
+  borderRight: "none",
+  "& .MuiListItemIcon-root": {
+    color: "var(--drawer-icon)",
+  },
+  [theme.breakpoints.up("sm")]: {
+    width: 0,
+  },
+});
+
+type SidebarDrawerProps = {
+  sidebarState: SidebarState;
+};
+
 export const SidebarDrawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
+  shouldForwardProp: (prop) => prop !== "sidebarState",
+})<SidebarDrawerProps>(({ theme, sidebarState }) => ({
   width: DRAWER_WIDTH,
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
-  ...(open && {
+  ...(sidebarState === SidebarState.OPEN && {
     ...openedMixin(theme),
     "& .MuiDrawer-paper": openedMixin(theme),
   }),
-  ...(!open && {
+  ...(sidebarState === SidebarState.ICON_ONLY && {
+    ...iconOnlyMixin(theme),
+    "& .MuiDrawer-paper": iconOnlyMixin(theme),
+  }),
+  ...(sidebarState === SidebarState.CLOSED && {
     ...closedMixin(theme),
     "& .MuiDrawer-paper": closedMixin(theme),
   }),
