@@ -3,6 +3,7 @@ import {
   Category,
   StreamerCategory,
   getAllCategories,
+  getCategoriesByName,
   getStreamerCategories,
   setStreamerCategories,
 } from "@/libs/api/services/category.service";
@@ -12,6 +13,15 @@ export function useGetAllCategories() {
   return useQuery<Category[]>({
     queryKey: ["categories"],
     queryFn: () => getAllCategories(),
+  });
+}
+
+// 이름으로 카테고리 조회 훅
+export function useGetCategoriesByName(name: string) {
+  return useQuery<Category[]>({
+    queryKey: ["categories", "name", name],
+    queryFn: () => getCategoriesByName(name),
+    enabled: !!name,
   });
 }
 

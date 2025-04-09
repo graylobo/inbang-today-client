@@ -23,6 +23,12 @@ export interface StreamerCategory {
 export const getAllCategories = async (): Promise<Category[]> =>
   await apiRequest(API_ROUTES.categories.getAll);
 
+// 타입별 카테고리 조회
+export const getCategoriesByName = async (name: string): Promise<Category[]> =>
+  await apiRequest(API_ROUTES.categories.getAll, {
+    query: { name },
+  });
+
 // 특정 스트리머의 카테고리 조회
 export const getStreamerCategories = async (
   streamerId: number

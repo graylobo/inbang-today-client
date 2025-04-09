@@ -26,8 +26,10 @@ function StarTier() {
     endDate: new Date().toISOString().split("T")[0],
   });
 
-  const { data: streamers } = useGetStreamers();
+  // 'starcraft' 이름을 포함하는 카테고리에 속한 스트리머만 가져옴
+  const { data: streamers } = useGetStreamers("starcraft");
   const { data: liveStreamers } = useGetLiveStreamers();
+
   const { data } = useStarCraftMatch(
     selectedStreamer
       ? {
@@ -67,7 +69,8 @@ function StarTier() {
   const filteredStreamers = useMemo(() => {
     if (!streamers) return [];
 
-    // 필터링만 적용하고 정렬은 제거
+    // 서버에서 이미 스타크래프트 카테고리 스트리머만 가져왔으므로
+    // 라이브 방송과 매치 필터만 적용
     let filtered = streamers.filter((streamer) => {
       // 라이브 방송 필터
       if (showOnlyLive && !isStreamerLive(streamer.soopId)) {
