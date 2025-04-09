@@ -14,6 +14,12 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useCrewPermissionsList } from "@/hooks/crew-permission/useCrewPermission";
 import { useAuthStore } from "@/store/authStore";
+import {
+  useGetAllCategories,
+  useGetStreamerCategories,
+  useSetStreamerCategories,
+} from "@/hooks/category/useCategory";
+import { Category } from "@/libs/api/services/category.service";
 
 export interface CrewMemberFormData {
   name: string;
@@ -21,6 +27,7 @@ export interface CrewMemberFormData {
   broadcastUrl?: string;
   crewId: number;
   rankId: number;
+  categoryIds?: number[];
 }
 
 export default function AdminMembersPage() {
@@ -39,6 +46,7 @@ export default function AdminMembersPage() {
     broadcastUrl: "",
     crewId: 0,
     rankId: 0,
+    categoryIds: [],
   });
 
   const resetForm = () => {
@@ -48,6 +56,7 @@ export default function AdminMembersPage() {
       broadcastUrl: "",
       crewId: 0,
       rankId: 0,
+      categoryIds: [],
     });
     setSelectedMember(null);
     setIsEditing(false);
@@ -65,13 +74,29 @@ export default function AdminMembersPage() {
   const { data: ranks } = useGetCrewRanksByCrewID(formData.crewId?.toString());
 
   // 모든 멤버 조회
-  const { data: members, isLoading } = useGetCrewMembers();
+  const { data: members, isLoading: isLoadingMembers } = useGetCrewMembers();
 
+  // 모든 카테고리 조회
+  const { data: categories, isLoading: isLoadingCategories } =
+    useGetAllCategories();
+
+  // 선택된 멤버의 카테고리 조회
+  const { data: memberCategories, isLoading: isLoadingMemberCategories } =
+    useGetStreamerCategories(selectedMember?.id);
+
+  // 멤버 생성 mutation
   const { mutate: createCrewMember } = useCreateCrewMember(resetForm);
 
+  // 멤버 업데이트 mutation
   const { mutate: updateCrewMember } = useUpdateCrewMember(resetForm);
 
+  // 멤버 삭제 mutation
   const { mutate: deleteCrewMember } = useDeleteCrewMember();
+
+  // 카테고리 설정 mutation
+  const { mutate: setCategories } = useSetStreamerCategories(() => {
+    queryClient.invalidateQueries({ queryKey: ["crewMembers"] });
+  });
 
   // 편집 가능한 크루 목록 가져오기
   const getEditableCrews = () => {
@@ -85,6 +110,29 @@ export default function AdminMembersPage() {
   };
 
   const editableCrews = getEditableCrews();
+
+  // 카테고리 체크박스 변경 핸들러
+  const handleCategoryChange = (categoryId: number, checked: boolean) => {
+    let newCategoryIds: number[] = [...(formData.categoryIds || [])];
+
+    if (checked) {
+      // 체크된 경우 카테고리 추가
+      newCategoryIds.push(categoryId);
+    } else {
+      // 체크 해제된 경우 카테고리 제거
+      newCategoryIds = newCategoryIds.filter((id) => id !== categoryId);
+    }
+
+    setFormData({ ...formData, categoryIds: newCategoryIds });
+  };
+
+  // 멤버의 카테고리 정보가 로드되면 폼에 반영
+  useEffect(() => {
+    if (memberCategories && isEditing) {
+      const categoryIds = memberCategories.map((item) => item.category.id);
+      setFormData((prev) => ({ ...prev, categoryIds }));
+    }
+  }, [memberCategories, isEditing]);
 
   // 편집 권한이 없는 크루를 선택한 경우, 자동으로 'all'로 변경
   useEffect(() => {
@@ -112,8 +160,18 @@ export default function AdminMembersPage() {
     }
 
     if (isEditing && selectedMember) {
+      // 멤버 정보 업데이트
       updateCrewMember({ id: selectedMember.id, member: formData });
+
+      // 카테고리 정보 업데이트 (선택된 카테고리가 있는 경우)
+      if (formData.categoryIds && formData.categoryIds.length > 0) {
+        setCategories({
+          streamerId: selectedMember.id,
+          categoryIds: formData.categoryIds,
+        });
+      }
     } else {
+      // 새 멤버 생성 - categoryIds 포함하여 전송
       createCrewMember(formData);
     }
   };
@@ -137,6 +195,7 @@ export default function AdminMembersPage() {
       broadcastUrl: member.broadcastUrl || "",
       crewId: member?.crew?.id || 0,
       rankId: member?.rank?.id || 0,
+      categoryIds: [], // 초기값으로 빈 배열 설정, memberCategories 로드 후 업데이트됨
     });
     setIsEditing(true);
   };
@@ -174,7 +233,7 @@ export default function AdminMembersPage() {
       return a.rank.id - b.rank.id;
     });
 
-  if (isLoading) return <div>로딩 중...</div>;
+  if (isLoadingMembers || isLoadingCategories) return <div>로딩 중...</div>;
 
   return (
     <div className="space-y-6">
@@ -270,6 +329,40 @@ export default function AdminMembersPage() {
               </select>
             </div>
           )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              카테고리 (다중 선택 가능)
+            </label>
+            {categories && categories.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto p-2 border rounded-md">
+                {categories.map((category: Category) => (
+                  <div key={category.id} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id={`category-${category.id}`}
+                      checked={
+                        formData.categoryIds?.includes(category.id) || false
+                      }
+                      onChange={(e) =>
+                        handleCategoryChange(category.id, e.target.checked)
+                      }
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded"
+                    />
+                    <label
+                      htmlFor={`category-${category.id}`}
+                      className="ml-2 block text-sm text-gray-900 truncate"
+                    >
+                      {category.name}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-gray-500">
+                등록된 카테고리가 없습니다.
+              </div>
+            )}
+          </div>
           <div className="flex justify-end space-x-3">
             {isEditing && (
               <button

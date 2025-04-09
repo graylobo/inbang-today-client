@@ -38,6 +38,24 @@ export const API_ROUTES = {
       method: "DELETE",
     },
   },
+  categories: {
+    getAll: { url: "/categories", method: "GET" },
+    getById: { url: "/categories/{id}", method: "GET" },
+  },
+  streamerCategories: {
+    getByStreamer: {
+      url: "/streamer-categories/streamer/{streamerId}",
+      method: "GET",
+    },
+    getByCategory: {
+      url: "/streamer-categories/category/{categoryId}",
+      method: "GET",
+    },
+    setCategories: {
+      url: "/streamer-categories/streamer/{streamerId}/categories",
+      method: "POST",
+    },
+  },
 } as const satisfies RouteObject;
 
 // URL에서 경로 파라미터 추출하는 타입

@@ -1,16 +1,20 @@
-"use server";
-
-import { api } from "@/libs/api/axios";
+import { apiRequest } from "@/libs/api/api-request";
 import { API_ROUTES } from "@/libs/api/route";
+import { User } from "@/store/authStore";
 
-export async function getUserProfile() {
-  const { data } = await api.get(API_ROUTES.user.profile.get.url);
-  return data;
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  profileImage: string;
+  isAdmin: boolean;
+  isSuperAdmin: boolean;
 }
 
-export async function getUsers() {
-  const { data } = await api.get(API_ROUTES.user.list.get.url);
-  return data;
+export async function getUserProfile(): Promise<UserProfile> {
+  return await apiRequest(API_ROUTES.user.profile.get);
 }
 
-
+export async function getUsers(): Promise<User[]> {
+  return await apiRequest(API_ROUTES.user.list.get);
+}
