@@ -7,16 +7,20 @@ import { SidebarDrawer } from "./style";
 
 const menuItems = [
   {
-    icon: Send,
+    icon: "/common/soop-logo.png",
     primaryText: "SOOP",
     subItems: [
-      { primaryText: "엑셀 랭킹", href: "/" },
-      { primaryText: "스타 랭킹", href: "/star-tier" },
+      { primaryText: "엑셀 랭킹", href: "/", icon: "/common/excel-logo.png" },
+      {
+        primaryText: "스타 랭킹",
+        href: "/star-tier",
+        icon: "/common/starcraft-logo.png",
+      },
     ],
   },
 
   {
-    icon: Drafts,
+    icon: "/common/community.jpg",
     primaryText: "커뮤니티",
     subItems: [{ primaryText: "게시판", href: "/boards" }],
   },

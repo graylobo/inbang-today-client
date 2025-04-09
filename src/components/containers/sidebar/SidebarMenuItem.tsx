@@ -10,9 +10,10 @@ import {
 } from "@mui/material";
 import React from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 type MenuItemType = {
-  icon?: React.ElementType;
+  icon?: React.ElementType | string;
   primaryText: string;
   subItems?: MenuItemType[];
   href?: string;
@@ -40,6 +41,38 @@ function SidebarMenuItem({
     }
   };
 
+  const renderIcon = () => {
+    if (!item.icon) {
+      return (
+        <ListItemIcon>
+          <Description />
+        </ListItemIcon>
+      );
+    }
+
+    if (typeof item.icon === "string") {
+      return (
+        <ListItemIcon>
+          <div className="w-6 h-6 flex items-center justify-center">
+            <Image
+              src={item.icon}
+              alt={item.primaryText}
+              width={24}
+              height={24}
+            />
+          </div>
+        </ListItemIcon>
+      );
+    }
+
+    const IconComponent = item.icon as React.ElementType;
+    return (
+      <ListItemIcon>
+        <IconComponent />
+      </ListItemIcon>
+    );
+  };
+
   return (
     <>
       <ListItemButton
@@ -60,16 +93,7 @@ function SidebarMenuItem({
           },
         }}
       >
-        {item.icon ? (
-          <ListItemIcon>
-            <item.icon />
-          </ListItemIcon>
-        ) : (
-          <ListItemIcon>
-            <Description />
-          </ListItemIcon>
-        )}
-
+        {renderIcon()}
         <ListItemText primary={openSidebar ? item.primaryText : ""} />
         {openSidebar &&
           item.subItems &&
