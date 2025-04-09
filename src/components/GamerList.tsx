@@ -26,8 +26,7 @@ function StarTier() {
     endDate: new Date().toISOString().split("T")[0],
   });
 
-  // 'starcraft' 이름을 포함하는 카테고리에 속한 스트리머만 가져옴
-  const { data: streamers } = useGetStreamers("starcraft");
+  const { data: streamers } = useGetStreamers(["starcraft"]);
   const { data: liveStreamers } = useGetLiveStreamers();
 
   const { data } = useStarCraftMatch(

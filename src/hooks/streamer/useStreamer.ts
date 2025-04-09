@@ -5,10 +5,10 @@ import {
 } from "@/libs/api/services/streamer.service";
 import { useQuery } from "@tanstack/react-query";
 
-export function useGetStreamers(categoryName?: string) {
+export function useGetStreamers(categoryNames?: string | string[]) {
   return useQuery<Streamer[]>({
-    queryKey: ["streamers", { categoryName }],
-    queryFn: () => getStreamers(categoryName),
+    queryKey: ["streamers", { categoryNames }],
+    queryFn: () => getStreamers(categoryNames),
   });
 }
 
