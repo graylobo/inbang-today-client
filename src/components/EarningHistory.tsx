@@ -70,7 +70,7 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
                   <p className="font-medium dark:text-gray-100">{daily.date}</p>
                   {daily.broadcastEarning ? (
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      크루 방송 수익
+                      별풍선
                     </p>
                   ) : (
                     <p className="text-sm text-gray-600 dark:text-gray-400">
@@ -79,7 +79,7 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
                   )}
                 </div>
                 <div className="text-lg font-semibold dark:text-gray-100">
-                  {daily.totalAmount.toLocaleString()}원
+                  {daily.totalAmount.toLocaleString()}개
                 </div>
               </button>
 
@@ -90,7 +90,7 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="font-medium text-blue-800 dark:text-blue-300">
-                            크루 방송 수익
+                            별풍선
                           </p>
                           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                             {daily.broadcastEarning.description || "설명 없음"}
@@ -101,7 +101,7 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
                         </div>
                         <div className="font-bold text-blue-600 dark:text-blue-400">
                           {daily.broadcastEarning.totalAmount.toLocaleString()}
-                          원
+                          개
                         </div>
                       </div>
                     </div>
@@ -129,7 +129,7 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
                           </p>
                         </div>
                         <div className="font-medium dark:text-gray-100">
-                          {Number(earning.amount).toLocaleString()}원
+                          {Number(earning.amount).toLocaleString()}개
                         </div>
                       </div>
                     ))}

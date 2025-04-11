@@ -39,7 +39,7 @@ export default function BroadcastEarningForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          방송 수익
+          별풍선 개수
         </label>
         <input
           type="number"

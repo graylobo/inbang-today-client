@@ -22,7 +22,6 @@ function GamerListNavigation({
   setShowOnlyLive: (live: boolean) => void;
   onHeightChange: (height: number) => void;
 }) {
-  const { openSidebar } = useLayoutStore();
   const navRef = useRef<HTMLDivElement>(null);
 
   const updateHeight = () => {
@@ -50,7 +49,7 @@ function GamerListNavigation({
   // 컨텐츠가 변경될 때마다 높이 업데이트
   useLayoutEffect(() => {
     updateHeight();
-  }, [selectedStreamer, showOnlyMatched, showOnlyLive, openSidebar]);
+  }, [selectedStreamer, showOnlyMatched, showOnlyLive]);
 
   const handlePeriodSelect = (months: number) => {
     const end = new Date();
@@ -65,9 +64,7 @@ function GamerListNavigation({
   return (
     <div
       ref={navRef}
-      className={`fixed top-[64px] ${
-        openSidebar ? "left-[240px]" : "left-0"
-      } right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-300`}
+      className={`fixed top-[64px] left-0 right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-300`}
     >
       <div className="p-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
