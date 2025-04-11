@@ -48,9 +48,6 @@ export default function AdminCrewsPage() {
     isSuperAdmin,
   } = useCrewPermissionsList();
 
-  console.log("allCrews:::", allCrews);
-  console.log("permittedCrews:::", permittedCrews);
-
   const { mutate: createMutate } = useCreateCrew(resetForm);
 
   const { mutate: updateMutate } = useUpdateCrew(resetForm);
@@ -141,6 +138,8 @@ export default function AdminCrewsPage() {
 
   // 계급 정보 저장
   const saveRanks = () => {
+    console.log("zzz");
+
     if (!rankEditCrew) return;
 
     // 유효성 검사
@@ -148,7 +147,6 @@ export default function AdminCrewsPage() {
       alert("모든 계급에 이름을 입력해주세요.");
       return;
     }
-
     updateMutate({
       id: rankEditCrew.id,
       formData: {

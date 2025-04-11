@@ -101,6 +101,9 @@ export function useCreateCrewBroadcastEarning(onClose: () => void) {
       queryClient.invalidateQueries({ queryKey: ["crew"] });
       onClose();
     },
+    onError: (error) => {
+      alert(getErrorMessage(error));
+    },
   });
 }
 

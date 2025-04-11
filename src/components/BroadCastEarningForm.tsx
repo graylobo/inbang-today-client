@@ -14,11 +14,16 @@ export default function BroadcastEarningForm({
   crewId,
   onClose,
 }: BroadcastEarningFormProps) {
+  const today = new Date();
+  const minDate = new Date(today);
+  minDate.setMonth(today.getMonth() - 1);
+
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
-
+  const maxDate = today.toISOString().split("T")[0];
+  const minimumDate = minDate.toISOString().split("T")[0];
   const { mutate, isPending } = useCreateCrewBroadcastEarning(onClose);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -58,9 +63,14 @@ export default function BroadcastEarningForm({
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+          min={minimumDate}
+          max={maxDate}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
           required
         />
+        <p className="mt-1 text-sm text-gray-500">
+          * 현재 날짜 기준 한 달 이내의 날짜만 선택 가능합니다.
+        </p>
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
