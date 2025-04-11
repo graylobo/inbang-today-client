@@ -1,6 +1,6 @@
 "use client";
 import NavBar from "@/components/containers/navbar";
-import Sidebar from "@/components/containers/sidebar";
+import Sidebar from "@/components/containers/sidebar/SideBar";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import { styled } from "@mui/material/styles";
@@ -23,7 +23,15 @@ export default function BaseLayout({ children }: any) {
       <NavBar />
       <Sidebar />
 
-      <Box component="main" sx={{ flexGrow: 1, px: 3 }}>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          px: 3,
+          width: "100%", // Take full width available
+          zIndex: 1, // Lower z-index than sidebar and overlay
+        }}
+      >
         <DrawerHeader />
         {children}
       </Box>

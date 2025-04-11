@@ -7,6 +7,7 @@ import {
   ListItemText,
   Collapse,
   List,
+  Link,
 } from "@mui/material";
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -33,7 +34,7 @@ function SidebarMenuItem({
   const [menuOpen, setMenuOpen] = React.useState(true);
   const router = useRouter();
 
-  const handleMenuItemClick = () => {
+  const handleMenuItemClick = (): void => {
     if (item.href) {
       router.push(item.href);
     } else {

@@ -1,0 +1,14 @@
+.homeLogo {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--drawer-text);
+  font-size: 1.25rem; // text-xl
+  font-weight: 700; // font-bold
+  color: #2563eb; // text-blue-600
+  text-decoration: none; // no-underline
+  padding: 10px 20px;
+
+  @media (prefers-color-scheme: dark) {
+    color: #60a5fa; // dark:text-blue-400
+  }
+}

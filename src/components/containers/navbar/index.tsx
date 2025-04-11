@@ -2,7 +2,7 @@
 
 import { AppBar } from "@/components/containers/navbar/style";
 import { useAuthStore } from "@/store/authStore";
-import { useLayoutStore } from "@/store/layout";
+import { SidebarState, useLayoutStore } from "@/store/layout";
 import MenuIcon from "@mui/icons-material/Menu";
 import { IconButton, Toolbar } from "@mui/material";
 import Link from "next/link";
@@ -12,6 +12,9 @@ function NavBar() {
   const { user, logout } = useAuthStore();
   const { sidebarState, toggleSidebar } = useLayoutStore();
 
+  // Lower z-index when sidebar is open
+  const zIndex = sidebarState === SidebarState.OPEN ? 1000 : 1300;
+
   return (
     <AppBar
       position="fixed"
@@ -19,7 +22,7 @@ function NavBar() {
       className="bg-white dark:bg-dark-bg"
       elevation={0}
       sx={{
-        zIndex: (theme: any) => theme.zIndex.drawer + 1,
+        zIndex,
       }}
     >
       <Toolbar className="flex justify-between items-center">
@@ -33,19 +36,13 @@ function NavBar() {
           >
             <MenuIcon />
           </IconButton>
-          <Link
-            href="/"
-            className="text-xl font-bold text-blue-600 dark:text-blue-400 no-underline"
-          >
-            INBANG TODAY
-          </Link>
         </div>
 
         <div className="flex items-center gap-4">
           <ThemeToggle />
           {user ? (
             <div className="flex items-center gap-4">
-              <span className="text-gray-600 dark:text-gray-300">
+              <span className="text-gray-600 dark:text-gray-300 text-nowrap">
                 {user.name}님 환영합니다
               </span>
               <button

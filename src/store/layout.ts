@@ -2,7 +2,6 @@ import { create } from "zustand";
 
 export enum SidebarState {
   OPEN = "OPEN", // 완전히 열린 상태
-  ICON_ONLY = "ICON_ONLY", // 아이콘만 보이는 상태
   CLOSED = "CLOSED", // 완전히 닫힌 상태
 }
 
@@ -18,10 +17,8 @@ export const useLayoutStore = create<LayoutState>((set) => ({
   toggleSidebar: () =>
     set((state) => {
       const currentState = state.sidebarState;
-      // 상태 순환: OPEN -> ICON_ONLY -> CLOSED -> OPEN
+      // 상태 순환: OPEN -> CLOSED -> OPEN
       if (currentState === SidebarState.OPEN) {
-        return { sidebarState: SidebarState.ICON_ONLY };
-      } else if (currentState === SidebarState.ICON_ONLY) {
         return { sidebarState: SidebarState.CLOSED };
       } else {
         return { sidebarState: SidebarState.OPEN };
