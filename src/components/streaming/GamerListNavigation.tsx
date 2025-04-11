@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useLayoutEffect } from "react";
-import { useLayoutStore } from "@/store/layout";
+import { useLayoutStore, SidebarState } from "@/store/layout";
+import { DRAWER_WIDTH } from "@/layouts/Base";
 
 function GamerListNavigation({
   selectedStreamer,
@@ -23,6 +24,7 @@ function GamerListNavigation({
   onHeightChange: (height: number) => void;
 }) {
   const navRef = useRef<HTMLDivElement>(null);
+  const { sidebarState } = useLayoutStore();
 
   const updateHeight = () => {
     if (navRef.current) {
@@ -49,7 +51,7 @@ function GamerListNavigation({
   // 컨텐츠가 변경될 때마다 높이 업데이트
   useLayoutEffect(() => {
     updateHeight();
-  }, [selectedStreamer, showOnlyMatched, showOnlyLive]);
+  }, [selectedStreamer, showOnlyMatched, showOnlyLive, sidebarState]);
 
   const handlePeriodSelect = (months: number) => {
     const end = new Date();
@@ -61,10 +63,28 @@ function GamerListNavigation({
       endDate: end.toISOString().split("T")[0],
     });
   };
+
+  // 사이드바 상태에 따른 좌측 마진 계산
+  const getLeftMargin = () => {
+    switch (sidebarState) {
+      case SidebarState.OPEN:
+        return `${DRAWER_WIDTH}px`;
+      case SidebarState.ICON_ONLY:
+        return "64px"; // theme.spacing(8)에 해당
+      case SidebarState.CLOSED:
+      default:
+        return "0px";
+    }
+  };
+
   return (
     <div
       ref={navRef}
       className={`fixed top-[64px] left-0 right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-300`}
+      style={{
+        marginLeft: getLeftMargin(),
+        width: `calc(100% - ${getLeftMargin()})`,
+      }}
     >
       <div className="p-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
