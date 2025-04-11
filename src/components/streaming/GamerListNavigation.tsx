@@ -69,8 +69,7 @@ function GamerListNavigation({
     switch (sidebarState) {
       case SidebarState.OPEN:
         return `${DRAWER_WIDTH}px`;
-      case SidebarState.ICON_ONLY:
-        return "64px"; // theme.spacing(8)에 해당
+
       case SidebarState.CLOSED:
       default:
         return "0px";

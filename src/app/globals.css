@@ -20,6 +20,6 @@
   }
 
   body {
-    @apply text-gray-900 dark:text-gray-100 bg-white dark:bg-dark-bg;
+    @apply text-gray-900 dark:text-gray-100 bg-white dark:bg-dark-bg font-sans;
   }
 }

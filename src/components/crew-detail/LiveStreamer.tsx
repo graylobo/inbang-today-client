@@ -57,7 +57,7 @@ export default function LiveStreamer({ crew }: LiveStreamerProps) {
               <div className="w-full aspect-video bg-gray-200 dark:bg-gray-800"></div>
             )}
             <div className="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white px-2 py-1 rounded text-sm">
-              시청자 {streamer.viewCount.toLocaleString()}명
+              {streamer.viewCount.toLocaleString()}명
             </div>
           </div>
 
