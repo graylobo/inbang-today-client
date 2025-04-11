@@ -46,7 +46,7 @@ interface CrewMemberEarning {
   amount: number;
   earningDate: string;
   submittedBy: {
-    username: string;
+    name: string;
   };
   member: {
     id: number;
@@ -66,7 +66,8 @@ export interface DailyEarningResponse {
     totalAmount: number;
     description: string;
     submittedBy: {
-      username: string;
+      id: number;
+      name: string;
     };
   };
 }

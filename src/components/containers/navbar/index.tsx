@@ -43,11 +43,11 @@ function NavBar() {
           {user ? (
             <div className="flex items-center gap-4">
               <span className="text-gray-600 dark:text-gray-300 text-nowrap">
-                {user.name}님 환영합니다
+                {user.name} 👋
               </span>
               <button
                 onClick={logout}
-                className="px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                className="px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-nowrap"
               >
                 로그아웃
               </button>

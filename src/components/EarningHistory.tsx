@@ -96,7 +96,7 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
                             {daily.broadcastEarning.description || "설명 없음"}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                            입력: {daily.broadcastEarning.submittedBy.username}
+                            입력: {daily.broadcastEarning.submittedBy.name}
                           </p>
                         </div>
                         <div className="font-bold text-blue-600 dark:text-blue-400">
@@ -123,8 +123,9 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
                             <span className="ml-2 text-sm text-gray-600 dark:text-gray-400">
                               ({earning.member.rank?.name || "직급 없음"})
                             </span>
+
                             <span className="ml-2 text-xs text-gray-500 dark:text-gray-500">
-                              입력: {earning.submittedBy.username}
+                              입력: {earning.submittedBy.name}
                             </span>
                           </p>
                         </div>

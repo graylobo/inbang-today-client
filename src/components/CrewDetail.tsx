@@ -9,10 +9,10 @@ import Link from "next/link";
 import { useState } from "react";
 
 const TABS = [
-  { id: "info", label: "크루 정보", Component: CrewInfo },
-  { id: "earnings", label: "방송 수익", Component: CrewEarnings },
+  { id: "info", label: "멤버정보", Component: CrewInfo },
+  { id: "earnings", label: "별풍수익", Component: CrewEarnings },
   { id: "signatures", label: "시그니처", Component: CrewSignatures },
-  { id: "live", label: "방송 중인 스트리머", Component: LiveStreamer },
+  { id: "live", label: "방송중", Component: LiveStreamer },
 ] as const;
 
 type TabType = (typeof TABS)[number]["id"];

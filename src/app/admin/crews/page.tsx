@@ -138,8 +138,6 @@ export default function AdminCrewsPage() {
 
   // 계급 정보 저장
   const saveRanks = () => {
-    console.log("zzz");
-
     if (!rankEditCrew) return;
 
     // 유효성 검사

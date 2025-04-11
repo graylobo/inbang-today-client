@@ -31,9 +31,6 @@ export default function CrewInfo({ crew }: { crew: any }) {
         >
           <h2 className="text-xl font-semibold mb-4 flex items-center dark:text-gray-100">
             <span className="mr-2">{rankGroup.name}</span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              ({rankGroup.members.length}명)
-            </span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {rankGroup.members.map((member: any) => (
