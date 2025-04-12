@@ -1,8 +1,9 @@
 import SidebarMenuItem from "@/components/containers/sidebar/SidebarMenuItem";
 import { SidebarState, useLayoutStore } from "@/store/layout";
-import { Link, List } from "@mui/material";
+import { List } from "@mui/material";
 import { SidebarDrawer, SidebarOverlay } from "./style";
 import styles from "./SideBar.module.scss";
+import Link from "next/link";
 
 const menuItems = [
   {

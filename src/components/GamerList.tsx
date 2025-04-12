@@ -90,6 +90,22 @@ function StarTier() {
       return true;
     });
 
+    // 선택된 스트리머가 있으면 해당 스트리머를 배열의 맨 앞으로 이동
+    if (selectedStreamer) {
+      const selectedStreamerIndex = filtered.findIndex(
+        (streamer) => streamer.id === selectedStreamer
+      );
+
+      if (selectedStreamerIndex > -1) {
+        const selectedStreamerObj = filtered[selectedStreamerIndex];
+        filtered = [
+          selectedStreamerObj,
+          ...filtered.slice(0, selectedStreamerIndex),
+          ...filtered.slice(selectedStreamerIndex + 1),
+        ];
+      }
+    }
+
     return filtered;
   }, [streamers, selectedStreamer, showOnlyLive, showOnlyMatched, opponents]);
 
