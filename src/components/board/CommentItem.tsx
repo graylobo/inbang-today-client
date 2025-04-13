@@ -196,7 +196,7 @@ export default function CommentItem({
                     content: editFormData.content,
                     authorName: post.board.isAnonymous
                       ? editFormData.authorName
-                      : undefined,
+                      : user?.name,
                     password: comment.password ? password : undefined,
                   });
                 }}

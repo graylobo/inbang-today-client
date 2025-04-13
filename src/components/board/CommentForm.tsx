@@ -32,17 +32,19 @@ export default function CommentForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const commentData = {
+      ...formData,
+      postId: post.id,
+      authorName: post.board?.isAnonymous ? formData.authorName : user?.name,
+    };
+
     if (parentId) {
       createReply.mutate({
-        ...formData,
-        postId: post.id,
+        ...commentData,
         parentId,
       });
     } else {
-      createComment.mutate({
-        ...formData,
-        postId: post.id,
-      });
+      createComment.mutate(commentData);
     }
 
     setFormData({ content: "", authorName: "", password: "" });
