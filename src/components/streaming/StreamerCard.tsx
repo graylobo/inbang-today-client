@@ -149,7 +149,7 @@ function StreamerCard({
         onClick={() => setSelectedStreamer(isSelected ? null : streamer.id)}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        className={`relative min-w-[150px] rounded-lg overflow-hidden ${getRaceColor(
+        className={`relative w-full rounded-lg overflow-hidden ${getRaceColor(
           streamer.race
         )} cursor-pointer transition-all duration-200
         ${selectedStreamer && !isSelected && !matchInfo ? "opacity-40" : ""}
@@ -163,8 +163,9 @@ function StreamerCard({
               2
             )}/${streamer.soopId}/${streamer.soopId}.jpg`}
             alt={streamer.name}
-            fill
-            className="object-cover"
+            width={150}
+            height={150}
+            className="object-cover w-full h-full"
           />
         </div>
 

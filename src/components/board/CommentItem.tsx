@@ -114,7 +114,7 @@ export default function CommentItem({
       <div className="flex-shrink-0">
         {!post.board.isAnonymous || comment.author ? (
           <Image
-            src={comment.author?.name || "/default-avatar.png"}
+            src={"/default-avatar.png"}
             alt="Profile"
             width={40}
             height={40}
@@ -208,9 +208,9 @@ export default function CommentItem({
           </div>
         ) : (
           <>
-            <p className="mt-1 text-gray-800 dark:text-gray-300">
+            <span className="mt-1 text-gray-800 dark:text-gray-300">
               {renderContent(comment)}
-            </p>
+            </span>
             <div className="mt-2 space-x-4">
               <button
                 onClick={() => setShowReplyForm(!showReplyForm)}
