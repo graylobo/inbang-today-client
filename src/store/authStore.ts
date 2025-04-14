@@ -9,6 +9,7 @@ export interface User {
   createdAt: string;
   isAdmin: boolean;
   isSuperAdmin: boolean;
+  image?: string;
 }
 
 interface AuthState {

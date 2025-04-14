@@ -7,6 +7,13 @@ import MenuIcon from "@mui/icons-material/Menu";
 import { IconButton, Toolbar } from "@mui/material";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Settings, User, LogOut } from "lucide-react";
 
 function NavBar() {
   const { user, logout } = useAuthStore();
@@ -41,17 +48,56 @@ function NavBar() {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           {user ? (
-            <div className="flex items-center gap-4">
-              <span className="text-gray-600 dark:text-gray-300 text-nowrap">
-                {user.name} 👋
-              </span>
-              <button
-                onClick={logout}
-                className="px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-nowrap"
-              >
-                로그아웃
-              </button>
-            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="rounded-full outline-none ring-offset-2 transition-all hover:ring-2 ring-blue-400">
+                  <Avatar>
+                    {user.image && (
+                      <AvatarImage src={user.image} alt={user.name} />
+                    )}
+                    <AvatarFallback>
+                      {user.name?.[0]?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-2" align="end">
+                <div className="flex flex-col space-y-2">
+                  <div className="px-4 py-3">
+                    <p className="text-sm font-medium">{user.name}</p>
+                    {/* <p className="text-xs text-gray-500 dark:text-gray-400">
+                      사용자
+                    </p> */}
+                    {/* <p className="text-xs text-gray-500 dark:text-gray-400">
+                      포인트: 2,836P
+                    </p> */}
+                  </div>
+                  <div className="border-t border-gray-200 dark:border-gray-700" />
+                  <div className="space-y-1">
+                    <Link
+                      href="/user/profile"
+                      className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+                    >
+                      <User className="w-4 h-4 mr-2" />내 프로필
+                    </Link>
+                    {/* <Link
+                      href="/settings"
+                      className="flex items-center px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+                    >
+                      <Settings className="w-4 h-4 mr-2" />
+                      설정
+                    </Link> */}
+                    <button
+                      onClick={logout}
+                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      로그아웃
+                    </button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           ) : (
             <Link
               href="/login"
