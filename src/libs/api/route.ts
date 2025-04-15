@@ -6,6 +6,7 @@ export const API_ROUTES = {
   user: {
     profile: {
       get: { url: "/user/profile", method: "GET" },
+      updateImage: { url: "/user/profile/image", method: "PATCH" },
     },
     list: {
       get: { url: "/user", method: "GET" },

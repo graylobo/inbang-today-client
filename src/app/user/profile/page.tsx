@@ -1,11 +1,16 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useUpdateProfileImage } from "@/hooks/user/useUser";
 import { useAuthStore } from "@/store/authStore";
 import { Camera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ALLOWED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 export default function ProfilePage() {
   const { user } = useAuthStore();
@@ -13,7 +18,6 @@ export default function ProfilePage() {
   const [nickname, setNickname] = useState(user?.name || "");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Update nickname when user data changes (e.g., after page refresh)
   useEffect(() => {
     if (user?.name) {
       setNickname(user.name);
@@ -34,6 +38,22 @@ export default function ProfilePage() {
     setIsEditing(false);
   };
 
+  const { mutate: uploadImage, isPending } = useUpdateProfileImage();
+
+  const validateFile = (file: File): boolean => {
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("파일 크기는 5MB를 초과할 수 없습니다.");
+      return false;
+    }
+
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      toast.error("JPG, JPEG, PNG 파일만 업로드할 수 있습니다.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
@@ -42,23 +62,14 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    try {
-      const formData = new FormData();
-      formData.append("image", file);
-
-      // TODO: API call to upload image
-      // const response = await fetch('/api/user/profile-image', {
-      //   method: 'POST',
-      //   body: formData,
-      // });
-
-      // if (response.ok) {
-      //   const data = await response.json();
-      //   // Update user profile image in auth store
-      // }
-    } catch (error) {
-      console.error("Failed to upload image:", error);
+    if (!validateFile(file)) {
+      e.target.value = "";
+      return;
     }
+
+    const formData = new FormData();
+    formData.append("image", file);
+    uploadImage(formData);
   };
 
   return (
@@ -73,7 +84,8 @@ export default function ProfilePage() {
             <>
               <button
                 onClick={handleImageClick}
-                className="absolute bottom-0 right-0 p-2 bg-blue-500 rounded-full text-white hover:bg-blue-600"
+                disabled={isPending}
+                className="absolute bottom-0 right-0 p-2 bg-blue-500 rounded-full text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Camera className="w-5 h-5" />
               </button>
@@ -81,7 +93,7 @@ export default function ProfilePage() {
                 type="file"
                 ref={fileInputRef}
                 onChange={handleImageChange}
-                accept="image/*"
+                accept="image/jpeg,image/jpg,image/png"
                 className="hidden"
               />
             </>
