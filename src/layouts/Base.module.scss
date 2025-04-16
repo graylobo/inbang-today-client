@@ -1,0 +1,8 @@
+@use "@/styles/mixins.scss" as *;
+
+.base {
+  display: flex;
+  @include respond-to("large-desktop") {
+    padding: 0 200px;
+  }
+}

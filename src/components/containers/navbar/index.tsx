@@ -1,11 +1,6 @@
 "use client";
 
 import { AppBar } from "@/components/containers/navbar/style";
-import { useAuthStore } from "@/store/authStore";
-import { SidebarState, useLayoutStore } from "@/store/layout";
-import MenuIcon from "@mui/icons-material/Menu";
-import { IconButton, Toolbar } from "@mui/material";
-import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -13,8 +8,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Settings, User, LogOut } from "lucide-react";
+import { useAuthStore } from "@/store/authStore";
+import { SidebarState, useLayoutStore } from "@/store/layout";
+import MenuIcon from "@mui/icons-material/Menu";
+import { IconButton, Toolbar } from "@mui/material";
+import { LogOut, User } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 function NavBar() {
   const { user, logout } = useAuthStore();

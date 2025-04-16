@@ -1,0 +1,28 @@
+@use "./variables.scss" as *;
+@use "./breakpoints.scss" as *;
+@forward "./variables.scss";
+@forward "./breakpoints.scss";
+
+@mixin flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin grid($columns: 1, $gap: $spacing-md) {
+  display: grid;
+  grid-template-columns: repeat($columns, 1fr);
+  gap: $gap;
+}
+
+@mixin container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 #{$container-padding};
+}
+
+@mixin text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

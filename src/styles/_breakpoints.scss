@@ -1,0 +1,30 @@
+@use "sass:map";
+@use "sass:meta";
+
+$breakpoints: (
+  "mobile": 360px,
+  "tablet": 768px,
+  "desktop": 960px,
+  "large-desktop": 1200px,
+);
+
+@mixin respond-to($breakpoint) {
+  @if map.has-key($breakpoints, $breakpoint) {
+    @if meta.type-of(map.get($breakpoints, $breakpoint)) == "string" {
+      @media #{map.get($breakpoints, $breakpoint)} {
+        @content;
+      }
+    } @else {
+      @media (min-width: map.get($breakpoints, $breakpoint)) {
+        @content;
+      }
+    }
+  } @else {
+    @warn "Unknown breakpoint: #{$breakpoint}";
+  }
+}
+
+// 사용 예시:
+// @include respond-to('tablet') {
+//   font-size: 16px;
+// }

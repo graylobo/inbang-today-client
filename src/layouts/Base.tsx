@@ -5,7 +5,7 @@ import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import { styled } from "@mui/material/styles";
 import * as React from "react";
-
+import styles from "./Base.module.scss";
 export const DRAWER_WIDTH = 240;
 export const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -18,7 +18,7 @@ export const DrawerHeader = styled("div")(({ theme }) => ({
 
 export default function BaseLayout({ children }: any) {
   return (
-    <Box sx={{ display: "flex", paddingX: 30 }}>
+    <div className={styles.base}>
       <CssBaseline />
       <NavBar />
       <Sidebar />
@@ -35,6 +35,6 @@ export default function BaseLayout({ children }: any) {
         <DrawerHeader />
         {children}
       </Box>
-    </Box>
+    </div>
   );
 }
