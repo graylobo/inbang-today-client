@@ -7,6 +7,7 @@ import PostForm from "@/components/board/PostForm";
 import Modal from "@/components/common/Modal";
 import { useBoardBySlug, usePosts } from "@/hooks/board/useBoards";
 import { maskIpAddress } from "@/utils/ipUtils";
+import { UserIcon, EyeIcon, CalendarIcon } from "@heroicons/react/24/outline";
 
 type BoardPageParams = Promise<{
   slug: string;
@@ -57,25 +58,28 @@ export default function BoardPage(props: { params: BoardPageParams }) {
                         [{post.comments.length}]
                       </span>
                     </h2>
-                    <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                      {post.author ? (
-                        <span>{post.author.name}</span>
-                      ) : (
-                        <span>{post.authorName}</span>
-                      )}
-                      {board.isAnonymous && post.ipAddress && (
-                        <>
-                          <span className="mx-2">·</span>
-                          <span>({maskIpAddress(post.ipAddress)})</span>
-                        </>
-                      )}
-                      <span className="mx-2">·</span>
-                      <span>조회 {post.viewCount}</span>
-
-                      <span className="mx-2">·</span>
-                      <span>
-                        {new Date(post.createdAt).toLocaleDateString()}
-                      </span>
+                    <div className="mt-1 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                      <div className="flex items-center">
+                        <UserIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                        <span className="leading-none align-middle">
+                          {post.author ? post.author.name : post.authorName}
+                          {board.isAnonymous && post.ipAddress && (
+                            <span> ({maskIpAddress(post.ipAddress)})</span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <EyeIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                        <span className="leading-none align-middle">
+                          {post.viewCount}
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        <CalendarIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                        <span className="leading-none align-middle">
+                          {new Date(post.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400"></div>

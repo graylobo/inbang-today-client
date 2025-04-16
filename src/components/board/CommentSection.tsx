@@ -53,7 +53,6 @@ export default function CommentSection({ post, user }: CommentSectionProps) {
       <h2 className="text-xl font-bold mb-4 dark:text-gray-100">
         댓글 {comments.length}개
       </h2>
-      <CommentForm post={post} user={user} onSuccess={() => {}} />
       <div className="mt-8 space-y-6">
         {parentComments.map((comment) => (
           <CommentItem
@@ -65,6 +64,7 @@ export default function CommentSection({ post, user }: CommentSectionProps) {
           />
         ))}
       </div>
+      <CommentForm post={post} user={user} onSuccess={() => {}} />
     </div>
   );
 }

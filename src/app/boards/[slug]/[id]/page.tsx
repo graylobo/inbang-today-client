@@ -7,7 +7,7 @@ import { usePost, useDeletePost } from "@/hooks/board/useBoards";
 import { useRouter } from "next/navigation";
 import { maskIpAddress } from "@/utils/ipUtils";
 import { use } from "react";
-
+import styles from "./index.module.scss";
 type PostPageParams = Promise<{
   slug: string;
   id: string;
@@ -41,7 +41,7 @@ export default function PostPage(props: { params: PostPageParams }) {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className={styles.container}>
       <div className="mb-4 flex justify-between items-center">
         <Link
           href={`/boards/${slug}`}
@@ -67,7 +67,7 @@ export default function PostPage(props: { params: PostPageParams }) {
         )}
       </div>
 
-      <article className="bg-white dark:bg-dark-bg rounded-lg shadow-md dark:shadow-none dark:border dark:border-gray-700 overflow-hidden">
+      <article className={styles.article}>
         <div className="p-6">
           <h1 className="text-2xl font-bold mb-4 dark:text-gray-100">
             {post.title}
