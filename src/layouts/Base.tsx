@@ -18,7 +18,7 @@ export const DrawerHeader = styled("div")(({ theme }) => ({
 
 export default function BaseLayout({ children }: any) {
   return (
-    <Box sx={{ display: "flex", padding: 0 }}>
+    <Box sx={{ display: "flex", paddingX: 30 }}>
       <CssBaseline />
       <NavBar />
       <Sidebar />
