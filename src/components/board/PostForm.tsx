@@ -38,7 +38,7 @@ export default function PostForm({ board, onSuccess, user }: PostFormProps) {
           type="text"
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          className="mt-1 block w-full rounded-md border-gray-300"
+          className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           required
         />
       </div>
@@ -55,7 +55,7 @@ export default function PostForm({ board, onSuccess, user }: PostFormProps) {
               onChange={(e) =>
                 setFormData({ ...formData, authorName: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border-gray-300"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               required
             />
           </div>
@@ -69,7 +69,7 @@ export default function PostForm({ board, onSuccess, user }: PostFormProps) {
               onChange={(e) =>
                 setFormData({ ...formData, password: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border-gray-300"
+              className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
               required
             />
           </div>

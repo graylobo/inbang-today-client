@@ -227,7 +227,15 @@ const Tiptap = ({
   return (
     <div className="border rounded-lg dark:border-gray-700 overflow-hidden">
       <MenuBar editor={editor} onImageUpload={handleImageUpload} />
-      <EditorContent editor={editor} className="p-4" />
+      <div
+        className="min-h-[300px]"
+        onClick={() => editor?.chain().focus().run()}
+      >
+        <EditorContent
+          editor={editor}
+          className="p-4 prose dark:prose-invert max-w-none [&_*]:outline-none"
+        />
+      </div>
     </div>
   );
 };
