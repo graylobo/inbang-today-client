@@ -27,7 +27,7 @@ function NavBar() {
     <AppBar
       position="fixed"
       sidebarState={sidebarState}
-      className="bg-white dark:bg-dark-bg"
+      className="bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-gray-800 "
       elevation={0}
       sx={{
         zIndex,
