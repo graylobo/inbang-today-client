@@ -42,15 +42,15 @@ export const toKoreanTime = (dateString: string): Date => {
 export const isToday = (dateString: string): boolean => {
   const koreanDate = toKoreanTime(dateString);
   const today = new Date();
-  
+
   // Convert today to Korean time for comparison
   const koreanToday = new Date(today.getTime());
   koreanToday.setUTCHours(koreanToday.getUTCHours() + 9);
-  
+
   return (
-    koreanDate.getUTCFullYear() === koreanToday.getUTCFullYear() &&
-    koreanDate.getUTCMonth() === koreanToday.getUTCMonth() &&
-    koreanDate.getUTCDate() === koreanToday.getUTCDate()
+    koreanDate.getFullYear() === koreanToday.getFullYear() &&
+    koreanDate.getMonth() === koreanToday.getMonth() &&
+    koreanDate.getDate() === koreanToday.getDate()
   );
 };
 
@@ -68,21 +68,25 @@ export const formatDate = (
 ): string => {
   const { showTimeOnlyForToday = false } = options;
   const koreanDate = toKoreanTime(dateString);
-  
+
   // If the date is today and showTimeOnlyForToday is true, show only time
+  console.log(
+    "showTimeOnlyForToday:::",
+    showTimeOnlyForToday && isToday(dateString)
+  );
   if (showTimeOnlyForToday && isToday(dateString)) {
     const hours = String(koreanDate.getHours()).padStart(2, "0");
     const minutes = String(koreanDate.getMinutes()).padStart(2, "0");
     return `${hours}:${minutes}`;
   }
-  
+
   const year = koreanDate.getFullYear();
   const month = String(koreanDate.getMonth() + 1).padStart(2, "0");
   const day = String(koreanDate.getDate()).padStart(2, "0");
   const hours = String(koreanDate.getHours()).padStart(2, "0");
   const minutes = String(koreanDate.getMinutes()).padStart(2, "0");
   const seconds = String(koreanDate.getSeconds()).padStart(2, "0");
-  
+
   switch (format) {
     case "mm.dd":
       return `${month}.${day}`;

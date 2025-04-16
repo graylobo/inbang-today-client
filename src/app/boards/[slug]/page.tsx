@@ -8,6 +8,7 @@ import Modal from "@/components/common/Modal";
 import { useBoardBySlug, usePosts } from "@/hooks/board/useBoards";
 import { maskIpAddress } from "@/utils/ipUtils";
 import { UserIcon, EyeIcon, CalendarIcon } from "@heroicons/react/24/outline";
+import { formatDate } from "@/utils/date.utils";
 
 type BoardPageParams = Promise<{
   slug: string;
@@ -54,9 +55,11 @@ export default function BoardPage(props: { params: BoardPageParams }) {
                   <div>
                     <h2 className="text-lg font-medium dark:text-gray-100">
                       <span className="mr-2">{`${post.title}`}</span>
-                      <span className="text-blue-500 dark:text-gray-400">
-                        [{post.comments.length}]
-                      </span>
+                      {post.comments.length > 0 && (
+                        <span className="text-blue-500 dark:text-gray-400">
+                          [{post.comments.length}]
+                        </span>
+                      )}
                     </h2>
                     <div className="mt-1 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
                       <div className="flex items-center">
@@ -77,7 +80,9 @@ export default function BoardPage(props: { params: BoardPageParams }) {
                       <div className="flex items-center">
                         <CalendarIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
                         <span className="leading-none align-middle">
-                          {new Date(post.createdAt).toLocaleDateString()}
+                          {formatDate(post.createdAt, "mm.dd", {
+                            showTimeOnlyForToday: true,
+                          })}
                         </span>
                       </div>
                     </div>
