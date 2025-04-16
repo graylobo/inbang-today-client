@@ -7,7 +7,10 @@ import { usePost, useDeletePost } from "@/hooks/board/useBoards";
 import { useRouter } from "next/navigation";
 import { maskIpAddress } from "@/utils/ipUtils";
 import { use } from "react";
+import { UserIcon, EyeIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import styles from "./index.module.scss";
+import Divider from "@/components/common/divider/Divider";
+import { cn } from "@/lib/utils";
 type PostPageParams = Promise<{
   slug: string;
   id: string;
@@ -67,35 +70,44 @@ export default function PostPage(props: { params: PostPageParams }) {
         )}
       </div>
 
-      <article className={styles.article}>
-        <div className="p-6">
+      <article className="bg-white dark:bg-dark-bg rounded-lg overflow-hidden">
+        <div className="">
           <h1 className="text-2xl font-bold mb-4 dark:text-gray-100">
             {post.title}
           </h1>
           <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400 mb-6">
-            <div>
-              {post.author ? (
-                <span>{post.author.name}</span>
-              ) : (
-                <span>{post.authorName}</span>
-              )}
-              {post.board.isAnonymous && post.ipAddress && (
-                <>
-                  <span className="mx-2">·</span>
-                  <span>({maskIpAddress(post.ipAddress)})</span>
-                </>
-              )}
-              <span className="mx-2">·</span>
-              <span>{new Date(post.createdAt).toLocaleString()}</span>
+            <div className="flex items-center gap-2">
+              <div className="flex items-center">
+                <UserIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                <span className="leading-none align-middle">
+                  {post.author ? post.author.name : post.authorName}
+                  {post.board.isAnonymous && post.ipAddress && (
+                    <span> ({maskIpAddress(post.ipAddress)})</span>
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <CalendarIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                <span className="leading-none align-middle">
+                  {new Date(post.createdAt).toLocaleString()}
+                </span>
+              </div>
+              <div className="flex items-center">
+                <EyeIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                <span className="leading-none align-middle">
+                  {post.viewCount}
+                </span>
+              </div>
             </div>
-            <span>조회 {post.viewCount}</span>
           </div>
+          <Divider />
           <div
-            className="prose dark:prose-invert max-w-none"
+            className={cn(styles.content, "prose dark:prose-invert max-w-none")}
             dangerouslySetInnerHTML={{ __html: post.content }}
           />
         </div>
       </article>
+      <Divider />
 
       <CommentSection post={post} user={user} />
     </div>

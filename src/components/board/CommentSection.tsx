@@ -6,6 +6,7 @@ import CommentItem from "./CommentItem";
 import { useComments } from "@/hooks/board/useBoards";
 import { Post } from "@/libs/api/services/board.service";
 import { User } from "@/store/authStore";
+import Divider from "@/components/common/divider/Divider";
 
 interface CommentSectionProps {
   post: Post;
@@ -64,6 +65,7 @@ export default function CommentSection({ post, user }: CommentSectionProps) {
           />
         ))}
       </div>
+      <Divider marginY="3rem" />
       <CommentForm post={post} user={user} onSuccess={() => {}} />
     </div>
   );

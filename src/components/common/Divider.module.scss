@@ -1,0 +1,19 @@
+.divider {
+  border: none;
+  width: 100%;
+  height: 1px;
+  background-color: var(--border-color, #e5e7eb);
+  transition: background-color 0.3s ease;
+}
+
+:global(.dark) .divider {
+  background-color: var(--dark-border-color, #374151);
+}
+
+.thick {
+  height: 2px;
+}
+
+.thin {
+  height: 0.5px;
+}

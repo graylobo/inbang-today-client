@@ -5,13 +5,6 @@
   padding: 1.5rem;
 }
 
-.article {
-  background-color: white;
-  overflow: hidden;
-  border-bottom: 1px solid var(--border-color, #e5e7eb);
-}
-
-:global(.dark) .article {
-  background-color: #1f2937;
-  border-bottom: 1px solid #374151;
+.content {
+  padding: 30px 0;
 }
