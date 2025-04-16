@@ -14,6 +14,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Settings, User, LogOut } from "lucide-react";
+import Image from "next/image";
 
 function NavBar() {
   const { user, logout } = useAuthStore();
@@ -43,6 +44,18 @@ function NavBar() {
           >
             <MenuIcon />
           </IconButton>
+        </div>
+
+        <div>
+          <Link href="/" className="">
+            <Image
+              src="/common/inbang-today.icon.png"
+              alt="INBANG TODAY"
+              width={50}
+              height={50}
+              priority
+            />
+          </Link>
         </div>
 
         <div className="flex items-center gap-4">

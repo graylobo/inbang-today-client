@@ -4,6 +4,7 @@ import { List } from "@mui/material";
 import { SidebarDrawer, SidebarOverlay } from "./style";
 import styles from "./SideBar.module.scss";
 import Link from "next/link";
+import Image from "next/image";
 
 const menuItems = [
   {
@@ -50,7 +51,13 @@ function Sidebar() {
       />
       <SidebarDrawer variant="permanent" sidebarState={sidebarState}>
         <Link href="/" className={styles.homeLogo}>
-          INBANG TODAY
+          <Image
+            src="/common/inbang-today.logo.png"
+            alt="INBANG TODAY"
+            width={120}
+            height={40}
+            priority
+          />
         </Link>
 
         <List>
