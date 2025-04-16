@@ -68,12 +68,14 @@
     --chart-5: 340 75% 55%;
   }
 
+  html {
+    font-size: 0.875rem;
+  }
+
   body {
     @apply text-gray-900 dark:text-gray-100 bg-white dark:bg-dark-bg font-sans;
   }
 }
-
-
 
 @layer base {
   * {

@@ -52,7 +52,10 @@ export default function BoardPage(props: { params: BoardPageParams }) {
                 <div className="flex justify-between items-start">
                   <div>
                     <h2 className="text-lg font-medium dark:text-gray-100">
-                      {post.title}
+                      <span className="mr-2">{`${post.title}`}</span>
+                      <span className="text-blue-500 dark:text-gray-400">
+                        [{post.comments.length}]
+                      </span>
                     </h2>
                     <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                       {post.author ? (
@@ -67,15 +70,15 @@ export default function BoardPage(props: { params: BoardPageParams }) {
                         </>
                       )}
                       <span className="mx-2">·</span>
+                      <span>조회 {post.viewCount}</span>
+
+                      <span className="mx-2">·</span>
                       <span>
                         {new Date(post.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                    <span>조회 {post.viewCount}</span>
-                    <span>댓글 {post.comments.length}</span>
-                  </div>
+                  <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400"></div>
                 </div>
               </Link>
             ))}

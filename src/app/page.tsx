@@ -12,7 +12,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen">
-      <h1 className="text-3xl font-bold mb-8 text-center">Crew Ranking</h1>
+      <h1 className="text-3xl font-bold mb-8 ">크루 랭킹</h1>
       <Suspense fallback={<Loading />}>
         <PrefetchProvider prefetchOptions={crewsRankingsOptions(year, month)}>
           <CrewList initialYear={year} initialMonth={month} />

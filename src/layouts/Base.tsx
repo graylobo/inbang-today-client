@@ -11,10 +11,7 @@ export default function BaseLayout({ children }: any) {
     <div className={styles.base}>
       <NavBar />
       <Sidebar />
-      <main className={styles.main}>
-        <div className={styles.drawerHeader} />
-        {children}
-      </main>
+      <main className={styles.main}>{children}</main>
     </div>
   );
 }
