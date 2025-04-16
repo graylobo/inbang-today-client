@@ -28,7 +28,10 @@ export interface DateFormatOptions {
  */
 export const toKoreanTime = (dateString: string): Date => {
   const date = new Date(dateString);
-  return new Date(date.getTime() + 9 * 60 * 60 * 1000); // Add 9 hours for Korean time
+  // Create a new date with the UTC time plus 9 hours
+  const koreanDate = new Date(date.getTime());
+  koreanDate.setUTCHours(koreanDate.getUTCHours() + 9);
+  return koreanDate;
 };
 
 /**
@@ -39,10 +42,11 @@ export const toKoreanTime = (dateString: string): Date => {
 export const isToday = (dateString: string): boolean => {
   const koreanDate = toKoreanTime(dateString);
   const today = new Date();
-
+  
   // Convert today to Korean time for comparison
-  const koreanToday = new Date(today.getTime() + 9 * 60 * 60 * 1000);
-
+  const koreanToday = new Date(today.getTime());
+  koreanToday.setUTCHours(koreanToday.getUTCHours() + 9);
+  
   return (
     koreanDate.getUTCFullYear() === koreanToday.getUTCFullYear() &&
     koreanDate.getUTCMonth() === koreanToday.getUTCMonth() &&
@@ -64,21 +68,21 @@ export const formatDate = (
 ): string => {
   const { showTimeOnlyForToday = false } = options;
   const koreanDate = toKoreanTime(dateString);
-
+  
   // If the date is today and showTimeOnlyForToday is true, show only time
   if (showTimeOnlyForToday && isToday(dateString)) {
-    const hours = String(koreanDate.getUTCHours()).padStart(2, "0");
-    const minutes = String(koreanDate.getUTCMinutes()).padStart(2, "0");
+    const hours = String(koreanDate.getHours()).padStart(2, "0");
+    const minutes = String(koreanDate.getMinutes()).padStart(2, "0");
     return `${hours}:${minutes}`;
   }
-
-  const year = koreanDate.getUTCFullYear();
-  const month = String(koreanDate.getUTCMonth() + 1).padStart(2, "0");
-  const day = String(koreanDate.getUTCDate()).padStart(2, "0");
-  const hours = String(koreanDate.getUTCHours()).padStart(2, "0");
-  const minutes = String(koreanDate.getUTCMinutes()).padStart(2, "0");
-  const seconds = String(koreanDate.getUTCSeconds()).padStart(2, "0");
-
+  
+  const year = koreanDate.getFullYear();
+  const month = String(koreanDate.getMonth() + 1).padStart(2, "0");
+  const day = String(koreanDate.getDate()).padStart(2, "0");
+  const hours = String(koreanDate.getHours()).padStart(2, "0");
+  const minutes = String(koreanDate.getMinutes()).padStart(2, "0");
+  const seconds = String(koreanDate.getSeconds()).padStart(2, "0");
+  
   switch (format) {
     case "mm.dd":
       return `${month}.${day}`;
