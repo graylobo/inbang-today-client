@@ -11,6 +11,8 @@ import { UserIcon, EyeIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import styles from "./index.module.scss";
 import Divider from "@/components/common/divider/Divider";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/utils/date.utils";
+
 type PostPageParams = Promise<{
   slug: string;
   id: string;
@@ -45,13 +47,10 @@ export default function PostPage(props: { params: PostPageParams }) {
 
   return (
     <div className={styles.container}>
-      <div className="mb-4 flex justify-between items-center">
-        <Link
-          href={`/boards/${slug}`}
-          className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-        >
-          ← 목록으로
-        </Link>
+      <div className="mb-10 flex justify-between items-center">
+        <h1 className="text-[25px] font-semibold dark:text-gray-200">
+          {post.board.name}
+        </h1>
         {isAuthor && (
           <div className="space-x-2">
             <Link
@@ -89,7 +88,7 @@ export default function PostPage(props: { params: PostPageParams }) {
               <div className="flex items-center">
                 <CalendarIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
                 <span className="leading-none align-middle">
-                  {new Date(post.createdAt).toLocaleString()}
+                  {formatDate(post.createdAt, "mm.dd hh:mm:ss")}
                 </span>
               </div>
               <div className="flex items-center">
