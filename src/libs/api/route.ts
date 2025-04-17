@@ -57,6 +57,14 @@ export const API_ROUTES = {
       method: "POST",
     },
   },
+  likes: {
+    posts: {
+      getStatus: { url: "/likes/posts/{postId}/status", method: "GET" },
+      getCounts: { url: "/likes/posts/{postId}/count", method: "GET" },
+      like: { url: "/likes/posts/{postId}/like", method: "POST" },
+      dislike: { url: "/likes/posts/{postId}/dislike", method: "POST" },
+    },
+  },
 } as const satisfies RouteObject;
 
 // URL에서 경로 파라미터 추출하는 타입
