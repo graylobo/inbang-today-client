@@ -6,6 +6,7 @@ import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import { Markdown } from "tiptap-markdown";
 import { useCallback, useEffect } from "react";
+import CustomResizableImage from "@/components/editor/extensions/CustomResizableImage";
 
 interface TiptapProps {
   content?: string;
@@ -137,6 +138,7 @@ const Tiptap = ({
       Image.configure({
         allowBase64: true,
       }),
+      CustomResizableImage,
       Markdown,
     ],
     content: initialContent || content || "",
