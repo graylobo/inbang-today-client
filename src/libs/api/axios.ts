@@ -22,6 +22,10 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    console.error(
+      "error request path:::",
+      `${error.request.method} ${error.config.baseURL}${error.request.path}`
+    );
     return Promise.reject(error.response?.data.errorCode);
   }
 );
