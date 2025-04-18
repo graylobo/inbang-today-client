@@ -1,6 +1,11 @@
 "use server";
 import { api } from "@/libs/api/axios";
 import { User } from "@/store/authStore";
+import {
+  Order,
+  PaginatedResponse,
+  PaginationQueryDto,
+} from "../dto/pagination.dto";
 
 export interface Board {
   id: number;
@@ -74,8 +79,23 @@ export async function getBoardBySlug(slug: string) {
 }
 
 // 게시글 관련 API
-export async function getPosts(boardId: number) {
-  const response = await api.get<Post[]>(`/posts/board/${boardId}`);
+export async function getPosts(
+  boardId: number,
+  params: PaginationQueryDto = {}
+) {
+  const {
+    page = 1,
+    perPage = 30,
+    order = Order.DESC,
+    orderKey = "createdAt",
+  } = params;
+
+  const response = await api.get<PaginatedResponse<Post>>(
+    `/posts/board/${boardId}`,
+    {
+      params: { page, perPage, order, orderKey },
+    }
+  );
   return response.data;
 }
 

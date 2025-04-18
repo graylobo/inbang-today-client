@@ -17,6 +17,7 @@ import {
   CreateReplyDto,
   verifyCommentPassword,
 } from "@/libs/api/services/board.service";
+import { PaginationQueryDto } from "@/libs/api/dto/pagination.dto";
 
 // 게시판 관련 hooks
 export const useBoards = () => {
@@ -34,10 +35,13 @@ export const useBoardBySlug = (slug: string) => {
 };
 
 // 게시글 관련 hooks
-export const usePosts = (boardId: number) => {
+export const usePosts = (
+  boardId: number,
+  paginationParams: PaginationQueryDto = {}
+) => {
   return useQuery({
-    queryKey: ["posts", boardId],
-    queryFn: () => getPosts(boardId),
+    queryKey: ["posts", boardId, paginationParams],
+    queryFn: () => getPosts(boardId, paginationParams),
   });
 };
 

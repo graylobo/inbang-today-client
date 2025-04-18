@@ -9,6 +9,12 @@ import { useBoardBySlug, usePosts } from "@/hooks/board/useBoards";
 import { maskIpAddress } from "@/utils/ipUtils";
 import { UserIcon, EyeIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import { formatDate } from "@/utils/date.utils";
+import { PaginationControls } from "@/components/ui/pagination-controls";
+import { Order, PaginationQueryDto } from "@/libs/api/dto/pagination.dto";
+import {
+  DEFAULT_ITEMS_PER_PAGE,
+  ITEMS_PER_PAGE_OPTIONS,
+} from "@/constants/pagination";
 
 type BoardPageParams = Promise<{
   slug: string;
@@ -18,13 +24,55 @@ export default function BoardPage(props: { params: BoardPageParams }) {
   const { slug } = use(props.params);
   const { user } = useAuthStore();
   const [showPostForm, setShowPostForm] = useState(false);
+
+  // Pagination state
+  const [paginationParams, setPaginationParams] = useState<PaginationQueryDto>({
+    page: 1,
+    perPage: DEFAULT_ITEMS_PER_PAGE,
+    order: Order.DESC,
+    orderKey: "createdAt",
+  });
+
   const { data: board, isLoading: boardLoading } = useBoardBySlug(slug);
-  const { data: posts, isLoading: postsLoading } = usePosts(board?.id || 0);
+  const { data: postsData, isLoading: postsLoading } = usePosts(
+    board?.id || 0,
+    paginationParams
+  );
+
+  // Reset to page 1 when perPage changes
+  const handlePerPageChange = (newPerPage: number) => {
+    const oldPerPage = paginationParams.perPage || DEFAULT_ITEMS_PER_PAGE;
+    const currentPageValue = paginationParams.page || 1;
+
+    // 현재 사용자가 보고 있는 첫 번째 항목 인덱스 계산
+    const firstItemIndex = (currentPageValue - 1) * oldPerPage;
+
+    // 새 페이지 번호 계산 (해당 항목이 새 페이지 크기에서 어디에 위치할지)
+    const newPage = Math.floor(firstItemIndex / newPerPage) + 1;
+
+    setPaginationParams((prev) => ({
+      ...prev,
+      page: newPage,
+      perPage: newPerPage,
+    }));
+  };
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setPaginationParams((prev) => ({
+      ...prev,
+      page,
+    }));
+  };
 
   if (boardLoading || postsLoading)
     return <div className="dark:text-gray-300">로딩 중...</div>;
   if (!board)
     return <div className="dark:text-gray-300">게시판을 찾을 수 없습니다.</div>;
+
+  const posts = postsData?.items || [];
+  const totalPages = postsData?.totalPages || 1;
+  const currentPage = postsData?.page || 1;
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -39,13 +87,13 @@ export default function BoardPage(props: { params: BoardPageParams }) {
       </div>
 
       <div className="bg-white dark:bg-dark-bg rounded-lg shadow dark:shadow-none dark:border dark:border-gray-700 overflow-hidden">
-        {posts?.length === 0 ? (
+        {posts.length === 0 ? (
           <div className="p-4 text-center text-gray-500 dark:text-gray-400">
             아직 게시글이 없습니다.
           </div>
         ) : (
           <div className="divide-y dark:divide-gray-700">
-            {posts?.map((post) => (
+            {posts.map((post) => (
               <Link
                 key={post.id}
                 href={`/boards/${board.slug}/${post.id}`}
@@ -93,6 +141,16 @@ export default function BoardPage(props: { params: BoardPageParams }) {
             ))}
           </div>
         )}
+
+        {/* Always show pagination controls */}
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+          itemsPerPage={paginationParams.perPage}
+          onItemsPerPageChange={handlePerPageChange}
+          itemsPerPageOptions={ITEMS_PER_PAGE_OPTIONS}
+        />
       </div>
 
       <Modal
