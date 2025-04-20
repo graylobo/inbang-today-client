@@ -27,4 +27,4 @@ export async function updateProfileImage(
   return await apiRequest(API_ROUTES.user.profile.updateImage, {
     body: formData,
   });
-}
+} 

@@ -1,20 +1,35 @@
 "use server";
-import { api } from "@/libs/api/axios";
+import { apiRequest } from "@/libs/api/api-request";
+import { API_ROUTES } from "@/libs/api/route";
 import { User } from "@/store/authStore";
-import { useQuery } from "@tanstack/react-query";
 import { cookies } from "next/headers";
 
 export async function login(username: string, password: string) {
-  const { data } = await api.post("/auth/login", { name: username, password });
+  const data = await apiRequest(API_ROUTES.auth.login, {
+    body: { name: username, password },
+  });
   const cookieStore = await cookies();
   cookieStore.set("access_token", data.access_token);
   return data;
 }
 
 export async function register(username: string, password: string) {
-  const { data } = await api.post("/auth/register", {
-    name: username,
-    password,
+  const data = await apiRequest(API_ROUTES.auth.register, {
+    body: { name: username, password },
   });
   return data;
+}
+
+export async function verifyNickname(nickname: string) {
+  const data = await apiRequest(API_ROUTES.auth.verifyNickname, {
+    query: { nickname },
+  });
+  return data;
+}
+
+export async function updateNickname(nickname: string) {
+  const data = await apiRequest(API_ROUTES.auth.updateNickname, {
+    body: { name: nickname },
+  });
+  return data.user;
 }

@@ -3,6 +3,12 @@ export type RouteDefinition = { url: string; method: HTTPMethod };
 export type RouteObject = { [key: string]: RouteDefinition | RouteObject };
 
 export const API_ROUTES = {
+  auth: {
+    login: { url: "/auth/login", method: "POST" },
+    register: { url: "/auth/register", method: "POST" },
+    verifyNickname: { url: "/auth/verify-nickname", method: "GET" },
+    updateNickname: { url: "/auth/update-nickname", method: "POST" },
+  },
   user: {
     profile: {
       get: { url: "/user/profile", method: "GET" },

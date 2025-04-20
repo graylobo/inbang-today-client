@@ -7,29 +7,22 @@ import { useEffect } from "react";
 
 export default function AuthCallbackPage() {
   const router = useRouter();
-  const { setUser, setTokens } = useAuthStore();
+  const { setUser } = useAuthStore();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const { data } = await getUserProfile();
-        // // refreshToken이 응답에 포함되어 있다면 저장
-        // if (data.refreshToken) {
-        //   localStorage.setItem("refresh_token", data.refreshToken);
-        //   setTokens(data.refreshToken);
-        // }
-
         setUser(data);
-
-        router.push(`/`);
+        router.push("/");
       } catch (error) {
-        console.error("가져오기실패:", error);
-        router.push("/register");
+        console.error("프로필 가져오기 실패:", error);
+        router.push("/login");
       }
     };
 
     fetchUserProfile();
-  }, [router, setUser, setTokens]);
+  }, [router, setUser]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
