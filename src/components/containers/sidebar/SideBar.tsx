@@ -28,6 +28,14 @@ const menuItems = [
       { primaryText: "자유 게시판", href: "/boards/free" },
     ],
   },
+  {
+    icon: "/common/starcraft-logo.png",
+    primaryText: "스타크래프트",
+    subItems: [
+      { primaryText: "왼손생산", href: "/starcraft/left-control" },
+      { primaryText: "빌드알리미", href: "/starcraft/build-alert" },
+    ],
+  },
   // {
   //   icon: MoveToInbox,
   //   primaryText: "Inbox",
