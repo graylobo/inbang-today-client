@@ -8,6 +8,10 @@ export const API_ROUTES = {
     register: { url: "/auth/register", method: "POST" },
     verifyNickname: { url: "/auth/verify-nickname", method: "GET" },
     updateNickname: { url: "/auth/update-nickname", method: "POST" },
+    completeSocialSignup: {
+      url: "/auth/complete-social-signup",
+      method: "POST",
+    },
   },
   user: {
     profile: {
