@@ -38,10 +38,19 @@ export default function LeftControl() {
   const [comboUp, setComboUp] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [combo, setCombo] = useState(0);
+  const [maxCombo, setMaxCombo] = useState(0);
+  const [maxComboTime, setMaxComboTime] = useState(0); // 최대 콤보 달성 시간
+
+  // 타이머 관련 상태
+  const [isTimerActive, setIsTimerActive] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
+  const [timeDisplay, setTimeDisplay] = useState("0.00");
+  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
   const keywordRef = useRef<HTMLInputElement>(null);
+  const elapsedTimeRef = useRef(0); // Add ref to track elapsed time without triggering effects
 
   // Mobile detection
   const isMobile = useIsMobile();
@@ -49,6 +58,57 @@ export default function LeftControl() {
   // Input validation
   const validateAlphanumeric = useCallback((value: string): boolean => {
     return /^[a-zA-Z0-9]*$/.test(value);
+  }, []);
+
+  // Reset input and combo
+  const resetInputAndCombo = useCallback(() => {
+    if (inputRef.current) inputRef.current.value = "";
+    setInputWord("");
+    setCombo(0);
+  }, []);
+
+  // Start the timer
+  const startTimer = useCallback(() => {
+    if (!isTimerActive) {
+      const startTime = Date.now() - elapsedTime; // 기존 경과 시간을 고려
+      setIsTimerActive(true);
+
+      const interval = setInterval(() => {
+        const newElapsedTime = Date.now() - startTime;
+        setElapsedTime(newElapsedTime);
+        elapsedTimeRef.current = newElapsedTime; // Update the ref
+        setTimeDisplay((newElapsedTime / 1000).toFixed(2));
+      }, 10);
+
+      setIntervalId(interval);
+    }
+  }, [isTimerActive, elapsedTime]);
+
+  // Reset the timer
+  const resetTimer = useCallback(() => {
+    if (intervalId) {
+      clearInterval(intervalId);
+    }
+    setIsTimerActive(false);
+    setElapsedTime(0);
+    elapsedTimeRef.current = 0; // Reset the ref
+    setTimeDisplay("0.00");
+    setIntervalId(null);
+  }, [intervalId]);
+
+  // 전체 초기화 함수 (입력, 콤보, 타이머 모두 초기화)
+  const resetAll = useCallback(() => {
+    resetInputAndCombo();
+    resetTimer();
+    // 최대 콤보는 초기화하지 않음 (세션 기록 유지)
+  }, [resetInputAndCombo, resetTimer]);
+
+  // 최대 콤보 초기화 함수
+  const resetMaxCombo = useCallback(() => {
+    setMaxCombo(0);
+    setMaxComboTime(0);
+    localStorage.removeItem("leftControl_maxCombo");
+    localStorage.removeItem("leftControl_maxComboTime");
   }, []);
 
   // Handle keyword change
@@ -85,9 +145,9 @@ export default function LeftControl() {
       }
     } else {
       setIsSaved(false);
-      resetInputAndCombo();
+      resetAll();
     }
-  }, [isSaved, keyword]);
+  }, [isSaved, keyword, resetAll]);
 
   // Handle input change
   const handleInputChange = useCallback(
@@ -98,17 +158,35 @@ export default function LeftControl() {
         return;
       }
 
-      setInputWord(e.target.value);
-    },
-    [savedWord]
-  );
+      // 첫 입력 시 타이머 시작
+      if (inputWord.length === 0 && e.target.value.length > 0 && checkBox) {
+        startTimer();
+      }
 
-  // Reset input and combo
-  const resetInputAndCombo = useCallback(() => {
-    if (inputRef.current) inputRef.current.value = "";
-    setInputWord("");
-    setCombo(0);
-  }, []);
+      const newInputWord = e.target.value;
+      setInputWord(newInputWord);
+
+      // 단어가 완성되었을 때 콤보 계산
+      if (savedWord.length !== 0 && savedWord.length === newInputWord.length) {
+        if (savedWord === newInputWord) {
+          // 콤보 증가
+          const newCombo = combo + 1;
+          setCombo(newCombo);
+          setComboUp(true);
+
+          // Visual feedback for combo
+          setTimeout(() => {
+            setComboUp(false);
+          }, 100);
+
+          // 입력창 초기화
+          if (inputRef.current) inputRef.current.value = "";
+          setInputWord("");
+        }
+      }
+    },
+    [savedWord, inputWord, checkBox, startTimer, combo]
+  );
 
   // Handle partial matching and auto-correction
   useEffect(() => {
@@ -121,25 +199,16 @@ export default function LeftControl() {
     }
   }, [inputWord, savedWord]);
 
-  // Handle combo counting
+  // 최대 콤보 업데이트를 위한 별도의 useEffect
   useEffect(() => {
-    setComboUp(false);
-
-    // Check if the user completed typing the word correctly
-    if (savedWord.length !== 0 && savedWord.length === inputWord.length) {
-      if (savedWord === inputWord) {
-        setCombo((prevCombo) => prevCombo + 1);
-        setComboUp(true);
-
-        // Visual feedback for combo
-        const timeout = setTimeout(() => {
-          setComboUp(false);
-        }, 100);
-
-        return () => clearTimeout(timeout);
+    if (combo > maxCombo) {
+      setMaxCombo(combo);
+      // 최대 콤보 달성 시 시간도 함께 기록
+      if (elapsedTimeRef.current > 0) {
+        setMaxComboTime(elapsedTimeRef.current / 1000);
       }
     }
-  }, [inputWord, savedWord]);
+  }, [combo, maxCombo]);
 
   // Reset input and combo when saved state changes
   useEffect(() => {
@@ -159,12 +228,14 @@ export default function LeftControl() {
             if (inputRef.current) inputRef.current.value = "";
             setInputWord("");
             setCombo(0);
+            // 타이머도 초기화
+            resetTimer();
           }
           break;
         }
       }
     }
-  }, [inputWord, savedWord, checkBox]);
+  }, [inputWord, savedWord, checkBox, resetTimer]);
 
   // Check for incorrect input and reset if needed
   const renderCharComparison = () => {
@@ -184,6 +255,50 @@ export default function LeftControl() {
       }
     });
   };
+
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [intervalId]);
+
+  // 로컬 스토리지에서 최대 콤보 불러오기
+  useEffect(() => {
+    const savedMaxCombo = localStorage.getItem("leftControl_maxCombo");
+    const savedMaxComboTime = localStorage.getItem("leftControl_maxComboTime");
+
+    if (savedMaxCombo) {
+      setMaxCombo(parseInt(savedMaxCombo, 10));
+    }
+
+    if (savedMaxComboTime) {
+      setMaxComboTime(parseFloat(savedMaxComboTime));
+    }
+  }, []);
+
+  // 최대 콤보 업데이트시 로컬 스토리지에 저장
+  useEffect(() => {
+    if (maxCombo > 0) {
+      localStorage.setItem("leftControl_maxCombo", maxCombo.toString());
+    }
+  }, [maxCombo]);
+
+  // 최대 콤보 시간 업데이트시 로컬 스토리지에 저장
+  useEffect(() => {
+    if (maxComboTime > 0) {
+      localStorage.setItem("leftControl_maxComboTime", maxComboTime.toString());
+    }
+  }, [maxComboTime]);
+
+  // 콤보 증가시 타이머 시작
+  useEffect(() => {
+    if (comboUp && checkBox && !isTimerActive) {
+      startTimer();
+    }
+  }, [comboUp, checkBox, isTimerActive, startTimer]);
 
   return (
     <main className="mt-[96px] h-[350px] flex flex-col relative">
@@ -272,6 +387,50 @@ export default function LeftControl() {
         >
           {combo} Combos
         </div>
+
+        {/* 타이머 표시 - 체크박스가 체크된 경우에만 표시 */}
+        {checkBox && (
+          <div className="mt-2 self-center text-[16px] flex items-center">
+            <div className="flex items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 mr-1"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span
+                className={isTimerActive ? "text-blue-600 font-semibold" : ""}
+              >
+                {timeDisplay}초
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* 최대 기록 표시 (타이머 아래로 이동) */}
+        {maxCombo > 0 && (
+          <div className="mt-3 self-center text-[16px]">
+            <div className="text-blue-600">
+              <div>최대: {maxCombo} Combos</div>
+              <div>달성 시간: {maxComboTime.toFixed(2)}초</div>
+              {!isTimerActive && (
+                <button
+                  onClick={resetMaxCombo}
+                  className="mt-1 text-xs text-gray-500 hover:text-red-500"
+                  title="최대 기록 초기화"
+                >
+                  최대기록 초기화
+                </button>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );
