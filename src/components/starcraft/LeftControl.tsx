@@ -419,6 +419,7 @@ export default function LeftControl() {
             <div className="text-blue-600">
               <div>최대: {maxCombo} Combos</div>
               <div>달성 시간: {maxComboTime.toFixed(2)}초</div>
+              <div>초당 콤보: {(maxCombo / maxComboTime).toFixed(2)}개</div>
               {!isTimerActive && (
                 <button
                   onClick={resetMaxCombo}
