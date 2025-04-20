@@ -146,6 +146,26 @@ export default function LeftControl() {
     resetInputAndCombo();
   }, [isSaved, resetInputAndCombo]);
 
+  // 틀린 입력 감지 및 처리를 위한 useEffect
+  useEffect(() => {
+    // 저장된 단어가 있고 입력값이 있을 때만 실행
+    if (savedWord && inputWord) {
+      // 입력된 각 문자를 확인
+      for (let i = 0; i < inputWord.length; i++) {
+        // 잘못된 문자가 입력되었는지 확인
+        if (i < savedWord.length && inputWord[i] !== savedWord[i]) {
+          // 틀린 문자 발견 시 체크박스 설정에 따라 초기화
+          if (checkBox) {
+            if (inputRef.current) inputRef.current.value = "";
+            setInputWord("");
+            setCombo(0);
+          }
+          break;
+        }
+      }
+    }
+  }, [inputWord, savedWord, checkBox]);
+
   // Check for incorrect input and reset if needed
   const renderCharComparison = () => {
     return inputWord.split("").map((char, index) => {
@@ -156,14 +176,6 @@ export default function LeftControl() {
           </span>
         );
       } else {
-        if (savedWord.length > index && checkBox) {
-          // Reset input on incorrect character if checkbox is checked
-          setTimeout(() => {
-            if (inputRef.current) inputRef.current.value = "";
-            setInputWord("");
-          }, 0);
-          setCombo(0);
-        }
         return (
           <span key={index} className="text-red-600 text-[24px]">
             {char}
@@ -185,7 +197,7 @@ export default function LeftControl() {
           data-ad-height="100"
         />
       </aside> */}
-{/* 
+      {/* 
       <aside className={`w-[${isMobile ? "320" : "728"}px] mx-auto`}>
         <GoogleAds />
       </aside> */}
