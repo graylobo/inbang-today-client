@@ -318,7 +318,7 @@ export default function LeftControl() {
       </aside> */}
 
       {/* Main content */}
-      <div className="relative p-[30px] self-center flex flex-col w-full max-w-[550px]">
+      <div className="relative self-center flex flex-col w-full max-w-[550px]">
         {/* Keyword input section */}
         <div className="relative self-center w-full">
           <div className="">키워드 입력 (30/{keyword.length}자)</div>
@@ -405,7 +405,9 @@ export default function LeftControl() {
                 />
               </svg>
               <span
-                className={isTimerActive ? "text-blue-600 font-semibold" : ""}
+                className={
+                  isTimerActive ? "text-blue-600 font-semibold w-[100px]" : ""
+                }
               >
                 {timeDisplay}초
               </span>

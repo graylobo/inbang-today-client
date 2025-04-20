@@ -122,11 +122,6 @@ export default function ProfilePage() {
           <Input value="2,836P" readOnly className="bg-gray-50" />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">출석체크 완료</label>
-          <Input value="✓" readOnly className="bg-gray-50" />
-        </div>
-
         <div className="flex justify-end space-x-4">
           {isEditing ? (
             <>

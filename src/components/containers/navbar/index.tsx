@@ -78,6 +78,7 @@ function NavBar() {
                 <div className="flex flex-col space-y-2">
                   <div className="px-4 py-3">
                     <p className="text-sm font-medium">{user.name}</p>
+                    <p className="text-sm font-medium">{user.email}</p>
                     {/* <p className="text-xs text-gray-500 dark:text-gray-400">
                       사용자
                     </p> */}
