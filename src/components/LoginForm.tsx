@@ -2,6 +2,7 @@
 
 import { login } from "@/libs/api/services/auth.service";
 import { useAuthStore } from "@/store/authStore";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -11,7 +12,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const router = useRouter();
   const { setAuth } = useAuthStore();
 
@@ -42,10 +43,19 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex  justify-center  py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-gray-100">
+        <div className="flex flex-col items-center">
+          <div className="w-[300px] h-[300px] relative mb-4">
+            <Image
+              src="/common/inbang-today.logo.png"
+              alt="Inbang Today Logo"
+              fill
+              className="object-contain"
+              priority
+            />
+          </div>
+          <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900 dark:text-gray-100">
             로그인
           </h2>
         </div>
