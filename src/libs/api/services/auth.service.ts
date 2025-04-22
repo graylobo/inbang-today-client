@@ -66,3 +66,13 @@ export async function logout() {
   cookieStore.delete("access_token");
   return { success: true };
 }
+
+export async function getProfile() {
+  try {
+    const data = await apiRequest(API_ROUTES.user.profile.get);
+    return data;
+  } catch (error) {
+    console.error("사용자 프로필 조회 중 오류:", error);
+    return null;
+  }
+}
