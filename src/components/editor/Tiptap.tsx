@@ -7,6 +7,9 @@ import Image from "@tiptap/extension-image";
 import { Markdown } from "tiptap-markdown";
 import { useCallback, useEffect } from "react";
 import CustomResizableImage from "@/components/editor/extensions/CustomResizableImage";
+import YouTubeEmbed, {
+  getYoutubeEmbedUrl,
+} from "@/components/editor/extensions/YouTubeEmbed";
 
 interface TiptapProps {
   content?: string;
@@ -110,6 +113,30 @@ const MenuBar = ({
       </button>
       <button
         type="button"
+        onClick={() => {
+          const url = window.prompt("유튜브 URL을 입력하세요:");
+          if (url) {
+            const embedUrl = getYoutubeEmbedUrl(url);
+            if (embedUrl) {
+              editor
+                .chain()
+                .focus()
+                .insertContent({
+                  type: "youtubeEmbed",
+                  attrs: { src: embedUrl },
+                })
+                .run();
+            } else {
+              alert("유효한 유튜브 URL이 아닙니다.");
+            }
+          }
+        }}
+        className="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
+      >
+        📺
+      </button>
+      <button
+        type="button"
         onClick={() => editor.chain().focus().toggleCodeBlock().run()}
         className={`p-2 rounded ${
           editor.isActive("codeBlock")
@@ -139,6 +166,7 @@ const Tiptap = ({
         allowBase64: true,
       }),
       CustomResizableImage,
+      YouTubeEmbed,
       Markdown,
     ],
     content: initialContent || content || "",
@@ -198,14 +226,32 @@ const Tiptap = ({
     (e: ClipboardEvent) => {
       const items = Array.from(e.clipboardData?.items || []);
       const imageItem = items.find((item) => item.type.startsWith("image/"));
+
       if (imageItem) {
         const file = imageItem.getAsFile();
         if (file) {
           addImage(file);
         }
+      } else {
+        // Check for YouTube URL in pasted text
+        const text = e.clipboardData?.getData("text/plain");
+        if (text) {
+          const embedUrl = getYoutubeEmbedUrl(text);
+          if (embedUrl && editor) {
+            e.preventDefault();
+            editor
+              .chain()
+              .focus()
+              .insertContent({
+                type: "youtubeEmbed",
+                attrs: { src: embedUrl },
+              })
+              .run();
+          }
+        }
       }
     },
-    [addImage]
+    [addImage, editor]
   );
 
   // 이벤트 리스너 등록
