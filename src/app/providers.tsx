@@ -22,11 +22,24 @@ function AuthInitializer() {
   useEffect(() => {
     // 인증 상태가 아직 초기화되지 않았다면 명시적으로 초기화
     if (!authInitialized) {
+      // 쿠키에서 access_token 확인
+      const accessToken = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("access_token="))
+        ?.split("=")[1];
+
       // 이미 로그인된 사용자가 있는지 확인 (Zustand의 persist에 의해 저장된 상태)
       const userJson = localStorage.getItem("auth-storage");
+
       if (userJson) {
         try {
           const userData = JSON.parse(userJson);
+          // access_token이 없으면 로그아웃 상태로 처리
+          if (!accessToken) {
+            setUser(null);
+            return;
+          }
+
           if (userData?.state?.user) {
             // 저장된 사용자 정보가 있으면 사용
             setUser(userData.state.user);

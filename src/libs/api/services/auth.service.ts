@@ -60,3 +60,9 @@ export async function getTempUserInfo() {
     return null;
   }
 }
+
+export async function logout() {
+  const cookieStore = await cookies();
+  cookieStore.delete("access_token");
+  return { success: true };
+}

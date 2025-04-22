@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { logout as logoutApi } from "@/libs/api/services/auth.service";
 
 export interface User {
   id: number;
@@ -65,14 +66,34 @@ export const useAuthStore = create<AuthState>()(
           authInitialized: true,
         });
       },
-      logout: () =>
-        set({
-          user: null,
-          token: null,
-          isAdmin: false,
-          isSuperAdmin: false,
-          authInitialized: true,
-        }),
+      logout: async () => {
+        try {
+          // 서버 사이드에서 쿠키 제거
+          await logoutApi();
+
+          // 클라이언트 사이드에서 쿠키 제거
+          document.cookie =
+            "access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+
+          return set({
+            user: null,
+            token: null,
+            isAdmin: false,
+            isSuperAdmin: false,
+            authInitialized: true,
+          });
+        } catch (error) {
+          console.error("로그아웃 중 오류 발생:", error);
+          // 오류가 발생해도 클라이언트 상태는 초기화
+          return set({
+            user: null,
+            token: null,
+            isAdmin: false,
+            isSuperAdmin: false,
+            authInitialized: true,
+          });
+        }
+      },
       setTokens: (refreshToken) =>
         set({
           refreshToken,
