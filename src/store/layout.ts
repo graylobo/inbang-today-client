@@ -7,21 +7,18 @@ export enum SidebarState {
 
 interface LayoutState {
   sidebarState: SidebarState;
-  setSidebarState: (state: SidebarState) => void;
   toggleSidebar: () => void;
+  setSidebarState: (state: SidebarState) => void;
 }
 
 export const useLayoutStore = create<LayoutState>((set) => ({
-  sidebarState: SidebarState.OPEN,
-  setSidebarState: (state) => set({ sidebarState: state }),
+  sidebarState: SidebarState.CLOSED, // 초기 상태를 CLOSED로 설정
   toggleSidebar: () =>
-    set((state) => {
-      const currentState = state.sidebarState;
-      // 상태 순환: OPEN -> CLOSED -> OPEN
-      if (currentState === SidebarState.OPEN) {
-        return { sidebarState: SidebarState.CLOSED };
-      } else {
-        return { sidebarState: SidebarState.OPEN };
-      }
-    }),
+    set((state) => ({
+      sidebarState:
+        state.sidebarState === SidebarState.OPEN
+          ? SidebarState.CLOSED
+          : SidebarState.OPEN,
+    })),
+  setSidebarState: (state) => set({ sidebarState: state }),
 }));
