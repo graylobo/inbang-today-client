@@ -18,6 +18,7 @@ import {
   verifyCommentPassword,
 } from "@/libs/api/services/board.service";
 import { PaginationQueryDto } from "@/libs/api/dto/pagination.dto";
+import { getErrorMessage } from "@/libs/utils/error-handler";
 
 // 게시판 관련 hooks
 export const useBoards = () => {
@@ -60,6 +61,9 @@ export const useCreatePost = (onSuccess?: () => void) => {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["posts", variables.boardId] });
       onSuccess?.();
+    },
+    onError: (error) => {
+      alert(getErrorMessage(error));
     },
   });
 };
