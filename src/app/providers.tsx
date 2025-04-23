@@ -26,9 +26,8 @@ async function verifyAuthStatus(
   try {
     // 서버 컴포넌트에서 HTTP-only 쿠키를 읽어 사용자 정보 조회
     const userData = await getProfile();
-
-    if (userData) {
-      setUser(userData);
+    if (userData && userData.data) {
+      setUser(userData.data);
     } else {
       setUser(null);
     }
