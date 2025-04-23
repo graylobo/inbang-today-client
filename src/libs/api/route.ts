@@ -13,6 +13,13 @@ export const API_ROUTES = {
       method: "POST",
     },
   },
+  points: {
+    my: { url: "/points/my", method: "GET" },
+    myBadges: { url: "/points/my/badges", method: "GET" },
+    userRank: { url: "/points/user/{userId}", method: "GET" },
+    userBadges: { url: "/points/user/{userId}/badges", method: "GET" },
+    leaderboard: { url: "/points/leaderboard", method: "GET" },
+  },
   user: {
     profile: {
       get: { url: "/user/profile", method: "GET" },

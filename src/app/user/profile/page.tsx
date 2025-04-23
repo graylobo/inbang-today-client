@@ -8,6 +8,7 @@ import { useAuthStore } from "@/store/authStore";
 import { Camera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { useUserRank, useUserBadges } from "@/api-hooks/rank.hooks";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -17,6 +18,9 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(user?.name || "");
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: rank } = useUserRank();
+  const { data: badges } = useUserBadges();
 
   useEffect(() => {
     if (user?.name) {
@@ -135,6 +139,45 @@ export default function ProfilePage() {
           )}
         </div>
       </div>
+
+      {/* 랭크 정보 */}
+      {rank && (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mt-6">
+          <h2 className="text-xl font-semibold mb-2">내 랭크</h2>
+          <div className="flex items-center space-x-4">
+            <span className="text-lg font-bold">{rank.rank}</span>
+            <span className="text-gray-500">({rank.rankCategory})</span>
+            <span className="ml-2 text-blue-600 font-semibold">
+              {rank.activityPoints}P
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* 뱃지 정보 */}
+      {badges && badges.length > 0 && (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mt-6">
+          <h2 className="text-xl font-semibold mb-2">획득한 뱃지</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {badges.map((userBadge, idx) => (
+              <div
+                key={userBadge.badge.id}
+                className="bg-gray-100 rounded-lg p-4 text-center"
+              >
+                <img
+                  src={userBadge.badge.imageUrl}
+                  alt={userBadge.badge.name}
+                  className="w-12 h-12 mx-auto mb-2"
+                />
+                <div className="font-medium">{userBadge.badge.name}</div>
+                <div className="text-sm text-gray-600">
+                  {userBadge.badge.description}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
