@@ -13,7 +13,6 @@ export const RankInfo = ({ userRank, className }: RankInfoProps) => {
     <div className={cn("space-y-4", className)}>
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h3 className="text-lg font-semibold">계급 정보</h3>
           <p className="text-sm text-gray-500">
             마지막 활동:
             {new Date(userRank.lastActivityAt).toLocaleDateString()}

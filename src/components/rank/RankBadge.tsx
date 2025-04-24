@@ -1,5 +1,6 @@
 import { Rank, RankCategory } from "../../constants/rank";
 import { cn } from "../../lib/utils";
+import Image from "next/image";
 
 interface RankBadgeProps {
   rank: Rank;
@@ -22,7 +23,59 @@ const getRankColor = (category: RankCategory) => {
   }
 };
 
-const getRankName = (rank: Rank) => {
+const getRankIcon = (rank: Rank) => {
+  switch (rank) {
+    // 병
+    case Rank.PRIVATE_SECOND_CLASS:
+      return "/ranks/private-second-class.svg";
+    case Rank.PRIVATE_FIRST_CLASS:
+      return "/ranks/private-first-class.svg";
+    case Rank.CORPORAL:
+      return "/ranks/corporal.svg";
+    case Rank.SERGEANT:
+      return "/ranks/sergeant.svg";
+
+    // 부사관
+    case Rank.STAFF_SERGEANT:
+      return "/ranks/staff-sergeant.svg";
+    case Rank.SERGEANT_FIRST_CLASS:
+      return "/ranks/sergeant-first-class.svg";
+    case Rank.MASTER_SERGEANT:
+      return "/ranks/master-sergeant.svg";
+    case Rank.SERGEANT_MAJOR:
+      return "/ranks/sergeant-major.svg";
+
+    // 장교 (위관급)
+    case Rank.SECOND_LIEUTENANT:
+      return "/ranks/second-lieutenant.svg";
+    case Rank.FIRST_LIEUTENANT:
+      return "/ranks/first-lieutenant.svg";
+    case Rank.CAPTAIN:
+      return "/ranks/captain.svg";
+    case Rank.WARRANT_OFFICER:
+      return "/ranks/warrant-officer.svg";
+
+    // 장교 (영관급)
+    case Rank.MAJOR:
+      return "/ranks/major.svg";
+    case Rank.LIEUTENANT_COLONEL:
+      return "/ranks/lieutenant-colonel.svg";
+    case Rank.COLONEL:
+      return "/ranks/colonel.svg";
+
+    // 장성
+    case Rank.BRIGADIER_GENERAL:
+      return "/ranks/brigadier-general.svg";
+    case Rank.MAJOR_GENERAL:
+      return "/ranks/major-general.svg";
+    case Rank.LIEUTENANT_GENERAL:
+      return "/ranks/lieutenant-general.svg";
+    case Rank.GENERAL:
+      return "/ranks/general.svg";
+  }
+};
+
+export const getRankName = (rank: Rank) => {
   switch (rank) {
     // 병
     case Rank.PRIVATE_SECOND_CLASS:
@@ -75,15 +128,27 @@ const getRankName = (rank: Rank) => {
 };
 
 export const RankBadge = ({ rank, category, className }: RankBadgeProps) => {
+  const rankIcon = getRankIcon(rank);
+
   return (
     <div
       className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
+        "inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium",
         getRankColor(category),
         className
       )}
     >
-      {getRankName(rank)}
+      {rankIcon && (
+        <div className="relative w-5 h-5">
+          <Image
+            src={rankIcon}
+            alt={getRankName(rank) || ""}
+            fill
+            className="object-contain"
+          />
+        </div>
+      )}
+      <span>{getRankName(rank)}</span>
     </div>
   );
 };

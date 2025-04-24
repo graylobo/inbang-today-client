@@ -1,3 +1,4 @@
+import { getRankName } from "@/components/rank/RankBadge";
 import { Rank, RANK_ORDER, RANK_CATEGORIES } from "../../constants/rank";
 import { cn } from "../../lib/utils";
 
@@ -38,7 +39,7 @@ export const RankProgress = ({
     <div className={cn("space-y-2", className)}>
       <div className="flex justify-between text-sm">
         <span className="text-gray-500">현재 계급</span>
-        <span className="font-medium">{currentRank}</span>
+        <span className="font-medium">{getRankName(currentRank)}</span>
       </div>
       <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
         <div

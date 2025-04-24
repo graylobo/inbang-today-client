@@ -9,6 +9,7 @@ import { Camera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useUserRank, useUserBadges } from "@/api-hooks/rank.hooks";
+import { RankInfo } from "@/components/rank/RankInfo";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
@@ -123,7 +124,11 @@ export default function ProfilePage() {
 
         <div className="space-y-2">
           <label className="text-sm font-medium">내 포인트</label>
-          <Input value={rank?.activityPoints} readOnly className="bg-gray-50" />
+          <Input
+            value={rank?.activityPoints || 0}
+            readOnly
+            className="bg-gray-50"
+          />
         </div>
 
         <div className="flex justify-end space-x-4">
@@ -143,13 +148,7 @@ export default function ProfilePage() {
       {/* 랭크 정보 */}
       {rank && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mt-6">
-          <div className="flex items-center space-x-4">
-            <span className="text-lg font-bold">{rank.rank}</span>
-            <span className="text-gray-500">({rank.rankCategory})</span>
-            <span className="ml-2 text-blue-600 font-semibold">
-              {rank.activityPoints}P
-            </span>
-          </div>
+          <RankInfo userRank={rank} />
         </div>
       )}
 
