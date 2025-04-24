@@ -100,15 +100,15 @@ export default function BoardPage(props: { params: BoardPageParams }) {
                 className="block p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
                 <div className="flex justify-between items-start">
-                  <div>
-                    <h2 className="text-lg font-medium dark:text-gray-100">
+                  <div className="flex flex-row justify-center items-center gap-2">
+                    <p className="dark:text-gray-100">
                       <span className="mr-2">{`${post.title}`}</span>
                       {post.comments.length > 0 && (
                         <span className="text-blue-500 dark:text-gray-400">
                           [{post.comments.length}]
                         </span>
                       )}
-                    </h2>
+                    </p>
                     <div className="mt-1 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
                       <div className="flex items-center">
                         <UserIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
@@ -129,7 +129,7 @@ export default function BoardPage(props: { params: BoardPageParams }) {
                         <CalendarIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
                         <span className="leading-none align-middle">
                           {formatDate(post.createdAt, "mm.dd", {
-                            showTimeOnlyForToday: true,
+                            showElapsedForToday: true,
                           })}
                         </span>
                       </div>
