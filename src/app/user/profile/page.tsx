@@ -123,7 +123,7 @@ export default function ProfilePage() {
 
         <div className="space-y-2">
           <label className="text-sm font-medium">내 포인트</label>
-          <Input value="2,836P" readOnly className="bg-gray-50" />
+          <Input value={rank?.activityPoints} readOnly className="bg-gray-50" />
         </div>
 
         <div className="flex justify-end space-x-4">
@@ -143,7 +143,6 @@ export default function ProfilePage() {
       {/* 랭크 정보 */}
       {rank && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow mt-6">
-          <h2 className="text-xl font-semibold mb-2">내 랭크</h2>
           <div className="flex items-center space-x-4">
             <span className="text-lg font-bold">{rank.rank}</span>
             <span className="text-gray-500">({rank.rankCategory})</span>
