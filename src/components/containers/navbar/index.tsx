@@ -28,9 +28,6 @@ function NavBar() {
     setSidebarManuallyOpened,
   } = useLayoutStore();
 
-  // Lower z-index when sidebar is open
-  const zIndex = sidebarState === SidebarState.OPEN ? 1000 : 1300;
-
   const handleToggleSidebar = () => {
     if (sidebarState === SidebarState.HIDDEN) {
       setSidebarState(SidebarState.CLOSED);
@@ -57,7 +54,7 @@ function NavBar() {
       className="bg-white dark:bg-dark-bg border-b border-gray-200 dark:border-gray-800 "
       elevation={0}
       sx={{
-        zIndex,
+        zIndex: 1500,
       }}
     >
       <Toolbar className="flex justify-between items-center">

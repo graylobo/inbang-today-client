@@ -109,16 +109,6 @@ function Sidebar() {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        <Link href="/" className={styles.homeLogo}>
-          <Image
-            src="/common/inbang-today.logo.png"
-            alt="INBANG TODAY"
-            width={120}
-            height={40}
-            priority
-          />
-        </Link>
-
         <List>
           {menuItems.map((item, index) => (
             <SidebarMenuItem key={index} item={item} openSidebar={isOpen} />

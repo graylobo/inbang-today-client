@@ -1,7 +1,6 @@
-import { DRAWER_WIDTH } from "@/layouts/Base";
+import { SidebarState } from "@/store/layout";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import { styled } from "@mui/material/styles";
-import { SidebarState } from "@/store/layout";
 
 type AppBarProps = {
   sidebarState: SidebarState;

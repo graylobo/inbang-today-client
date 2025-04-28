@@ -73,9 +73,11 @@ export const SidebarDrawer = styled(MuiDrawer, {
   whiteSpace: "nowrap",
   boxSizing: "border-box",
   position: "fixed",
+  top: 64,
   zIndex: sidebarState === SidebarState.OPEN ? 1400 : 1200,
   "& .MuiDrawer-paper": {
     position: "fixed",
+    top: 64,
     zIndex: sidebarState === SidebarState.OPEN ? 1400 : 1200,
   },
   ...(sidebarState === SidebarState.OPEN && {
@@ -83,6 +85,7 @@ export const SidebarDrawer = styled(MuiDrawer, {
     "& .MuiDrawer-paper": {
       ...openedMixin(theme),
       position: "fixed",
+      top: 64,
       zIndex: 1400,
     },
   }),
@@ -91,6 +94,7 @@ export const SidebarDrawer = styled(MuiDrawer, {
     "& .MuiDrawer-paper": {
       ...closedMixin(theme, isLargeDesktop),
       position: "fixed",
+      top: 64,
     },
   }),
   ...(sidebarState === SidebarState.HIDDEN && {
@@ -98,6 +102,7 @@ export const SidebarDrawer = styled(MuiDrawer, {
     "& .MuiDrawer-paper": {
       ...hiddenMixin(theme),
       position: "fixed",
+      top: 64,
     },
   }),
 }));

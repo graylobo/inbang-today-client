@@ -14,6 +14,10 @@ api.interceptors.request.use(async (config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  console.log(
+    "request path:::",
+    `${config.method?.toUpperCase()} ${config.baseURL}${config.url}`
+  );
   return config;
 });
 
