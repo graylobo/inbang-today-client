@@ -9,21 +9,30 @@ export enum SidebarState {
 interface LayoutState {
   sidebarState: SidebarState;
   showOverlay: boolean;
+  isSidebarManuallyOpened: boolean;
   toggleSidebar: () => void;
   setSidebarState: (state: SidebarState) => void;
   toggleOverlay: () => void;
+  setSidebarManuallyOpened: (opened: boolean) => void;
 }
 
 export const useLayoutStore = create<LayoutState>((set) => ({
   sidebarState: SidebarState.CLOSED, // 초기 상태를 CLOSED로 설정
   showOverlay: false,
+  isSidebarManuallyOpened: false,
   toggleSidebar: () =>
-    set((state) => ({
-      sidebarState:
+    set((state) => {
+      const nextState =
         state.sidebarState === SidebarState.OPEN
           ? SidebarState.CLOSED
-          : SidebarState.OPEN,
-    })),
+          : SidebarState.OPEN;
+      return {
+        sidebarState: nextState,
+        isSidebarManuallyOpened: nextState === SidebarState.OPEN,
+      };
+    }),
   setSidebarState: (state) => set({ sidebarState: state }),
   toggleOverlay: () => set((state) => ({ showOverlay: !state.showOverlay })),
+  setSidebarManuallyOpened: (opened) =>
+    set({ isSidebarManuallyOpened: opened }),
 }));

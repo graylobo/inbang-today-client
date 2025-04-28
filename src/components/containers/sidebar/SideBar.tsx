@@ -49,7 +49,13 @@ const menuItems = [
 ];
 
 function Sidebar() {
-  const { sidebarState, setSidebarState, showOverlay } = useLayoutStore();
+  const {
+    sidebarState,
+    setSidebarState,
+    showOverlay,
+    isSidebarManuallyOpened,
+    setSidebarManuallyOpened,
+  } = useLayoutStore();
   const setShowOverlay = useLayoutStore((s) => s.toggleOverlay);
   const largeDesktop = useMediaQuery("largeDesktop");
   const isOpen = sidebarState === SidebarState.OPEN;
@@ -66,7 +72,29 @@ function Sidebar() {
 
   const handleOverlayClick = (): void => {
     setSidebarState(SidebarState.CLOSED);
+    setSidebarManuallyOpened(false);
   };
+
+  // 마우스 오버/리브 핸들러 (아이콘 모드에서만, 수동 오픈이 아닐 때만 동작)
+  const handleMouseEnter = () => {
+    if (
+      largeDesktop &&
+      sidebarState === SidebarState.CLOSED &&
+      !isSidebarManuallyOpened
+    ) {
+      setSidebarState(SidebarState.OPEN);
+    }
+  };
+  const handleMouseLeave = () => {
+    if (
+      largeDesktop &&
+      sidebarState === SidebarState.OPEN &&
+      !isSidebarManuallyOpened
+    ) {
+      setSidebarState(SidebarState.CLOSED);
+    }
+  };
+
   return (
     <>
       <SidebarOverlay
@@ -78,6 +106,8 @@ function Sidebar() {
         variant="permanent"
         sidebarState={sidebarState}
         isLargeDesktop={largeDesktop}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
         <Link href="/" className={styles.homeLogo}>
           <Image

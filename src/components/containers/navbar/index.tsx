@@ -20,8 +20,13 @@ import Link from "next/link";
 
 function NavBar() {
   const { user, logout } = useAuthStore();
-  const { sidebarState, toggleSidebar, setSidebarState, toggleOverlay } =
-    useLayoutStore();
+  const {
+    sidebarState,
+    toggleSidebar,
+    setSidebarState,
+    toggleOverlay,
+    setSidebarManuallyOpened,
+  } = useLayoutStore();
 
   // Lower z-index when sidebar is open
   const zIndex = sidebarState === SidebarState.OPEN ? 1000 : 1300;
@@ -29,9 +34,20 @@ function NavBar() {
   const handleToggleSidebar = () => {
     if (sidebarState === SidebarState.HIDDEN) {
       setSidebarState(SidebarState.CLOSED);
+      setSidebarManuallyOpened(false);
     } else if (sidebarState === SidebarState.CLOSED) {
       setSidebarState(SidebarState.HIDDEN);
+      setSidebarManuallyOpened(false);
     }
+  };
+
+  const handleHamburgerClick = () => {
+    if (sidebarState !== SidebarState.OPEN) {
+      setSidebarManuallyOpened(true);
+    } else {
+      setSidebarManuallyOpened(false);
+    }
+    toggleSidebar();
   };
 
   return (
@@ -49,7 +65,7 @@ function NavBar() {
           <IconButton
             color="inherit"
             aria-label="toggle drawer"
-            onClick={toggleSidebar}
+            onClick={handleHamburgerClick}
             edge="start"
             className="mr-5 text-gray-900 dark:text-gray-100"
           >
