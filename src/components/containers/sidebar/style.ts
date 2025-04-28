@@ -3,6 +3,9 @@ import MuiDrawer from "@mui/material/Drawer";
 import { CSSObject, Theme, styled } from "@mui/material/styles";
 import { SidebarState } from "@/store/layout";
 
+const ICON_ONLY_WIDTH = 64;
+const LARGE_DESKTOP_BREAKPOINT = 1200;
+
 const openedMixin = (theme: Theme): CSSObject => ({
   width: DRAWER_WIDTH,
   transition: theme.transitions.create("width", {
@@ -24,20 +27,21 @@ const openedMixin = (theme: Theme): CSSObject => ({
   zIndex: 1400,
 });
 
-const closedMixin = (theme: Theme): CSSObject => ({
+// CLOSED: largeDesktop 이상이면 64px, 미만이면 0
+const closedMixin = (theme: Theme, isLargeDesktop: boolean): CSSObject => ({
   transition: theme.transitions.create("width", {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
   overflowX: "hidden",
-  width: "64px",
+  width: isLargeDesktop ? `${ICON_ONLY_WIDTH}px` : 0,
   backgroundColor: "var(--drawer-bg)",
-  borderRight: "1px solid var(--drawer-border)",
+  borderRight: isLargeDesktop ? "1px solid var(--drawer-border)" : "none",
   "& .MuiListItemIcon-root": {
     color: "var(--drawer-icon)",
   },
-  [theme.breakpoints.up("sm")]: {
-    width: "64px",
+  [theme.breakpoints.up("lg")]: {
+    width: isLargeDesktop ? `${ICON_ONLY_WIDTH}px` : 0,
   },
 });
 
@@ -57,11 +61,13 @@ const hiddenMixin = (theme: Theme): CSSObject => ({
 
 type SidebarDrawerProps = {
   sidebarState: SidebarState;
+  isLargeDesktop: boolean;
 };
 
 export const SidebarDrawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "sidebarState",
-})<SidebarDrawerProps>(({ theme, sidebarState }) => ({
+  shouldForwardProp: (prop) =>
+    prop !== "sidebarState" && prop !== "isLargeDesktop",
+})<SidebarDrawerProps>(({ theme, sidebarState, isLargeDesktop }) => ({
   width: DRAWER_WIDTH,
   flexShrink: 0,
   whiteSpace: "nowrap",
@@ -81,9 +87,9 @@ export const SidebarDrawer = styled(MuiDrawer, {
     },
   }),
   ...(sidebarState === SidebarState.CLOSED && {
-    ...closedMixin(theme),
+    ...closedMixin(theme, isLargeDesktop),
     "& .MuiDrawer-paper": {
-      ...closedMixin(theme),
+      ...closedMixin(theme, isLargeDesktop),
       position: "fixed",
     },
   }),

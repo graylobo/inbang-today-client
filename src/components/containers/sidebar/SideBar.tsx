@@ -56,10 +56,10 @@ function Sidebar() {
 
   useEffect(() => {
     if (largeDesktop) {
-      // 데스크탑: 오버레이 비활성
+      // largeDesktop 이상: 오버레이 비활성
       if (showOverlay) setShowOverlay();
     } else {
-      // 모바일/태블릿: 오버레이 활성
+      // largeDesktop 미만: 오버레이 활성
       if (!showOverlay) setShowOverlay();
     }
   }, [largeDesktop, showOverlay, setShowOverlay]);
@@ -74,7 +74,11 @@ function Sidebar() {
         showOverlay={showOverlay}
         onClick={handleOverlayClick}
       />
-      <SidebarDrawer variant="permanent" sidebarState={sidebarState}>
+      <SidebarDrawer
+        variant="permanent"
+        sidebarState={sidebarState}
+        isLargeDesktop={largeDesktop}
+      >
         <Link href="/" className={styles.homeLogo}>
           <Image
             src="/common/inbang-today.logo.png"

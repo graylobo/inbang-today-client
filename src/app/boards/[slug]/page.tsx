@@ -75,7 +75,7 @@ export default function BoardPage(props: { params: BoardPageParams }) {
   const currentPage = postsData?.page || 1;
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className=" mx-auto ">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold dark:text-gray-100">{board.name}</h1>
         <Link
