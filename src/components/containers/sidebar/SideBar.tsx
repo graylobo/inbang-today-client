@@ -5,6 +5,8 @@ import { SidebarDrawer, SidebarOverlay } from "./style";
 import styles from "./SideBar.module.scss";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect } from "react";
+import { useMediaQuery } from "@/hooks/client/use-media-query";
 
 const menuItems = [
   {
@@ -47,17 +49,29 @@ const menuItems = [
 ];
 
 function Sidebar() {
-  const { sidebarState, setSidebarState } = useLayoutStore();
+  const { sidebarState, setSidebarState, showOverlay } = useLayoutStore();
+  const setShowOverlay = useLayoutStore((s) => s.toggleOverlay);
+  const largeDesktop = useMediaQuery("largeDesktop");
   const isOpen = sidebarState === SidebarState.OPEN;
+
+  useEffect(() => {
+    if (largeDesktop) {
+      // 데스크탑: 오버레이 비활성
+      if (showOverlay) setShowOverlay();
+    } else {
+      // 모바일/태블릿: 오버레이 활성
+      if (!showOverlay) setShowOverlay();
+    }
+  }, [largeDesktop, showOverlay, setShowOverlay]);
 
   const handleOverlayClick = (): void => {
     setSidebarState(SidebarState.CLOSED);
   };
-
   return (
     <>
       <SidebarOverlay
         open={sidebarState === SidebarState.OPEN}
+        showOverlay={showOverlay}
         onClick={handleOverlayClick}
       />
       <SidebarDrawer variant="permanent" sidebarState={sidebarState}>

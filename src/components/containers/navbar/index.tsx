@@ -11,6 +11,8 @@ import {
 import { useAuthStore } from "@/store/authStore";
 import { SidebarState, useLayoutStore } from "@/store/layout";
 import MenuIcon from "@mui/icons-material/Menu";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import { IconButton, Toolbar } from "@mui/material";
 import { LogOut, User } from "lucide-react";
 import Image from "next/image";
@@ -18,10 +20,19 @@ import Link from "next/link";
 
 function NavBar() {
   const { user, logout } = useAuthStore();
-  const { sidebarState, toggleSidebar } = useLayoutStore();
+  const { sidebarState, toggleSidebar, setSidebarState, toggleOverlay } =
+    useLayoutStore();
 
   // Lower z-index when sidebar is open
   const zIndex = sidebarState === SidebarState.OPEN ? 1000 : 1300;
+
+  const handleToggleSidebar = () => {
+    if (sidebarState === SidebarState.HIDDEN) {
+      setSidebarState(SidebarState.CLOSED);
+    } else if (sidebarState === SidebarState.CLOSED) {
+      setSidebarState(SidebarState.HIDDEN);
+    }
+  };
 
   return (
     <AppBar
@@ -59,6 +70,19 @@ function NavBar() {
         </div>
 
         <div className="flex items-center gap-4">
+          <IconButton
+            color="inherit"
+            aria-label="toggle sidebar visibility"
+            onClick={handleToggleSidebar}
+            edge="start"
+            className="mr-5 text-gray-900 dark:text-gray-100"
+          >
+            {sidebarState === SidebarState.HIDDEN ? (
+              <VisibilityOffIcon />
+            ) : (
+              <VisibilityIcon />
+            )}
+          </IconButton>
           <ThemeToggle />
           {user ? (
             <Popover>

@@ -30,12 +30,26 @@ const closedMixin = (theme: Theme): CSSObject => ({
     duration: theme.transitions.duration.leavingScreen,
   }),
   overflowX: "hidden",
-  width: 0,
+  width: "64px",
   backgroundColor: "var(--drawer-bg)",
-  borderRight: "none",
+  borderRight: "1px solid var(--drawer-border)",
   "& .MuiListItemIcon-root": {
     color: "var(--drawer-icon)",
   },
+  [theme.breakpoints.up("sm")]: {
+    width: "64px",
+  },
+});
+
+const hiddenMixin = (theme: Theme): CSSObject => ({
+  transition: theme.transitions.create("width", {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: "hidden",
+  width: 0,
+  backgroundColor: "var(--drawer-bg)",
+  borderRight: "none",
   [theme.breakpoints.up("sm")]: {
     width: 0,
   },
@@ -73,21 +87,28 @@ export const SidebarDrawer = styled(MuiDrawer, {
       position: "fixed",
     },
   }),
+  ...(sidebarState === SidebarState.HIDDEN && {
+    ...hiddenMixin(theme),
+    "& .MuiDrawer-paper": {
+      ...hiddenMixin(theme),
+      position: "fixed",
+    },
+  }),
 }));
 
 export const SidebarOverlay = styled("div", {
-  shouldForwardProp: (prop) => prop !== "open",
-})<{ open: boolean }>(({ open }) => ({
+  shouldForwardProp: (prop) => prop !== "open" && prop !== "showOverlay",
+})<{ open: boolean; showOverlay: boolean }>(({ open, showOverlay }) => ({
   position: "fixed",
   top: 0,
   left: 0,
   width: "100%",
   height: "100%",
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
+  backgroundColor: showOverlay ? "rgba(0, 0, 0, 0.5)" : "transparent",
   zIndex: 1200,
   visibility: open ? "visible" : "hidden",
   opacity: open ? 1 : 0,
   transition:
     "opacity 225ms cubic-bezier(0.4, 0, 0.2, 1), visibility 225ms cubic-bezier(0.4, 0, 0.2, 1)",
-  backdropFilter: "grayscale(100%)",
+  backdropFilter: showOverlay ? "grayscale(100%)" : "none",
 }));
