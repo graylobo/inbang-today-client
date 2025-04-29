@@ -15,7 +15,7 @@ export default function CrewEarnings({ crewId }: { crewId: string }) {
           onClick={() => setShowBroadcastForm(true)}
           className="px-4 py-2 bg-green-500 dark:bg-green-600 text-white rounded-md hover:bg-green-600 dark:hover:bg-green-700 transition-colors"
         >
-          크루 방송 수익 입력
+          방송 별풍선 수익 입력
         </button>
       </div>
 
@@ -24,7 +24,7 @@ export default function CrewEarnings({ crewId }: { crewId: string }) {
       <Modal
         isOpen={showBroadcastForm}
         onClose={() => setShowBroadcastForm(false)}
-        title="크루 수익 입력"
+        title="방송 별풍선 수익 입력"
       >
         <BroadcastEarningForm
           crewId={parseInt(crewId)}

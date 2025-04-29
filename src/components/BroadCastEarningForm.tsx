@@ -88,7 +88,7 @@ export default function BroadcastEarningForm({
         disabled={isPending}
         className="w-full bg-blue-500 dark:bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 transition-colors"
       >
-        {isPending ? "처리 중..." : "수익 등록"}
+        {isPending ? "처리 중..." : "등록"}
       </button>
 
       {showConfirm && (
