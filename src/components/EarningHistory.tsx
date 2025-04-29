@@ -18,11 +18,13 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
     year,
     month
   );
-
+  console.log("dailyEarnings:::", dailyEarnings);
   return (
     <div className="mt-8 bg-white dark:bg-dark-bg rounded-lg p-6 shadow-md dark:shadow-none dark:border dark:border-gray-700">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-bold dark:text-gray-100">방송 수익 내역</h2>
+        <h2 className="text-xl font-bold dark:text-gray-100">
+          방송 별풍선 수익 내역
+        </h2>
         <div className="flex gap-4">
           <select
             value={year}
@@ -68,15 +70,9 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
               >
                 <div>
                   <p className="font-medium dark:text-gray-100">{daily.date}</p>
-                  {daily.broadcastEarning ? (
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      별풍선
-                    </p>
-                  ) : (
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      참여 멤버: {daily.earnings?.length || 0}명
-                    </p>
-                  )}
+                  {/* <p className="text-sm text-gray-600 dark:text-gray-400">
+                    참여 멤버: {daily.earnings?.length || 0}명
+                  </p> */}
                 </div>
                 <div className="text-lg font-semibold dark:text-gray-100">
                   {daily.totalAmount.toLocaleString()}개
@@ -89,9 +85,6 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
                     <div className="p-4 bg-blue-50 dark:bg-blue-900/30">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-medium text-blue-800 dark:text-blue-300">
-                            별풍선
-                          </p>
                           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                             {daily.broadcastEarning.description || "설명 없음"}
                           </p>

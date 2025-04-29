@@ -94,10 +94,10 @@ export default function CrewList({
             </p>
             <div className="flex justify-between items-center text-sm">
               <span className="text-gray-500 dark:text-gray-400">
-                {year}년 {month}월 수익
+                {year}년 {month}월 별풍선 수익
               </span>
               <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                {crew.monthlyEarnings.toLocaleString()}원
+                {crew.monthlyEarnings.toLocaleString()}개
               </span>
             </div>
           </Link>

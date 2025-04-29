@@ -51,7 +51,7 @@ export default function BroadcastEarningForm({
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-          placeholder="수익 금액"
+          placeholder="별풍선 개수 입력"
           required
         />
       </div>
