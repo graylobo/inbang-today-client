@@ -122,12 +122,7 @@ export default function AdminCrewsPage() {
     const newRanks = [...rankFormData];
     const targetIndex = direction === "up" ? index - 1 : index + 1;
 
-    // 레벨 값 교환
-    const tempLevel = newRanks[index].level;
-    newRanks[index].level = newRanks[targetIndex].level;
-    newRanks[targetIndex].level = tempLevel;
-
-    // 배열에서 위치 교환
+    // 배열에서 위치 교환만 수행
     [newRanks[index], newRanks[targetIndex]] = [
       newRanks[targetIndex],
       newRanks[index],
@@ -145,13 +140,18 @@ export default function AdminCrewsPage() {
       alert("모든 계급에 이름을 입력해주세요.");
       return;
     }
+    // level을 순서대로 재할당
+    const ranksWithLevels = rankFormData.map((rank, idx) => ({
+      ...rank,
+      level: idx + 1,
+    }));
     updateMutate({
       id: rankEditCrew.id,
       formData: {
         name: rankEditCrew.name,
         description: rankEditCrew.description,
         iconUrl: rankEditCrew.iconUrl || "",
-        ranks: rankFormData,
+        ranks: ranksWithLevels,
       },
     });
 
@@ -160,10 +160,17 @@ export default function AdminCrewsPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const ranksWithLevels = formData.ranks.map((rank, idx) => ({
+      ...rank,
+      level: idx + 1,
+    }));
     if (isEditing && selectedCrew) {
-      updateMutate({ id: selectedCrew.id, formData });
+      updateMutate({
+        id: selectedCrew.id,
+        formData: { ...formData, ranks: ranksWithLevels },
+      });
     } else {
-      createMutate(formData);
+      createMutate({ ...formData, ranks: ranksWithLevels });
     }
   };
 
@@ -254,12 +261,7 @@ export default function AdminCrewsPage() {
     const newRanks = [...formData.ranks];
     const targetIndex = direction === "up" ? index - 1 : index + 1;
 
-    // 레벨 값 교환
-    const tempLevel = newRanks[index].level;
-    newRanks[index].level = newRanks[targetIndex].level;
-    newRanks[targetIndex].level = tempLevel;
-
-    // 배열에서 위치 교환
+    // 배열에서 위치 교환만 수행
     [newRanks[index], newRanks[targetIndex]] = [
       newRanks[targetIndex],
       newRanks[index],
