@@ -71,6 +71,7 @@ function Sidebar() {
   }, [largeDesktop, showOverlay, setShowOverlay]);
 
   const handleOverlayClick = (): void => {
+    if (largeDesktop) return; // largeDesktop에서는 무시
     setSidebarState(SidebarState.CLOSED);
     setSidebarManuallyOpened(false);
   };
