@@ -40,13 +40,15 @@ export async function createCrewBroadcastEarning(
   crewId: number,
   totalAmount: number,
   broadcastDate: string,
-  description: string
+  description: string,
+  broadcastDuration?: number
 ) {
   const { data } = await api.post("/crew-broadcasts", {
     crewId,
     totalAmount,
     broadcastDate,
     description,
+    broadcastDuration,
   });
   return data;
 }

@@ -1,9 +1,7 @@
 import { CrewFormData } from "@/app/admin/crews/page";
 import { CrewMemberFormData } from "@/app/admin/members/page";
 import { SignatureFormData } from "@/app/admin/signatures/page";
-import {
-  crewEarningsByDateOptions
-} from "@/hooks/crew/useCrews.option";
+import { crewEarningsByDateOptions } from "@/hooks/crew/useCrews.option";
 import {
   Crew,
   CrewDetail,
@@ -30,11 +28,7 @@ import {
   updateCrewSignature,
 } from "@/libs/api/services/crew.service";
 import { getErrorMessage } from "@/libs/utils/error-handler";
-import {
-  useMutation,
-  useQuery,
-  useQueryClient
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export function useGetCrews() {
   return useQuery<Crew[]>({
@@ -82,17 +76,20 @@ export function useCreateCrewBroadcastEarning(onClose: () => void) {
       totalAmount,
       broadcastDate,
       description,
+      broadcastDuration,
     }: {
       crewId: number;
       totalAmount: number;
       broadcastDate: string;
       description: string;
+      broadcastDuration?: number;
     }) => {
       const { data } = await createCrewBroadcastEarning(
         crewId,
         totalAmount,
         broadcastDate,
-        description
+        description,
+        broadcastDuration
       );
       return data;
     },

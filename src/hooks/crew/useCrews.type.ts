@@ -65,6 +65,7 @@ export interface DailyEarningResponse {
   broadcastEarning?: {
     totalAmount: number;
     description: string;
+    broadcastDuration: number;
     submittedBy: {
       id: number;
       name: string;

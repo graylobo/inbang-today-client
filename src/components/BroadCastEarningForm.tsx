@@ -21,6 +21,7 @@ export default function BroadcastEarningForm({
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
+  const [broadcastDuration, setBroadcastDuration] = useState("");
   const [showConfirm, setShowConfirm] = useState(false);
   const maxDate = today.toISOString().split("T")[0];
   const minimumDate = minDate.toISOString().split("T")[0];
@@ -37,6 +38,9 @@ export default function BroadcastEarningForm({
       totalAmount: parseFloat(amount),
       broadcastDate: date,
       description,
+      broadcastDuration: broadcastDuration
+        ? parseInt(broadcastDuration)
+        : undefined,
     });
   };
 
@@ -71,6 +75,19 @@ export default function BroadcastEarningForm({
         <p className="mt-1 text-sm text-gray-500">
           * 현재 날짜 기준 한 달 이내의 날짜만 선택 가능합니다.
         </p>
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          방송 시간 (분)
+        </label>
+        <input
+          type="number"
+          value={broadcastDuration}
+          onChange={(e) => setBroadcastDuration(e.target.value)}
+          className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+          placeholder="방송 시간(분) 입력"
+          min={1}
+        />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">

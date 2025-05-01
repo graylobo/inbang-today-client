@@ -91,6 +91,12 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
                           <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
                             입력: {daily.broadcastEarning.submittedBy.name}
                           </p>
+                          {daily.broadcastEarning.broadcastDuration && (
+                            <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                              방송 시간:
+                              {daily.broadcastEarning.broadcastDuration}분
+                            </p>
+                          )}
                         </div>
                         <div className="font-bold text-blue-600 dark:text-blue-400">
                           {daily.broadcastEarning.totalAmount.toLocaleString()}

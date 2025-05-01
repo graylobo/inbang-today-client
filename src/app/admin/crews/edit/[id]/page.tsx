@@ -94,7 +94,7 @@ export default function EditCrewPage() {
 
       {!isSuperAdmin && (
         <div className="bg-yellow-100 p-4 rounded-md text-yellow-800 mb-4">
-          슈퍼 관리자만 크루 정보를 수정할 수 있습니다. 멤버 관리는{" "}
+          슈퍼 관리자만 크루 정보를 수정할 수 있습니다. 멤버 관리는
           <a href={`/admin/members?crewId=${crewId}`} className="underline">
             이 링크
           </a>
