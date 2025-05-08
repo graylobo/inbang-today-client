@@ -16,7 +16,7 @@ interface LiveStreamerProps {
 }
 
 export default function LiveStreamer({ crew }: LiveStreamerProps) {
-  const { streamers, isLoading } = useLiveStreamers();
+  const { streamers, isLoading } = useLiveStreamers(crew?.id);
 
   if (isLoading) return <div className="dark:text-gray-300">로딩 중...</div>;
   if (!streamers?.length)

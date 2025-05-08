@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import io from "socket.io-client";
 
-export const useLiveStreamers = () => {
+export const useLiveStreamers = (crewId?: number) => {
   const [streamers, setStreamers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   console.log(
@@ -12,24 +12,35 @@ export const useLiveStreamers = () => {
   useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_API_URL);
 
-    // // 초기 데이터 로딩
-    // fetch("http://your-server-url/live-streamers")
-    //   .then((res) => res.json())
-    //   .then((data) => {
-    //     setStreamers(data);
-    //     setIsLoading(false);
-    //   });
+    // Initial data loading using a direct API call with crewId
+    if (crewId) {
+      fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/crawler/broadcasts?crewId=${crewId}`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setStreamers(data.streamInfos || []);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching live streamers:", error);
+          setIsLoading(false);
+        });
+    }
 
-    // 실시간 업데이트 수신
+    // Real-time updates reception
     socket.on("updateLiveStreamers", (data) => {
-      setStreamers(data.streamInfos);
-      setIsLoading(false);
+      // If we're filtering by crew, don't update from general socket events
+      if (!crewId) {
+        setStreamers(data.streamInfos || []);
+        setIsLoading(false);
+      }
     });
 
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [crewId]);
 
   return { streamers, isLoading };
 };
