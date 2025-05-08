@@ -17,8 +17,7 @@ export interface Crew {
 export interface CrewMember {
   id: number;
   name: string;
-  profileImageUrl?: string;
-  broadcastUrl?: string;
+  soopId?: string;
   crew: {
     id: number;
     name: string;

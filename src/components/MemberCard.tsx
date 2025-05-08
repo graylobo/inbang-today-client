@@ -8,8 +8,7 @@ interface MemberCardProps {
   member: {
     id: number;
     name: string;
-    profileImageUrl?: string;
-    broadcastUrl?: string;
+    soopId?: string;
     rank: {
       name: string;
       level: number;
@@ -24,8 +23,19 @@ export default function MemberCard({
 }: MemberCardProps) {
   const { user } = useAuthStore();
   const [imgError, setImgError] = useState(false);
+
+  // soopId에서 URL 생성
+  const profileImageUrl = member.soopId
+    ? `https://profile.img.sooplive.co.kr/LOGO/${member.soopId.slice(0, 2)}/${
+        member.soopId
+      }/${member.soopId}.jpg`
+    : "";
+  const broadcastUrl = member.soopId
+    ? `https://ch.sooplive.co.kr/${member.soopId}`
+    : "";
+
   const showDefaultAvatar =
-    !isValidImageUrl(member.profileImageUrl) || imgError;
+    !member.soopId || !isValidImageUrl(profileImageUrl) || imgError;
 
   return (
     <div className="p-4 bg-white dark:bg-dark-bg rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md dark:shadow-none transition-all">
@@ -33,13 +43,13 @@ export default function MemberCard({
         <div className="relative w-16 h-16 flex-shrink-0">
           {!showDefaultAvatar ? (
             <a
-              href={member.broadcastUrl}
+              href={broadcastUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="block w-full h-full"
             >
               <Image
-                src={member.profileImageUrl!}
+                src={profileImageUrl}
                 alt={member.name}
                 fill
                 sizes="64px"
@@ -65,9 +75,9 @@ export default function MemberCard({
             </span>
           </div>
           <div className="flex flex-wrap gap-2 mt-2">
-            {member.broadcastUrl && (
+            {member.soopId && (
               <a
-                href={member.broadcastUrl}
+                href={broadcastUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 inline-block truncate"

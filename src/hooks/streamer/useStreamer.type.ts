@@ -7,7 +7,6 @@ export interface Streamer {
   tier: string;
   crew: string;
   rank: string;
-  profileImageUrl?: string;
 }
 
 export interface LiveStreamer {

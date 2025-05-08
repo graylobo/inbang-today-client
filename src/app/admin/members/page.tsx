@@ -23,8 +23,7 @@ import { Category } from "@/libs/api/services/category.service";
 
 export interface CrewMemberFormData {
   name: string;
-  profileImageUrl?: string;
-  broadcastUrl?: string;
+  soopId?: string;
   crewId: number;
   rankId: number;
   categoryIds?: number[];
@@ -42,8 +41,7 @@ export default function AdminMembersPage() {
   );
   const [formData, setFormData] = useState<CrewMemberFormData>({
     name: "",
-    profileImageUrl: "",
-    broadcastUrl: "",
+    soopId: "",
     crewId: 0,
     rankId: 0,
     categoryIds: [],
@@ -52,8 +50,7 @@ export default function AdminMembersPage() {
   const resetForm = () => {
     setFormData({
       name: "",
-      profileImageUrl: "",
-      broadcastUrl: "",
+      soopId: "",
       crewId: 0,
       rankId: 0,
       categoryIds: [],
@@ -191,8 +188,7 @@ export default function AdminMembersPage() {
     setSelectedMember(member);
     setFormData({
       name: member.name,
-      profileImageUrl: member.profileImageUrl || "",
-      broadcastUrl: member.broadcastUrl || "",
+      soopId: member.soopId || "",
       crewId: member?.crew?.id || 0,
       rankId: member?.rank?.id || 0,
       categoryIds: [], // 초기값으로 빈 배열 설정, memberCategories 로드 후 업데이트됨
@@ -259,29 +255,20 @@ export default function AdminMembersPage() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              프로필 이미지 URL
+              숲 ID (SOOP ID)
             </label>
             <input
               type="text"
-              value={formData.profileImageUrl}
+              value={formData.soopId}
               onChange={(e) =>
-                setFormData({ ...formData, profileImageUrl: e.target.value })
+                setFormData({ ...formData, soopId: e.target.value })
               }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              placeholder="예: woowakgood, dkdlel123"
             />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              방송국 URL
-            </label>
-            <input
-              type="text"
-              value={formData.broadcastUrl}
-              onChange={(e) =>
-                setFormData({ ...formData, broadcastUrl: e.target.value })
-              }
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-            />
+            <p className="mt-1 text-xs text-gray-500">
+              프로필 이미지와 방송국 URL은 숲 ID에서 자동 생성됩니다.
+            </p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -419,9 +406,12 @@ export default function AdminMembersPage() {
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    {member.profileImageUrl ? (
+                    {member.soopId ? (
                       <img
-                        src={member.profileImageUrl}
+                        src={`https://profile.img.sooplive.co.kr/LOGO/${member.soopId.slice(
+                          0,
+                          2
+                        )}/${member.soopId}/${member.soopId}.jpg`}
                         alt={member?.name}
                         className="w-10 h-10 rounded-full"
                       />
@@ -439,6 +429,17 @@ export default function AdminMembersPage() {
                       </h3>
                       <p className="text-sm text-gray-500">
                         {member?.crew?.name}
+                        {member.soopId && (
+                          <a
+                            href={`https://ch.sooplive.co.kr/${member.soopId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-2 text-blue-500"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            방송 보기
+                          </a>
+                        )}
                       </p>
                     </div>
                   </div>
