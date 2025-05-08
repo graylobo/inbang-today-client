@@ -98,11 +98,13 @@ function Sidebar() {
 
   return (
     <>
-      <SidebarOverlay
-        open={sidebarState === SidebarState.OPEN}
-        showOverlay={showOverlay}
-        onClick={handleOverlayClick}
-      />
+      {!largeDesktop && (
+        <SidebarOverlay
+          open={sidebarState === SidebarState.OPEN}
+          showOverlay={showOverlay}
+          onClick={handleOverlayClick}
+        />
+      )}
       <SidebarDrawer
         variant="permanent"
         sidebarState={sidebarState}

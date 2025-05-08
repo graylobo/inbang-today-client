@@ -17,6 +17,7 @@ import { IconButton, Toolbar } from "@mui/material";
 import { LogOut, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useMediaQuery } from "@/hooks/client/use-media-query";
 
 function NavBar() {
   const { user, logout } = useAuthStore();
@@ -27,12 +28,13 @@ function NavBar() {
     toggleOverlay,
     setSidebarManuallyOpened,
   } = useLayoutStore();
+  const largeDesktop = useMediaQuery("largeDesktop");
 
   const handleToggleSidebar = () => {
     if (sidebarState === SidebarState.HIDDEN) {
-      setSidebarState(SidebarState.CLOSED);
+      setSidebarState(SidebarState.OPEN);
       setSidebarManuallyOpened(false);
-    } else if (sidebarState === SidebarState.CLOSED) {
+    } else {
       setSidebarState(SidebarState.HIDDEN);
       setSidebarManuallyOpened(false);
     }
@@ -57,7 +59,7 @@ function NavBar() {
         zIndex: 1500,
       }}
     >
-      <Toolbar className="flex justify-between items-center">
+      <Toolbar className="flex justify-between items-center h-[64px]">
         <div className="flex items-center">
           <IconButton
             color="inherit"
@@ -83,19 +85,21 @@ function NavBar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <IconButton
-            color="inherit"
-            aria-label="toggle sidebar visibility"
-            onClick={handleToggleSidebar}
-            edge="start"
-            className="mr-5 text-gray-900 dark:text-gray-100"
-          >
-            {sidebarState === SidebarState.HIDDEN ? (
-              <VisibilityOffIcon />
-            ) : (
-              <VisibilityIcon />
-            )}
-          </IconButton>
+          {largeDesktop && (
+            <IconButton
+              color="inherit"
+              aria-label="toggle sidebar visibility"
+              onClick={handleToggleSidebar}
+              edge="start"
+              className="mr-5 text-gray-900 dark:text-gray-100"
+            >
+              {sidebarState === SidebarState.HIDDEN ? (
+                <VisibilityOffIcon />
+              ) : (
+                <VisibilityIcon />
+              )}
+            </IconButton>
+          )}
           <ThemeToggle />
           {user ? (
             <Popover>
