@@ -95,6 +95,11 @@ export default function AdminMembersPage() {
     queryClient.invalidateQueries({ queryKey: ["crewMembers"] });
   });
 
+  // Excel 카테고리 ID 찾기
+  const excelCategoryId = categories?.find(
+    (category) => category.name.toLowerCase() === "excel"
+  )?.id;
+
   // 편집 가능한 크루 목록 가져오기
   const getEditableCrews = () => {
     // 슈퍼 어드민은 모든 크루 볼 수 있음
@@ -108,24 +113,10 @@ export default function AdminMembersPage() {
 
   const editableCrews = getEditableCrews();
 
-  // 카테고리 체크박스 변경 핸들러
-  const handleCategoryChange = (categoryId: number, checked: boolean) => {
-    let newCategoryIds: number[] = [...(formData.categoryIds || [])];
-
-    if (checked) {
-      // 체크된 경우 카테고리 추가
-      newCategoryIds.push(categoryId);
-    } else {
-      // 체크 해제된 경우 카테고리 제거
-      newCategoryIds = newCategoryIds.filter((id) => id !== categoryId);
-    }
-
-    setFormData({ ...formData, categoryIds: newCategoryIds });
-  };
-
   // 멤버의 카테고리 정보가 로드되면 폼에 반영
   useEffect(() => {
     if (memberCategories && isEditing) {
+      // 카테고리 ID 목록을 유지하되, 화면에 표시하지 않음
       const categoryIds = memberCategories.map((item) => item.category.id);
       setFormData((prev) => ({ ...prev, categoryIds }));
     }
@@ -145,6 +136,19 @@ export default function AdminMembersPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // 필수 필드 검증
+    const missingFields = [];
+    if (!formData.name.trim()) missingFields.push("멤버 이름");
+    if (!formData.soopId?.trim()) missingFields.push("숲 ID (SOOP ID)");
+    if (!formData.crewId) missingFields.push("크루");
+    if (!formData.rankId) missingFields.push("계급");
+
+    if (missingFields.length > 0) {
+      alert(`다음 필드를 입력해주세요: ${missingFields.join(", ")}`);
+      return;
+    }
+
     // 슈퍼어드민이 아니면서 해당 크루에 대한 권한이 없는 경우 거부
     if (!isSuperAdmin) {
       const hasPermission = permittedCrews?.some(
@@ -156,20 +160,26 @@ export default function AdminMembersPage() {
       }
     }
 
+    // Excel 카테고리 ID 설정
+    const formDataWithExcel = {
+      ...formData,
+      categoryIds: excelCategoryId ? [excelCategoryId] : [],
+    };
+
     if (isEditing && selectedMember) {
       // 멤버 정보 업데이트
-      updateCrewMember({ id: selectedMember.id, member: formData });
+      updateCrewMember({ id: selectedMember.id, member: formDataWithExcel });
 
-      // 카테고리 정보 업데이트 (선택된 카테고리가 있는 경우)
-      if (formData.categoryIds && formData.categoryIds.length > 0) {
+      // Excel 카테고리 정보 설정
+      if (excelCategoryId) {
         setCategories({
           streamerId: selectedMember.id,
-          categoryIds: formData.categoryIds,
+          categoryIds: [excelCategoryId],
         });
       }
     } else {
-      // 새 멤버 생성 - categoryIds 포함하여 전송
-      createCrewMember(formData);
+      // 새 멤버 생성
+      createCrewMember(formDataWithExcel);
     }
   };
 
@@ -265,6 +275,7 @@ export default function AdminMembersPage() {
               }
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               placeholder="예: woowakgood, dkdlel123"
+              required
             />
             <p className="mt-1 text-xs text-gray-500">
               프로필 이미지와 방송국 URL은 숲 ID에서 자동 생성됩니다.
@@ -316,40 +327,6 @@ export default function AdminMembersPage() {
               </select>
             </div>
           )}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              카테고리 (다중 선택 가능)
-            </label>
-            {categories && categories.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto p-2 border rounded-md">
-                {categories.map((category: Category) => (
-                  <div key={category.id} className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id={`category-${category.id}`}
-                      checked={
-                        formData.categoryIds?.includes(category.id) || false
-                      }
-                      onChange={(e) =>
-                        handleCategoryChange(category.id, e.target.checked)
-                      }
-                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 rounded"
-                    />
-                    <label
-                      htmlFor={`category-${category.id}`}
-                      className="ml-2 block text-sm text-gray-900 truncate"
-                    >
-                      {category.name}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-sm text-gray-500">
-                등록된 카테고리가 없습니다.
-              </div>
-            )}
-          </div>
           <div className="flex justify-end space-x-3">
             {isEditing && (
               <button
