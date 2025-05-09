@@ -82,19 +82,10 @@ export default function AdminCrewsPage() {
         ? Math.max(...rankFormData.map((rank) => rank.level)) + 1
         : 1;
 
-    // 기본 계급 이름으로 "새 계급"을 사용하되, 중복될 경우 숫자를 붙임
-    let newRankName = "새 계급";
-    let counter = 1;
-
-    while (rankFormData.some((rank) => rank.name === newRankName)) {
-      newRankName = `새 계급 ${counter}`;
-      counter++;
-    }
-
     setRankFormData([
       ...rankFormData,
       {
-        name: newRankName,
+        name: "",
         level: newLevel,
       },
     ]);
@@ -144,23 +135,23 @@ export default function AdminCrewsPage() {
   const saveRanks = () => {
     if (!rankEditCrew) return;
 
-    // 유효성 검사
-    if (rankFormData.some((rank) => !rank.name.trim())) {
-      alert("모든 계급에 이름을 입력해주세요.");
+    // 유효성 검사 - 빈 이름 제거
+    const filteredRanks = rankFormData.filter((rank) => rank.name.trim() !== "");
+    
+    if (filteredRanks.length === 0) {
+      alert("최소 하나의 유효한 계급이 필요합니다.");
       return;
     }
 
     // 중복 계급 이름 검사
-    const duplicateNames = findDuplicateRankNames(
-      rankFormData.map((rank) => rank.name.trim())
-    );
+    const duplicateNames = findDuplicateRankNames(filteredRanks.map(rank => rank.name.trim()));
     if (duplicateNames.length > 0) {
-      alert(`중복된 계급 이름이 있습니다: ${duplicateNames.join(", ")}`);
+      alert(`중복된 계급 이름이 있습니다: ${duplicateNames.join(', ')}`);
       return;
     }
-
+    
     // level을 순서대로 재할당
-    const ranksWithLevels = rankFormData.map((rank, idx) => ({
+    const ranksWithLevels = filteredRanks.map((rank, idx) => ({
       ...rank,
       level: idx + 1,
     }));
@@ -180,16 +171,17 @@ export default function AdminCrewsPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 빈 이름의 계급 제거
+    const filteredRanks = formData.ranks.filter((rank) => rank.name.trim() !== "");
+
     // 중복 계급 이름 검사
-    const duplicateNames = findDuplicateRankNames(
-      formData.ranks.map((rank) => rank.name.trim())
-    );
+    const duplicateNames = findDuplicateRankNames(filteredRanks.map(rank => rank.name.trim()));
     if (duplicateNames.length > 0) {
-      alert(`중복된 계급 이름이 있습니다: ${duplicateNames.join(", ")}`);
+      alert(`중복된 계급 이름이 있습니다: ${duplicateNames.join(', ')}`);
       return;
     }
-
-    const ranksWithLevels = formData.ranks.map((rank, idx) => ({
+    
+    const ranksWithLevels = filteredRanks.map((rank, idx) => ({
       ...rank,
       level: idx + 1,
     }));
@@ -262,21 +254,12 @@ export default function AdminCrewsPage() {
         ? Math.max(...formData.ranks.map((rank) => rank.level)) + 1
         : 1;
 
-    // 기본 계급 이름으로 "새 계급"을 사용하되, 중복될 경우 숫자를 붙임
-    let newRankName = "새 계급";
-    let counter = 1;
-
-    while (formData.ranks.some((rank) => rank.name === newRankName)) {
-      newRankName = `새 계급 ${counter}`;
-      counter++;
-    }
-
     setFormData({
       ...formData,
       ranks: [
         ...formData.ranks,
         {
-          name: newRankName,
+          name: "",
           level: newLevel,
         },
       ],
