@@ -1,7 +1,7 @@
 "use client";
 
 import MemberCard from "@/components/MemberCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EarningForm from "../EarningForm";
 import Modal from "../common/Modal";
 
@@ -10,17 +10,23 @@ export default function CrewInfo({ crew }: { crew: any }) {
     id: number;
     name: string;
   } | null>(null);
+  const [rankGroups, setRankGroups] = useState<any[]>([]);
 
-  // 계급별로 멤버 그룹화 및 정렬
-  const rankGroups = crew.ranks
-    .sort((a: any, b: any) => a.level - b.level)
-    .map((rank: any) => ({
-      ...rank,
-      members: crew.members
-        .filter((member: any) => member.rank.id === rank.id)
-        .sort((a: any, b: any) => a.name.localeCompare(b.name)),
-    }))
-    .filter((group: any) => group.members.length > 0);
+  // Move data processing to useEffect to avoid hydration mismatch
+  useEffect(() => {
+    // Process data only on client side
+    const processedRankGroups = crew.ranks
+      .sort((a: any, b: any) => a.level - b.level)
+      .map((rank: any) => ({
+        ...rank,
+        members: crew.members
+          .filter((member: any) => member.rank.id === rank.id)
+          .sort((a: any, b: any) => a.name.localeCompare(b.name)),
+      }))
+      .filter((group: any) => group.members.length > 0);
+
+    setRankGroups(processedRankGroups);
+  }, [crew]);
 
   return (
     <div className="space-y-8">
