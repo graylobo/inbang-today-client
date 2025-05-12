@@ -104,6 +104,9 @@ export default function BroadcastEarningForm({
           placeholder="방송 내용이나 특이사항을 입력하세요"
         />
       </div>
+      <div className="text-sm text-green-600 dark:text-green-400">
+        방송 수익 등록 시 2포인트가 적립됩니다.
+      </div>
       <button
         type="submit"
         disabled={isPending}

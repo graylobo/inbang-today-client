@@ -84,7 +84,7 @@ export function useCreateCrewBroadcastEarning(onClose: () => void) {
       description: string;
       broadcastDuration?: number;
     }) => {
-      const { data } = await createCrewBroadcastEarning(
+      const data = await createCrewBroadcastEarning(
         crewId,
         totalAmount,
         broadcastDate,
@@ -93,10 +93,17 @@ export function useCreateCrewBroadcastEarning(onClose: () => void) {
       );
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["earnings"] });
       queryClient.invalidateQueries({ queryKey: ["crew"] });
+      queryClient.invalidateQueries({ queryKey: ["points"] });
       onClose();
+
+      if (data.pointsAwarded) {
+        alert(
+          `방송 수익이 등록되었습니다. ${data.pointsAwarded}포인트가 적립되었습니다.`
+        );
+      }
     },
     onError: (error) => {
       alert(getErrorMessage(error));
