@@ -1,46 +1,70 @@
-// hooks/useLiveStreamers.ts
-import { useEffect, useState } from "react";
-import io from "socket.io-client";
+import { useEffect, useState, useRef } from "react";
+import io, { Socket } from "socket.io-client";
 
 export const useLiveStreamers = (crewId?: number) => {
   const [streamers, setStreamers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  console.log(
-    "process.env.NEXT_PUBLIC_API_URL",
-    process.env.NEXT_PUBLIC_API_URL
-  );
-  useEffect(() => {
-    const socket = io(process.env.NEXT_PUBLIC_API_URL);
+  const [isConnected, setIsConnected] = useState(false);
+  const socketRef = useRef<Socket | null>(null);
 
-    // Initial data loading using a direct API call with crewId
-    if (crewId) {
-      fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/crawler/broadcasts?crewId=${crewId}`
-      )
-        .then((res) => res.json())
-        .then((data) => {
+  useEffect(() => {
+    const connectSocket = () => {
+      if (!isConnected && !socketRef.current) {
+        const socket = io(process.env.NEXT_PUBLIC_API_URL);
+        socketRef.current = socket;
+        setIsConnected(true);
+
+        socket.on("connect", () => {
+          console.log("Socket connected");
+        });
+
+        socket.on("disconnect", () => {
+          console.log("Socket disconnected");
+          setIsConnected(false);
+        });
+
+        socket.on("liveStreamersUpdated", (data) => {
+          fetchLiveStreamersByCrewID();
+        });
+
+        socket.on("error", (error) => {
+          console.error("Socket error:", error);
+          setIsConnected(false);
+        });
+      }
+    };
+
+    const fetchLiveStreamersByCrewID = async () => {
+      try {
+        if (crewId) {
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/crawler/broadcasts?crewId=${crewId}`
+          );
+          const data = await response.json();
           setStreamers(data.streamInfos || []);
           setIsLoading(false);
-        })
-        .catch((error) => {
-          console.error("Error fetching live streamers:", error);
-          setIsLoading(false);
-        });
-    }
-
-    // Real-time updates reception
-    socket.on("updateLiveStreamers", (data) => {
-      // If we're filtering by crew, don't update from general socket events
-      if (!crewId) {
-        setStreamers(data.streamInfos || []);
+        }
+      } catch (error) {
+        console.error("Error fetching live streamers:", error);
         setIsLoading(false);
       }
-    });
+    };
+
+    const fetchInitialData = async () => {
+      await fetchLiveStreamersByCrewID();
+      connectSocket();
+    };
+
+    fetchInitialData();
 
     return () => {
-      socket.disconnect();
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+        setIsConnected(false);
+      }
     };
   }, [crewId]);
 
-  return { streamers, isLoading };
+  return { streamers, isLoading, isConnected };
 };
