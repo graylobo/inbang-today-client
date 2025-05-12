@@ -28,6 +28,15 @@ export default function BroadcastEarningForm({
   const { mutate, isPending } = useCreateCrewBroadcastEarning(onClose);
 
   const handleSubmit = (e: React.FormEvent) => {
+    if (
+      amount === "" ||
+      date === "" ||
+      description.trim() === "" ||
+      broadcastDuration === ""
+    ) {
+      alert("모든 필드를 입력해주세요.");
+      return;
+    }
     e.preventDefault();
     setShowConfirm(true);
   };
@@ -91,17 +100,19 @@ export default function BroadcastEarningForm({
           className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
           placeholder="방송 시간(분) 입력"
           min={1}
+          required
         />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-          설명
+          방송제목
         </label>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
-          placeholder="방송 내용이나 특이사항을 입력하세요"
+          placeholder="방송 제목을 입력하세요"
+          required
         />
       </div>
       <div className="text-sm text-green-600 dark:text-green-400">
