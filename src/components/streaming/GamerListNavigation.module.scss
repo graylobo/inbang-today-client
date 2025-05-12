@@ -1,0 +1,7 @@
+@use "@/styles/mixins.scss" as *;
+
+.nav {
+  @include respond-to("desktop") {
+    margin-left: 240px;
+  }
+}

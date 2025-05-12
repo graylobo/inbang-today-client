@@ -1,6 +1,5 @@
 "use client";
 import GamerListNavigation from "@/components/streaming/GamerListNavigation";
-import LiveScreen from "@/components/streaming/LiveScreen";
 import StreamerCard from "@/components/streaming/StreamerCard";
 import { useStarCraftMatch } from "@/hooks/match/useStarCraftMatch";
 import {
@@ -8,8 +7,7 @@ import {
   useGetStreamers,
 } from "@/hooks/streamer/useStreamer";
 import { useClickOutside } from "@/hooks/useClickOutSide";
-import Image from "next/image";
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 
 function StarTier() {
   const containerRef = useRef<HTMLDivElement>(null);

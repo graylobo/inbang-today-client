@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useLayoutEffect } from "react";
 import { useLayoutStore, SidebarState } from "@/store/layout";
 import { DRAWER_WIDTH } from "@/layouts/Base";
+import styles from "./GamerListNavigation.module.scss";
 
 function GamerListNavigation({
   selectedStreamer,
@@ -64,30 +65,14 @@ function GamerListNavigation({
     });
   };
 
-  // 사이드바 상태에 따른 좌측 마진 계산
-  const getLeftMargin = () => {
-    switch (sidebarState) {
-      case SidebarState.OPEN:
-        return `${DRAWER_WIDTH}px`;
-
-      case SidebarState.CLOSED:
-      default:
-        return "0px";
-    }
-  };
-
   return (
     <div
       ref={navRef}
       className={`fixed top-[64px] left-0 right-0 z-40 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm transition-all duration-300`}
-      style={{
-        marginLeft: getLeftMargin(),
-        width: `calc(100% - ${getLeftMargin()})`,
-      }}
     >
       <div className="p-4">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className={`flex flex-wrap items-center gap-2 ${styles.nav}`}>
             <button
               onClick={() => setSelectedStreamer(null)}
               className={`shrink-0 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap

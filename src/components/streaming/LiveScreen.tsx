@@ -1,3 +1,4 @@
+import ImageLoader from "@/components/common/image-loader/ImageLoader";
 import Image from "next/image";
 import React from "react";
 
@@ -31,7 +32,7 @@ function LiveScreen({
   }
   return (
     <div
-      className="fixed z-[9999] transition-all duration-200 pointer-events-none"
+      className="fixed z-[9999] transition-all duration-200 pointer-events-none bg-white"
       style={{
         top: position.top !== undefined ? `${position.top}px` : undefined,
         bottom:
@@ -48,13 +49,12 @@ function LiveScreen({
             className="relative w-full"
             style={{ width: "500px", height: "300px" }}
           >
-            <Image
+            <ImageLoader
               src={liveInfo.thumbnail}
               alt="Stream thumbnail"
-              fill
               className="object-cover"
             />
-            <div className="absolute top-2 left-2 bg-black bg-opacity-50 rounded px-2 py-1">
+            <div className="absolute bottom-4 right-2 bg-black bg-opacity-50 rounded px-2 py-1">
               <ViewCount />
             </div>
           </div>
