@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useLayoutEffect } from "react";
-import { useLayoutStore, SidebarState } from "@/store/layout";
-import { DRAWER_WIDTH } from "@/layouts/Base";
+import { useLayoutStore } from "@/store/layout";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import styles from "./GamerListNavigation.module.scss";
 
 function GamerListNavigation({

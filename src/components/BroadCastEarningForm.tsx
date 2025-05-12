@@ -46,6 +46,10 @@ export default function BroadcastEarningForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <span className="text-sm text-red-500">
+        고의로 반복해서 잘못된 수익정보를 등록하는 경우 사이트 이용에 제한이
+        발생할 수 있습니다.
+      </span>
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           별풍선 개수
