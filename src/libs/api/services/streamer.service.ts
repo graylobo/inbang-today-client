@@ -23,6 +23,13 @@ export async function getStreamers(categoryNames?: string | string[]) {
   return data;
 }
 
+export async function searchStreamers(query: string) {
+  const { data } = await api.get(
+    `/streamers?search=${encodeURIComponent(query)}`
+  );
+  return data;
+}
+
 export async function getLiveStreamers() {
   const { data } = await api.get("/crawler/broadcasts");
   const { streamInfos } = data;
