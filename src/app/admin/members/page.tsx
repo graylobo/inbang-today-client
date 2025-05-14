@@ -211,7 +211,7 @@ export default function AdminMembersPage() {
         });
       }
     } else {
-      // 새 멤버 생성
+      // 새 멤버 생성 
       createCrewMember(formDataWithExcel);
     }
   };
@@ -254,6 +254,7 @@ export default function AdminMembersPage() {
       soopId: streamer.soopId || "",
       crewId: formData.crewId, // 현재 선택된 크루 유지
       rankId: formData.rankId, // 현재 선택된 계급 유지
+      categoryIds: formData.categoryIds || [], // 기존 카테고리 ID 유지
     });
     setIsSearching(false);
   };
