@@ -211,8 +211,8 @@ export default function AdminMembersPage() {
         });
       }
     } else {
-      // 새 멤버 생성 
-      createCrewMember(formDataWithExcel);
+      // 새 멤버 생성 또는 기존 멤버를 크루에 추가
+      createCrewMember({ member: formDataWithExcel });
     }
   };
 

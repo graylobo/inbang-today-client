@@ -143,14 +143,20 @@ export function useGetCrewMembers() {
 
 export function useCreateCrewMember(resetForm: () => void) {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (member: CrewMemberFormData) => createCrewMember(member),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["members"] });
-      resetForm();
+    mutationFn: async ({ member }: { member: CrewMemberFormData }) => {
+      try {
+        return await createCrewMember(member);
+      } catch (error: any) {
+        console.log("error.response:::", error);
+        alert(error);
+        throw error;
+      }
     },
-    onError: (error) => {
-      alert(getErrorMessage(error));
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["crewMembers"] });
+      resetForm();
     },
   });
 }
