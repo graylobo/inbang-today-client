@@ -3,7 +3,9 @@
 import { CrewFormData } from "@/app/admin/crews/page";
 import { CrewMemberFormData } from "@/app/admin/members/page";
 import { SignatureFormData } from "@/app/admin/signatures/page";
+import { apiRequest } from "@/libs/api/api-request";
 import { api } from "@/libs/api/axios";
+import { API_ROUTES } from "@/libs/api/route";
 
 export async function getCrews() {
   const { data } = await api.get("/crews");
@@ -121,5 +123,29 @@ export async function updateCrewSignature(
 
 export async function deleteCrewSignature(id: number) {
   const { data } = await api.delete(`/crew-signatures/${id}`);
+  return data;
+}
+
+// Crew Member History
+export interface CrewMemberHistoryData {
+  streamerId: number;
+  crewId: number;
+  eventType: "join" | "leave";
+  eventDate: string;
+  note: string;
+}
+
+export async function createCrewMemberHistory(history: CrewMemberHistoryData) {
+  const data = await apiRequest(API_ROUTES.crewMemberHistory.create, {
+    body: history,
+  });
+  return data;
+}
+
+export async function getCrewMemberHistory(streamerId?: number) {
+  if (!streamerId) return [];
+  const data = await apiRequest(API_ROUTES.crewMemberHistory.get, {
+    params: { streamerId },
+  });
   return data;
 }

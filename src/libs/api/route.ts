@@ -82,6 +82,10 @@ export const API_ROUTES = {
       dislike: { url: "/likes/posts/{postId}/dislike", method: "POST" },
     },
   },
+  crewMemberHistory: {
+    get: { url: "/crew-member-histories/streamer/{streamerId}", method: "GET" },
+    create: { url: "/crew-member-histories", method: "POST" },
+  },
 } as const satisfies RouteObject;
 
 // URL에서 경로 파라미터 추출하는 타입

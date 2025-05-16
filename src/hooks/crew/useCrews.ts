@@ -26,6 +26,8 @@ import {
   updateCrew,
   updateCrewMember,
   updateCrewSignature,
+  createCrewMemberHistory,
+  getCrewMemberHistory,
 } from "@/libs/api/services/crew.service";
 import { getErrorMessage } from "@/libs/utils/error-handler";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -145,9 +147,35 @@ export function useCreateCrewMember(resetForm: () => void) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ member }: { member: CrewMemberFormData }) => {
+    mutationFn: async ({
+      member,
+      history,
+    }: {
+      member: CrewMemberFormData;
+      history: {
+        streamerId?: number;
+        crewId: number;
+        eventType: "join" | "leave";
+        eventDate: string;
+        note: string;
+      };
+    }) => {
       try {
-        return await createCrewMember(member);
+        const response = await createCrewMember(member);
+
+        // After creating the member, create the history entry
+        if (response && response.id) {
+          // Since this is a new member, we need to add its ID to the history
+          const historyWithMemberId = {
+            ...history,
+            streamerId: response.id,
+          };
+
+          // Call the API to add history
+          await createCrewMemberHistory(historyWithMemberId);
+        }
+
+        return response;
       } catch (error: any) {
         console.log("error.response:::", error);
         alert(error);
@@ -156,6 +184,7 @@ export function useCreateCrewMember(resetForm: () => void) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["crewMembers"] });
+      queryClient.invalidateQueries({ queryKey: ["memberHistories"] });
       resetForm();
     },
   });
@@ -167,12 +196,31 @@ export function useUpdateCrewMember(resetForm: () => void) {
     mutationFn: async ({
       id,
       member,
+      history,
     }: {
       id: number;
       member: CrewMemberFormData;
-    }) => updateCrewMember(id, member),
+      history: {
+        streamerId: number;
+        crewId: number;
+        eventType: "join" | "leave";
+        eventDate: string;
+        note: string;
+      };
+    }) => {
+      // Update the member first
+      const memberResponse = await updateCrewMember(id, member);
+
+      // Then create the history entry
+      if (history) {
+        await createCrewMemberHistory(history);
+      }
+
+      return memberResponse;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["members"] });
+      queryClient.invalidateQueries({ queryKey: ["memberHistories"] });
       resetForm();
     },
   });
@@ -274,5 +322,13 @@ export function useDeleteCrewSignature() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["signatures"] });
     },
+  });
+}
+
+export function useGetCrewMemberHistory(streamerId?: number) {
+  return useQuery({
+    queryKey: ["memberHistories", streamerId],
+    queryFn: () => getCrewMemberHistory(streamerId),
+    enabled: !!streamerId,
   });
 }

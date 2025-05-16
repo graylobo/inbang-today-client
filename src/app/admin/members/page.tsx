@@ -1,6 +1,16 @@
 "use client";
 
 import {
+  useGetAllCategories,
+  useGetStreamerCategories,
+  useSetStreamerCategories,
+} from "@/hooks/category/useCategory";
+import { useCrewPermissionsList } from "@/hooks/crew-permission/useCrewPermission";
+import {
+  CrewMemberHistoryItem,
+  useGetCrewMemberHistory,
+} from "@/hooks/crew/useCrewMemberHistory";
+import {
   useCreateCrewMember,
   useDeleteCrewMember,
   useGetCrewMembers,
@@ -9,19 +19,12 @@ import {
   useUpdateCrewMember,
 } from "@/hooks/crew/useCrews";
 import { CrewMember } from "@/hooks/crew/useCrews.type";
-import { useQueryClient } from "@tanstack/react-query";
-import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
-import { useCrewPermissionsList } from "@/hooks/crew-permission/useCrewPermission";
-import { useAuthStore } from "@/store/authStore";
-import {
-  useGetAllCategories,
-  useGetStreamerCategories,
-  useSetStreamerCategories,
-} from "@/hooks/category/useCategory";
-import { Category } from "@/libs/api/services/category.service";
 import { useSearchStreamers } from "@/hooks/streamer/useStreamer";
 import { Streamer } from "@/hooks/streamer/useStreamer.type";
+import { useAuthStore } from "@/store/authStore";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 
 export interface CrewMemberFormData {
   name: string;
@@ -29,6 +32,9 @@ export interface CrewMemberFormData {
   crewId: number;
   rankId: number;
   categoryIds?: number[];
+  eventType: "join" | "leave";
+  eventDate: string;
+  note: string;
 }
 
 export default function AdminMembersPage() {
@@ -41,12 +47,22 @@ export default function AdminMembersPage() {
   const [selectedCrewId, setSelectedCrewId] = useState<number | "all">(
     crewIdParam ? parseInt(crewIdParam) : "all"
   );
+
+  // Get today's date in YYYY-MM-DD format for the default date
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  };
+
   const [formData, setFormData] = useState<CrewMemberFormData>({
     name: "",
     soopId: "",
     crewId: 0,
     rankId: 0,
     categoryIds: [],
+    eventType: "join",
+    eventDate: getTodayDate(),
+    note: "",
   });
 
   // 스트리머 검색 관련 상태
@@ -66,6 +82,9 @@ export default function AdminMembersPage() {
       crewId: 0,
       rankId: 0,
       categoryIds: [],
+      eventType: "join",
+      eventDate: getTodayDate(),
+      note: "",
     });
     setSelectedMember(null);
     setIsEditing(false);
@@ -167,6 +186,10 @@ export default function AdminMembersPage() {
     }
   }, [selectedCrewId, permittedCrews, isSuperAdmin]);
 
+  // 선택된 멤버의 크루 히스토리 조회
+  const { data: memberHistory, isLoading: isLoadingHistory } =
+    useGetCrewMemberHistory(selectedMember?.id);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -176,6 +199,7 @@ export default function AdminMembersPage() {
     if (!formData.soopId?.trim()) missingFields.push("숲 ID (SOOP ID)");
     if (!formData.crewId) missingFields.push("크루");
     if (!formData.rankId) missingFields.push("계급");
+    if (!formData.eventDate) missingFields.push("이벤트 날짜");
 
     if (missingFields.length > 0) {
       alert(`다음 필드를 입력해주세요: ${missingFields.join(", ")}`);
@@ -199,9 +223,25 @@ export default function AdminMembersPage() {
       categoryIds: excelCategoryId ? [excelCategoryId] : [],
     };
 
+    // 히스토리 데이터 준비
+    const historyData = {
+      streamerId: selectedMember?.id,
+      crewId: formData.crewId,
+      eventType: formData.eventType,
+      eventDate: formData.eventDate,
+      note: formData.note,
+    };
+
     if (isEditing && selectedMember) {
       // 멤버 정보 업데이트
-      updateCrewMember({ id: selectedMember.id, member: formDataWithExcel });
+      updateCrewMember({
+        id: selectedMember.id,
+        member: formDataWithExcel,
+        history: {
+          ...historyData,
+          streamerId: selectedMember.id, // Ensure streamerId is not undefined
+        },
+      });
 
       // Excel 카테고리 정보 설정
       if (excelCategoryId) {
@@ -212,7 +252,10 @@ export default function AdminMembersPage() {
       }
     } else {
       // 새 멤버 생성 또는 기존 멤버를 크루에 추가
-      createCrewMember({ member: formDataWithExcel });
+      createCrewMember({
+        member: formDataWithExcel,
+        history: historyData, // For new members, streamerId will be set in the hook
+      });
     }
   };
 
@@ -235,6 +278,9 @@ export default function AdminMembersPage() {
       crewId: member?.crew?.id || 0,
       rankId: member?.rank?.id || 0,
       categoryIds: [], // 초기값으로 빈 배열 설정, memberCategories 로드 후 업데이트됨
+      eventType: "join",
+      eventDate: "",
+      note: "",
     });
     setIsEditing(true);
   };
@@ -255,6 +301,9 @@ export default function AdminMembersPage() {
       crewId: formData.crewId, // 현재 선택된 크루 유지
       rankId: formData.rankId, // 현재 선택된 계급 유지
       categoryIds: formData.categoryIds || [], // 기존 카테고리 ID 유지
+      eventType: "join",
+      eventDate: "",
+      note: "",
     });
     setIsSearching(false);
   };
@@ -459,6 +508,74 @@ export default function AdminMembersPage() {
               </select>
             </div>
           )}
+
+          {/* 입사/퇴사 이벤트 타입 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              이벤트 타입
+            </label>
+            <div className="mt-2 space-x-4">
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="eventType"
+                  value="join"
+                  checked={formData.eventType === "join"}
+                  onChange={() =>
+                    setFormData({ ...formData, eventType: "join" })
+                  }
+                  className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                />
+                <span className="ml-2 text-sm text-gray-700">입사</span>
+              </label>
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="eventType"
+                  value="leave"
+                  checked={formData.eventType === "leave"}
+                  onChange={() =>
+                    setFormData({ ...formData, eventType: "leave" })
+                  }
+                  className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                />
+                <span className="ml-2 text-sm text-gray-700">퇴사</span>
+              </label>
+            </div>
+          </div>
+
+          {/* 이벤트 날짜 */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              이벤트 날짜
+            </label>
+            <input
+              type="date"
+              value={formData.eventDate}
+              onChange={(e) =>
+                setFormData({ ...formData, eventDate: e.target.value })
+              }
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              required
+            />
+          </div>
+
+          {/* 비고 (메모) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              비고 사항
+            </label>
+            <textarea
+              value={formData.note}
+              onChange={(e) =>
+                setFormData({ ...formData, note: e.target.value })
+              }
+              rows={3}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              placeholder="입사/퇴사 관련 비고 사항을 입력하세요"
+            />
+          </div>
+
           <div className="flex justify-end space-x-3">
             {isEditing && (
               <button
@@ -478,6 +595,77 @@ export default function AdminMembersPage() {
           </div>
         </div>
       </form>
+
+      {/* 멤버 히스토리 */}
+      {selectedMember && memberHistory && !isLoadingHistory && (
+        <div className="bg-white shadow-sm rounded-lg p-6 mt-6">
+          <h3 className="text-lg font-medium mb-4">
+            {selectedMember.name}의 크루 히스토리
+          </h3>
+          {memberHistory.length === 0 ? (
+            <p className="text-gray-500">히스토리 정보가 없습니다.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      날짜
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      크루
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      이벤트
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      비고
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {memberHistory.map((history: CrewMemberHistoryItem) => (
+                    <tr key={history.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(history.eventDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {history.crew.name}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {history.eventType === "join" ? (
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            입사
+                          </span>
+                        ) : (
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                            퇴사
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-500 max-w-md">
+                        {history.note}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* 멤버 목록 필터 */}
       <div className="flex justify-end">
