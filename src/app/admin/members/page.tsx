@@ -595,7 +595,7 @@ export default function AdminMembersPage() {
             <div className="mt-2 space-x-4">
               <label
                 className={`inline-flex items-center ${
-                  formData.crewId === 0 ? "opacity-50" : ""
+                  selectedMember?.crew ? "opacity-50" : ""
                 }`}
               >
                 <input
@@ -606,16 +606,17 @@ export default function AdminMembersPage() {
                   onChange={() =>
                     setFormData({ ...formData, eventType: "join" })
                   }
-                  disabled={!!selectedMember?.crew}
+                  disabled={
+                    selectedMember?.crew !== undefined &&
+                    selectedMember?.crew !== null
+                  }
                   className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                 />
                 <span className="ml-2 text-sm text-gray-700">입사</span>
               </label>
               <label
                 className={`inline-flex items-center ${
-                  formData.crewId === 0 || (isEditing && !selectedMember?.crew)
-                    ? "opacity-50"
-                    : ""
+                  !selectedMember?.crew ? "opacity-50" : ""
                 }`}
               >
                 <input
@@ -626,10 +627,7 @@ export default function AdminMembersPage() {
                   onChange={() =>
                     setFormData({ ...formData, eventType: "leave" })
                   }
-                  disabled={
-                    formData.crewId === 0 ||
-                    (isEditing && !selectedMember?.crew)
-                  }
+                  disabled={!selectedMember?.crew}
                   className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                 />
                 <span className="ml-2 text-sm text-gray-700">퇴사</span>
