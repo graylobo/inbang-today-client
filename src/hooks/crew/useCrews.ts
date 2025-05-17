@@ -13,21 +13,22 @@ import {
   createCrewBroadcastEarning,
   createCrewEarning,
   createCrewMember,
+  createCrewMemberHistory,
   createCrewSignature,
   deleteCrew,
   deleteCrewMember,
   deleteCrewSignature,
   getCrewByID,
+  getCrewMemberHistory,
   getCrewMembers,
   getCrewRanksByCrewID,
   getCrews,
   getCrewSignatures,
   getCrewsRankings,
+  removeCrewMember,
   updateCrew,
   updateCrewMember,
   updateCrewSignature,
-  createCrewMemberHistory,
-  getCrewMemberHistory,
 } from "@/libs/api/services/crew.service";
 import { getErrorMessage } from "@/libs/utils/error-handler";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -330,5 +331,18 @@ export function useGetCrewMemberHistory(streamerId?: number) {
     queryKey: ["memberHistories", streamerId],
     queryFn: () => getCrewMemberHistory(streamerId),
     enabled: !!streamerId,
+  });
+}
+
+export function useRemoveCrewMember() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      // Call API to remove the member from their crew
+      return await removeCrewMember(id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+    },
   });
 }

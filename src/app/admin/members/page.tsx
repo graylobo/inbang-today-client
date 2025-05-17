@@ -16,6 +16,7 @@ import {
   useGetCrewMembers,
   useGetCrewRanksByCrewID,
   useGetCrews,
+  useRemoveCrewMember,
   useUpdateCrewMember,
 } from "@/hooks/crew/useCrews";
 import { CrewMember } from "@/hooks/crew/useCrews.type";
@@ -47,7 +48,7 @@ export default function AdminMembersPage() {
   const [selectedCrewId, setSelectedCrewId] = useState<number | "all">(
     crewIdParam ? parseInt(crewIdParam) : "all"
   );
-
+  console.log("selectedMember:::", selectedMember);
   // Get today's date in YYYY-MM-DD format for the default date
   const getTodayDate = () => {
     const today = new Date();
@@ -141,6 +142,9 @@ export default function AdminMembersPage() {
 
   // 멤버 삭제 mutation
   const { mutate: deleteCrewMember } = useDeleteCrewMember();
+
+  // 멤버 크루 탈퇴 mutation
+  const { mutate: removeFromCrew } = useRemoveCrewMember();
 
   // 카테고리 설정 mutation
   const { mutate: setCategories } = useSetStreamerCategories(() => {
@@ -243,6 +247,11 @@ export default function AdminMembersPage() {
         },
       });
 
+      // 퇴사 이벤트인 경우 크루에서 제거
+      if (formData.eventType === "leave" && selectedMember.crew) {
+        removeFromCrew(selectedMember.id);
+      }
+
       // Excel 카테고리 정보 설정
       if (excelCategoryId) {
         setCategories({
@@ -272,14 +281,17 @@ export default function AdminMembersPage() {
     }
 
     setSelectedMember(member);
+    // 멤버가 이미 크루에 속해 있으면 퇴사만 선택 가능, 없으면 입사만 선택 가능
+    const eventType = member.crew ? "leave" : "join";
+
     setFormData({
       name: member.name,
       soopId: member.soopId || "",
       crewId: member?.crew?.id || 0,
       rankId: member?.rank?.id || 0,
       categoryIds: [], // 초기값으로 빈 배열 설정, memberCategories 로드 후 업데이트됨
-      eventType: "join",
-      eventDate: "",
+      eventType: eventType,
+      eventDate: getTodayDate(),
       note: "",
     });
     setIsEditing(true);
@@ -298,9 +310,9 @@ export default function AdminMembersPage() {
     setFormData({
       name: streamer.name,
       soopId: streamer.soopId || "",
-      crewId: formData.crewId, // 현재 선택된 크루 유지
-      rankId: formData.rankId, // 현재 선택된 계급 유지
-      categoryIds: formData.categoryIds || [], // 기존 카테고리 ID 유지
+      crewId: streamer.id,
+      rankId: 0,
+      categoryIds: [],
       eventType: "join",
       eventDate: "",
       note: "",
@@ -364,12 +376,15 @@ export default function AdminMembersPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="스트리머 이름 또는 숲 ID로 검색"
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
+                    isEditing ? "bg-gray-100" : ""
+                  }`}
                   onFocus={() => {
                     if (searchQuery.trim().length >= 2) {
                       setIsSearching(true);
                     }
                   }}
+                  disabled={isEditing}
                 />
                 {isSearching && searchResults && searchResults.length > 0 && (
                   <div
@@ -420,7 +435,10 @@ export default function AdminMembersPage() {
               <button
                 type="button"
                 onClick={handleSearch}
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
+                className={`px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 ${
+                  isEditing ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={isEditing}
               >
                 검색
               </button>
@@ -454,9 +472,12 @@ export default function AdminMembersPage() {
               onChange={(e) =>
                 setFormData({ ...formData, soopId: e.target.value })
               }
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
+                isEditing ? "bg-gray-100" : ""
+              }`}
               placeholder="예: woowakgood, dkdlel123"
               required
+              disabled={isEditing}
             />
             <p className="mt-1 text-xs text-gray-500">
               프로필 이미지와 방송국 URL은 숲 ID에서 자동 생성됩니다.
@@ -468,13 +489,16 @@ export default function AdminMembersPage() {
             </label>
             <select
               value={formData.crewId}
-              onChange={(e) =>
+              onChange={(e) => {
+                const newCrewId = Number(e.target.value);
                 setFormData({
                   ...formData,
-                  crewId: Number(e.target.value),
+                  crewId: newCrewId,
                   rankId: 0,
-                })
-              }
+                  // If a crew is selected, default to 'join', otherwise disable form
+                  eventType: newCrewId > 0 ? "join" : formData.eventType,
+                });
+              }}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               required
             >
@@ -515,7 +539,11 @@ export default function AdminMembersPage() {
               이벤트 타입
             </label>
             <div className="mt-2 space-x-4">
-              <label className="inline-flex items-center">
+              <label
+                className={`inline-flex items-center ${
+                  formData.crewId === 0 ? "opacity-50" : ""
+                }`}
+              >
                 <input
                   type="radio"
                   name="eventType"
@@ -524,11 +552,18 @@ export default function AdminMembersPage() {
                   onChange={() =>
                     setFormData({ ...formData, eventType: "join" })
                   }
+                  disabled={!!selectedMember?.crew}
                   className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                 />
                 <span className="ml-2 text-sm text-gray-700">입사</span>
               </label>
-              <label className="inline-flex items-center">
+              <label
+                className={`inline-flex items-center ${
+                  formData.crewId === 0 || (isEditing && !selectedMember?.crew)
+                    ? "opacity-50"
+                    : ""
+                }`}
+              >
                 <input
                   type="radio"
                   name="eventType"
@@ -537,11 +572,22 @@ export default function AdminMembersPage() {
                   onChange={() =>
                     setFormData({ ...formData, eventType: "leave" })
                   }
+                  disabled={
+                    formData.crewId === 0 ||
+                    (isEditing && !selectedMember?.crew)
+                  }
                   className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                 />
                 <span className="ml-2 text-sm text-gray-700">퇴사</span>
               </label>
             </div>
+            <p className="mt-1 text-xs text-gray-500">
+              {isEditing
+                ? selectedMember?.crew
+                  ? "멤버가 현재 크루에 속해있어 퇴사만 선택 가능합니다."
+                  : "멤버가 크루에 속해있지 않아 입사만 선택 가능합니다."
+                : "크루 선택 후 입사/퇴사 여부를 지정해주세요."}
+            </p>
           </div>
 
           {/* 이벤트 날짜 */}
@@ -555,6 +601,7 @@ export default function AdminMembersPage() {
               onChange={(e) =>
                 setFormData({ ...formData, eventDate: e.target.value })
               }
+              max={getTodayDate()} // Prevents selecting future dates
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               required
             />

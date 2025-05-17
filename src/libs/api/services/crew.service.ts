@@ -149,3 +149,8 @@ export async function getCrewMemberHistory(streamerId?: number) {
   });
   return data;
 }
+
+export async function removeCrewMember(id: number) {
+  const { data } = await api.post(`/streamers/${id}/remove-from-crew`);
+  return data;
+}
