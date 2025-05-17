@@ -34,7 +34,7 @@ export interface CrewMemberFormData {
   crewId: number;
   rankId: number;
   categoryIds?: number[];
-  eventType: "join" | "leave";
+  eventType: "join" | "leave" | "none";
   eventDate: string;
   note: string;
 }
@@ -215,7 +215,11 @@ export default function AdminMembersPage() {
     if (!formData.soopId?.trim()) missingFields.push("숲 ID (SOOP ID)");
     if (!formData.crewId) missingFields.push("크루");
     if (!formData.rankId) missingFields.push("계급");
-    if (!formData.eventDate) missingFields.push("이벤트 날짜");
+
+    // eventType이 none이 아닌 경우에만 이벤트 날짜 필수
+    if (formData.eventType !== "none" && !formData.eventDate) {
+      missingFields.push("이벤트 날짜");
+    }
 
     if (missingFields.length > 0) {
       alert(`다음 필드를 입력해주세요: ${missingFields.join(", ")}`);
@@ -239,28 +243,39 @@ export default function AdminMembersPage() {
       categoryIds: excelCategoryId ? [excelCategoryId] : [],
     };
 
-    // 히스토리 데이터 준비
-    const historyData = {
-      streamerId: selectedMember?.id,
-      crewId: formData.crewId,
-      eventType: formData.eventType,
-      eventDate: formData.eventDate,
-      note: formData.note,
-    };
-
     if (isEditing && selectedMember) {
       // 멤버 정보 업데이트
-      updateCrewMember({
-        id: selectedMember.id,
-        member: formDataWithExcel,
-        history: {
-          ...historyData,
-          streamerId: selectedMember.id, // Ensure streamerId is not undefined
-        },
-      });
+      if (formData.eventType === "join" || formData.eventType === "leave") {
+        // eventType이 none이 아닌 경우, 히스토리와 함께 업데이트
+        updateCrewMember({
+          id: selectedMember.id,
+          member: formDataWithExcel,
+          history: {
+            streamerId: selectedMember.id,
+            crewId: formData.crewId,
+            eventType: formData.eventType, // "join" | "leave"
+            eventDate: formData.eventDate,
+            note: formData.note,
+          },
+        });
+      } else {
+        // eventType이 none인 경우, 히스토리 없이 멤버 정보만 업데이트
+        // 이 경우 기본 empty 히스토리 객체를 전달
+        updateCrewMember({
+          id: selectedMember.id,
+          member: formDataWithExcel,
+          history: {
+            streamerId: selectedMember.id,
+            crewId: formData.crewId,
+            eventType: "join", // 기본값 설정
+            eventDate: "",
+            note: "",
+          },
+        });
+      }
 
-      // 퇴사 이벤트인 경우 크루에서 제거
-      if (formData.eventType === "leave" && selectedMember.crew) {
+      // eventType이 'leave'이고 수정 모드일 때만 크루에서 제거
+      if (formData.eventType === "leave") {
         removeFromCrew(selectedMember.id);
       }
 
@@ -273,10 +288,32 @@ export default function AdminMembersPage() {
       }
     } else {
       // 새 멤버 생성 또는 기존 멤버를 크루에 추가
-      createCrewMember({
-        member: formDataWithExcel,
-        history: historyData, // For new members, streamerId will be set in the hook
-      });
+      if (formData.eventType === "join" || formData.eventType === "leave") {
+        // eventType이 none이 아닌 경우, 히스토리와 함께 생성
+        createCrewMember({
+          member: formDataWithExcel,
+          history: {
+            streamerId: undefined, // 새 멤버의 경우 ID는 생성 후 설정됨
+            crewId: formData.crewId,
+            eventType: formData.eventType, // "join" | "leave"
+            eventDate: formData.eventDate,
+            note: formData.note,
+          },
+        });
+      } else {
+        // eventType이 none인 경우, 히스토리 없이 멤버 정보만 생성
+        // 이 경우 기본 empty 히스토리 객체를 전달
+        createCrewMember({
+          member: formDataWithExcel,
+          history: {
+            streamerId: undefined,
+            crewId: formData.crewId,
+            eventType: "join", // 기본값 설정
+            eventDate: "",
+            note: "",
+          },
+        });
+      }
     }
   };
 
@@ -293,8 +330,6 @@ export default function AdminMembersPage() {
     }
 
     setSelectedMember(member);
-    // 멤버가 이미 크루에 속해 있으면 퇴사만 선택 가능, 없으면 입사만 선택 가능
-    const eventType = member.crew ? "leave" : "join";
 
     setFormData({
       name: member.name,
@@ -302,7 +337,7 @@ export default function AdminMembersPage() {
       crewId: member?.crew?.id || 0,
       rankId: member?.rank?.id || 0,
       categoryIds: [], // 초기값으로 빈 배열 설정, memberCategories 로드 후 업데이트됨
-      eventType: eventType,
+      eventType: "none", // 기본 정보만 수정 모드로 설정
       eventDate: getTodayDate(),
       note: "",
     });
@@ -326,7 +361,11 @@ export default function AdminMembersPage() {
       note: "",
     });
 
+    // 검색 결과 닫기
     setIsSearching(false);
+
+    // 검색 인풋값 초기화
+    setSearchQuery("");
   };
 
   // 스트리머 상세 정보 조회 및 수정 모드 설정
@@ -355,7 +394,7 @@ export default function AdminMembersPage() {
         crewId: memberData.crew?.id || 0,
         rankId: memberData.rank?.id || 0,
         categoryIds: [],
-        eventType: memberData.crew ? "leave" : "join",
+        eventType: "none", // 기본 정보만 수정 모드로 설정
         eventDate: getTodayDate(),
         note: "",
       });
@@ -593,6 +632,21 @@ export default function AdminMembersPage() {
               이벤트 타입
             </label>
             <div className="mt-2 space-x-4">
+              <label className="inline-flex items-center">
+                <input
+                  type="radio"
+                  name="eventType"
+                  value="none"
+                  checked={formData.eventType === "none"}
+                  onChange={() =>
+                    setFormData({ ...formData, eventType: "none" })
+                  }
+                  className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                />
+                <span className="ml-2 text-sm text-gray-700">
+                  기본 정보만 수정
+                </span>
+              </label>
               <label
                 className={`inline-flex items-center ${
                   selectedMember?.crew ? "opacity-50" : ""
@@ -634,7 +688,9 @@ export default function AdminMembersPage() {
               </label>
             </div>
             <p className="mt-1 text-xs text-gray-500">
-              {isEditing
+              {formData.eventType === "none"
+                ? "크루 입/퇴사 기록 없이 기본 정보만 수정합니다."
+                : isEditing
                 ? selectedMember?.crew
                   ? "멤버가 현재 크루에 속해있어 퇴사만 선택 가능합니다."
                   : "멤버가 크루에 속해있지 않아 입사만 선택 가능합니다."
@@ -642,38 +698,46 @@ export default function AdminMembersPage() {
             </p>
           </div>
 
-          {/* 이벤트 날짜 */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              이벤트 날짜
-            </label>
-            <input
-              type="date"
-              value={formData.eventDate}
-              onChange={(e) =>
-                setFormData({ ...formData, eventDate: e.target.value })
-              }
-              max={getTodayDate()} // Prevents selecting future dates
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              required
-            />
-          </div>
+          {/* 이벤트 관련 필드들은 eventType이 none이 아닐때만 표시 */}
+          {formData.eventType !== "none" && (
+            <>
+              {/* 이벤트 날짜 */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  이벤트 날짜
+                </label>
+                <input
+                  type="date"
+                  value={formData.eventDate}
+                  onChange={(e) =>
+                    setFormData({ ...formData, eventDate: e.target.value })
+                  }
+                  max={getTodayDate()} // Prevents selecting future dates
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  required={
+                    formData.eventType === "join" ||
+                    formData.eventType === "leave"
+                  }
+                />
+              </div>
 
-          {/* 비고 (메모) */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              비고 사항
-            </label>
-            <textarea
-              value={formData.note}
-              onChange={(e) =>
-                setFormData({ ...formData, note: e.target.value })
-              }
-              rows={3}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              placeholder="입사/퇴사 관련 비고 사항을 입력하세요"
-            />
-          </div>
+              {/* 비고 (메모) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  비고 사항
+                </label>
+                <textarea
+                  value={formData.note}
+                  onChange={(e) =>
+                    setFormData({ ...formData, note: e.target.value })
+                  }
+                  rows={3}
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  placeholder="입사/퇴사 관련 비고 사항을 입력하세요"
+                />
+              </div>
+            </>
+          )}
 
           <div className="flex justify-end space-x-3">
             {isEditing && (
