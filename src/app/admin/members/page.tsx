@@ -26,6 +26,7 @@ import { useAuthStore } from "@/store/authStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { getStreamerById } from "@/libs/api/services/streamer.service";
 
 export interface CrewMemberFormData {
   name: string;
@@ -72,9 +73,20 @@ export default function AdminMembersPage() {
   const searchResultsRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
+  // 검색을 시작하는 핸들러
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim().length >= 1) {
+      setIsSearching(true);
+    } else {
+      // 검색어가 비어있는 경우 알림
+      alert("검색어를 입력해주세요.");
+    }
+  };
+
   // 스트리머 검색 쿼리
   const { data: searchResults, isLoading: isLoadingSearch } =
-    useSearchStreamers(searchQuery, isSearching);
+    useSearchStreamers(searchQuery, searchQuery.trim().length >= 1);
 
   const resetForm = () => {
     setFormData({
@@ -171,12 +183,12 @@ export default function AdminMembersPage() {
 
   // 멤버의 카테고리 정보가 로드되면 폼에 반영
   useEffect(() => {
-    if (memberCategories && isEditing) {
+    if (memberCategories && selectedMember) {
       // 카테고리 ID 목록을 유지하되, 화면에 표시하지 않음
       const categoryIds = memberCategories.map((item) => item.category.id);
       setFormData((prev) => ({ ...prev, categoryIds }));
     }
-  }, [memberCategories, isEditing]);
+  }, [memberCategories, selectedMember]);
 
   // 편집 권한이 없는 크루를 선택한 경우, 자동으로 'all'로 변경
   useEffect(() => {
@@ -297,27 +309,60 @@ export default function AdminMembersPage() {
     setIsEditing(true);
   };
 
-  // 검색을 시작하는 핸들러
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim().length >= 2) {
-      setIsSearching(true);
-    }
-  };
-
   // 검색 결과를 선택하는 핸들러
   const handleSelectSearchResult = (streamer: Streamer) => {
+    // 스트리머 ID로 전체 데이터 조회 (이 단계를 추가함)
+    fetchStreamerDetails(streamer.id);
+
+    // 기본 정보만 설정하고 나머지는 fetchStreamerDetails에서 처리
     setFormData({
       name: streamer.name,
       soopId: streamer.soopId || "",
-      crewId: streamer.id,
-      rankId: 0,
+      crewId: 0, // 임시값
+      rankId: 0, // 임시값
       categoryIds: [],
       eventType: "join",
-      eventDate: "",
+      eventDate: getTodayDate(),
       note: "",
     });
+
     setIsSearching(false);
+  };
+
+  // 스트리머 상세 정보 조회 및 수정 모드 설정
+  const fetchStreamerDetails = async (streamerId: number) => {
+    try {
+      // API 호출하여 스트리머 상세 정보 조회
+      const streamerDetails = await getStreamerById(streamerId);
+
+      // 크루 멤버와 호환되는 형태로 변환
+      const memberData: CrewMember = {
+        id: streamerDetails.id,
+        name: streamerDetails.name,
+        soopId: streamerDetails.soopId,
+        crew: streamerDetails.crew,
+        rank: streamerDetails.rank,
+      };
+
+      // 수정 모드 설정
+      setSelectedMember(memberData);
+      setIsEditing(true);
+
+      // 폼 데이터 업데이트
+      setFormData({
+        name: memberData.name,
+        soopId: memberData.soopId || "",
+        crewId: memberData.crew?.id || 0,
+        rankId: memberData.rank?.id || 0,
+        categoryIds: [],
+        eventType: memberData.crew ? "leave" : "join",
+        eventDate: getTodayDate(),
+        note: "",
+      });
+    } catch (error) {
+      console.error("Error fetching streamer details:", error);
+      // 에러 시 기본 폼만 유지
+    }
   };
 
   // 멤버 목록 필터링 및 정렬
@@ -374,13 +419,22 @@ export default function AdminMembersPage() {
                   type="text"
                   ref={searchInputRef}
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    const newQuery = e.target.value;
+                    setSearchQuery(newQuery);
+                    // 검색어가 1글자 이상이면 검색 시작
+                    if (newQuery.trim().length >= 1) {
+                      setIsSearching(true);
+                    } else {
+                      setIsSearching(false);
+                    }
+                  }}
                   placeholder="스트리머 이름 또는 숲 ID로 검색"
                   className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm ${
                     isEditing ? "bg-gray-100" : ""
                   }`}
                   onFocus={() => {
-                    if (searchQuery.trim().length >= 2) {
+                    if (searchQuery.trim().length >= 1) {
                       setIsSearching(true);
                     }
                   }}

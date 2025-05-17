@@ -35,3 +35,8 @@ export async function getLiveStreamers() {
   const { streamInfos } = data;
   return streamInfos;
 }
+
+export async function getStreamerById(id: number) {
+  const { data } = await api.get(`/streamers/${id}`);
+  return data;
+}
