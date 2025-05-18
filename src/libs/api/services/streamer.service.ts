@@ -40,3 +40,19 @@ export async function getStreamerById(id: number) {
   const { data } = await api.get(`/streamers/${id}`);
   return data;
 }
+
+export async function updateStreamerBasicInfo(
+  id: number,
+  basicInfo: { name: string; soopId?: string }
+) {
+  const { data } = await api.put(`/streamers/${id}/basic-info`, basicInfo);
+  return data;
+}
+
+export async function createStreamerBasicInfo(basicInfo: {
+  name: string;
+  soopId?: string;
+}) {
+  const { data } = await api.post(`/streamers/basic-info`, basicInfo);
+  return data;
+}
