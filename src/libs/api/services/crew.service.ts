@@ -130,9 +130,11 @@ export async function deleteCrewSignature(id: number) {
 export interface CrewMemberHistoryData {
   streamerId: number;
   crewId: number;
-  eventType: "join" | "leave";
+  eventType: "join" | "leave" | "rank_change";
   eventDate: string;
   note: string;
+  oldRankId?: number; // 직급 변경 시 이전 직급
+  newRankId?: number; // 직급 변경 시 새 직급
 }
 
 export async function createCrewMemberHistory(history: CrewMemberHistoryData) {

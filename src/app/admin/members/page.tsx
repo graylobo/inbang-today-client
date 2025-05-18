@@ -22,15 +22,19 @@ import {
 import { CrewMember } from "@/hooks/crew/useCrews.type";
 import { useSearchStreamers } from "@/hooks/streamer/useStreamer";
 import { Streamer } from "@/hooks/streamer/useStreamer.type";
+import {
+  createCrewMemberHistory,
+  CrewMemberHistoryData,
+} from "@/libs/api/services/crew.service";
+import {
+  createStreamerBasicInfo,
+  getStreamerById,
+  updateStreamerBasicInfo,
+} from "@/libs/api/services/streamer.service";
 import { useAuthStore } from "@/store/authStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import {
-  getStreamerById,
-  updateStreamerBasicInfo,
-  createStreamerBasicInfo,
-} from "@/libs/api/services/streamer.service";
 
 export interface CrewMemberFormData {
   name: string;
@@ -38,7 +42,7 @@ export interface CrewMemberFormData {
   crewId: number;
   rankId: number;
   categoryIds?: number[];
-  eventType: "join" | "leave" | "basic_info_only";
+  eventType: "join" | "leave" | "rank_change" | "basic_info_only";
   eventDate: string;
   note: string;
 }
@@ -211,6 +215,17 @@ export default function AdminMembersPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Early return 패턴으로 null 체크
+    if (!selectedMember) {
+      alert("스트리머를 먼저 선택해주세요.");
+      return;
+    }
+
+    // 변수로 추출하여 null이 아님을 명확히 함
+    const streamerId = selectedMember.id;
+    const memberCrew = selectedMember.crew;
+    const memberRank = selectedMember.rank;
+
     // 필수 필드 검증
     const missingFields = [];
     if (!formData.name.trim()) missingFields.push("멤버 이름");
@@ -245,79 +260,65 @@ export default function AdminMembersPage() {
       categoryIds: excelCategoryId ? [excelCategoryId] : [],
     };
 
-    // 히스토리 데이터 준비 - 기본 정보만 수정 시에는 히스토리 기록 안함
-    const historyData =
-      formData.eventType !== "basic_info_only"
-        ? {
-            streamerId: selectedMember?.id,
-            crewId: formData.crewId,
-            eventType: formData.eventType as "join" | "leave", // TypeScript 타입 안전성 위해 캐스팅
-            eventDate: formData.eventDate,
-            note: formData.note,
-          }
-        : undefined;
+    // 히스토리 데이터 준비
+    const historyData = {
+      streamerId,
+      crewId:
+        formData.eventType === "join" ? formData.crewId : memberCrew?.id || 0,
+      eventType: formData.eventType as "join" | "leave" | "rank_change",
+      eventDate: formData.eventDate,
+      note: formData.note,
+      // 직급 변경인 경우 이전 직급과 새 직급 정보 추가
+      oldRankId:
+        formData.eventType === "rank_change"
+          ? memberRank?.id
+          : formData.eventType === "leave" && memberRank
+          ? memberRank.id
+          : undefined,
+      newRankId:
+        formData.eventType === "rank_change" || formData.eventType === "join"
+          ? formData.rankId
+          : undefined,
+    };
 
-    if (selectedMember) {
-      // 멤버 정보 업데이트
-      if (formData.eventType !== "basic_info_only" && historyData) {
-        // 크루 멤버십 변경이 있는 경우 (입사/퇴사)
-        updateCrewMember({
-          id: selectedMember.id,
-          member: formDataWithExcel,
-          history: {
-            streamerId: selectedMember.id,
-            crewId: formData.crewId,
-            eventType: formData.eventType as "join" | "leave",
-            eventDate: formData.eventDate,
-            note: formData.note,
-          },
+    // 퇴사 이벤트인 경우, 히스토리를 먼저 기록하고 나서 크루에서 제거
+    if (formData.eventType === "leave" && memberCrew) {
+      // 히스토리 기록 후 API 응답을 기다렸다가 크루에서 제거
+      createCrewMemberHistory(historyData as CrewMemberHistoryData)
+        .then(() => {
+          // 히스토리 기록 성공 후 크루에서 제거
+          return removeFromCrew(streamerId);
+        })
+        .then(() => {
+          // 성공적으로 처리되면 쿼리 캐시 무효화
+          queryClient.invalidateQueries({ queryKey: ["members"] });
+          queryClient.invalidateQueries({ queryKey: ["memberHistories"] });
+          // 폼 초기화
+          resetForm();
+        })
+        .catch((error) => {
+          console.error("퇴사 처리 중 오류 발생:", error);
+          alert("퇴사 처리 중 오류가 발생했습니다.");
         });
-      } else {
-        // 기본 정보만 수정하는 경우 - 서버 구현을 가정하고 history를 전달하지 않는 별도 API 호출
-        // 실제 서버 API가 history를 필수로 요구한다면 더미 데이터 사용
-        updateStreamerBasicInfo(selectedMember.id, {
-          name: formData.name,
-          soopId: formData.soopId,
-        });
-      }
-
-      // 퇴사 이벤트인 경우 크루에서 제거
-      if (formData.eventType === "leave" && selectedMember.crew) {
-        removeFromCrew(selectedMember.id);
-      }
+    } else {
+      // 입사 또는 직급 변경의 경우 기존 로직 유지
+      updateCrewMember({
+        id: streamerId,
+        member: formDataWithExcel,
+        history: historyData as any,
+      });
 
       // Excel 카테고리 정보 설정
       if (excelCategoryId) {
         setCategories({
-          streamerId: selectedMember.id,
+          streamerId,
           categoryIds: [excelCategoryId],
         });
       }
-    } else {
-      // 새 멤버 생성 또는 기존 멤버를 크루에 추가
-      if (formData.eventType !== "basic_info_only" && historyData) {
-        // 새 멤버를 크루에 추가하는 경우
-        createCrewMember({
-          member: formDataWithExcel,
-          history: {
-            streamerId: undefined, // 새 멤버이므로 ID는 서버에서 생성됨
-            crewId: formData.crewId,
-            eventType: formData.eventType as "join" | "leave",
-            eventDate: formData.eventDate,
-            note: formData.note,
-          },
-        });
-      } else {
-        // 기본 정보만으로 새 스트리머 생성
-        createStreamerBasicInfo({
-          name: formData.name,
-          soopId: formData.soopId,
-        });
-      }
-    }
 
-    // 폼 초기화
-    resetForm();
+      // 폼 초기화
+      resetForm();
+    }
   };
 
   // 스트리머 등록 폼 제출 핸들러 (기본 정보만)
@@ -354,10 +355,16 @@ export default function AdminMembersPage() {
   const handleCrewMembershipUpdate = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Early return 패턴으로 null 체크
     if (!selectedMember) {
       alert("스트리머를 먼저 선택해주세요.");
       return;
     }
+
+    // 변수로 추출하여 null이 아님을 명확히 함
+    const streamerId = selectedMember.id;
+    const memberCrew = selectedMember.crew;
+    const memberRank = selectedMember.rank;
 
     // 필수 필드 검증
     const missingFields = [];
@@ -366,6 +373,12 @@ export default function AdminMembersPage() {
     if (formData.eventType === "join") {
       if (!formData.crewId) missingFields.push("크루");
       if (!formData.rankId) missingFields.push("계급");
+    } else if (formData.eventType === "rank_change") {
+      if (formData.rankId === 0) missingFields.push("새 계급");
+      if (formData.rankId === memberRank?.id) {
+        alert("현재와 동일한 계급을 선택하셨습니다. 다른 계급을 선택해주세요.");
+        return;
+      }
     }
 
     if (!formData.eventDate) missingFields.push("이벤트 날짜");
@@ -392,37 +405,69 @@ export default function AdminMembersPage() {
       categoryIds: excelCategoryId ? [excelCategoryId] : [],
     };
 
-    // 히스토리 데이터 준비
-    const historyData = {
-      streamerId: selectedMember.id,
-      crewId: formData.crewId,
-      eventType: formData.eventType as "join" | "leave",
-      eventDate: formData.eventDate,
-      note: formData.note,
-    };
+    // 퇴사 이벤트 처리
+    if (formData.eventType === "leave" && memberCrew) {
+      const crewId = memberCrew.id;
 
-    // 멤버 정보 업데이트
-    updateCrewMember({
-      id: selectedMember.id,
-      member: formDataWithExcel,
-      history: historyData,
-    });
+      // Type assertion을 사용하여 타입 오류 해결
+      const leaveHistoryData: any = {
+        streamerId,
+        crewId,
+        eventType: "leave",
+        eventDate: formData.eventDate,
+        note: formData.note,
+        oldRankId: memberRank?.id,
+      };
 
-    // 퇴사 이벤트인 경우 크루에서 제거
-    if (formData.eventType === "leave" && selectedMember.crew) {
-      removeFromCrew(selectedMember.id);
+      // API 호출
+      createCrewMemberHistory(leaveHistoryData as CrewMemberHistoryData)
+        .then(() => removeFromCrew(streamerId))
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["members"] });
+          queryClient.invalidateQueries({ queryKey: ["memberHistories"] });
+          resetForm();
+        })
+        .catch((error) => {
+          console.error("퇴사 처리 중 오류:", error);
+          alert("퇴사 처리 중 오류가 발생했습니다.");
+        });
+    } else {
+      // 입사 또는 직급 변경 이벤트 처리
+      // Type assertion을 사용하여 타입 오류 해결
+      const historyData: any = {
+        streamerId,
+        crewId:
+          formData.eventType === "join" ? formData.crewId : memberCrew?.id || 0,
+        eventType: formData.eventType,
+        eventDate: formData.eventDate,
+        note: formData.note,
+        oldRankId:
+          formData.eventType === "rank_change" ? memberRank?.id : undefined,
+        newRankId:
+          formData.eventType === "rank_change" || formData.eventType === "join"
+            ? formData.rankId
+            : undefined,
+      };
+
+      // 멤버 업데이트 및 히스토리 생성
+      if (streamerId) {
+        updateCrewMember({
+          id: streamerId,
+          member: formDataWithExcel,
+          history: historyData as any,
+        });
+
+        // Excel 카테고리 정보 설정
+        if (excelCategoryId) {
+          setCategories({
+            streamerId,
+            categoryIds: [excelCategoryId],
+          });
+        }
+      }
+
+      resetForm();
     }
-
-    // Excel 카테고리 정보 설정
-    if (excelCategoryId) {
-      setCategories({
-        streamerId: selectedMember.id,
-        categoryIds: [excelCategoryId],
-      });
-    }
-
-    // 폼 초기화
-    resetForm();
   };
 
   const handleEdit = (member: CrewMember) => {
@@ -439,8 +484,8 @@ export default function AdminMembersPage() {
 
     setSelectedMember(member);
 
-    // 멤버가 이미 크루에 속해 있으면 퇴사만 선택 가능, 없으면 입사만 선택 가능
-    const eventType = member.crew ? "leave" : "join";
+    // 멤버가 이미 크루에 속해 있으면 퇴사 또는 직급변경, 없으면 입사만 선택 가능
+    const eventType = member.crew ? "rank_change" : "join";
 
     setFormData({
       name: member.name,
@@ -492,8 +537,8 @@ export default function AdminMembersPage() {
       // 수정 모드 설정
       setSelectedMember(memberData);
 
-      // 멤버가 이미 크루에 속해 있으면 퇴사만 선택 가능, 없으면 입사만 선택 가능
-      const eventType = memberData.crew ? "leave" : "join";
+      // 멤버가 이미 크루에 속해 있으면 퇴사 또는 직급변경, 없으면 입사만 선택 가능
+      const eventType = memberData.crew ? "rank_change" : "join";
 
       // 폼 데이터 업데이트
       setFormData({
@@ -814,10 +859,33 @@ export default function AdminMembersPage() {
                             크루 퇴사
                           </span>
                         </label>
+                        <label
+                          className={`inline-flex items-center ${
+                            selectedMember.crew ? "" : "opacity-50"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="eventType"
+                            value="rank_change"
+                            checked={formData.eventType === "rank_change"}
+                            onChange={() =>
+                              setFormData({
+                                ...formData,
+                                eventType: "rank_change",
+                              })
+                            }
+                            disabled={!selectedMember.crew}
+                            className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">
+                            직급 변경
+                          </span>
+                        </label>
                       </div>
                       <p className="mt-1 text-xs text-gray-500">
                         {selectedMember.crew
-                          ? "멤버가 현재 크루에 속해있어 퇴사만 선택 가능합니다."
+                          ? "멤버가 현재 크루에 속해있어 직급 변경 또는 퇴사를 선택할 수 있습니다."
                           : "멤버가 크루에 속해있지 않아 입사만 선택 가능합니다."}
                       </p>
                     </div>
@@ -877,6 +945,44 @@ export default function AdminMembersPage() {
                         )}
                       </>
                     )}
+
+                    {/* 직급 변경인 경우 계급만 선택 */}
+                    {formData.eventType === "rank_change" &&
+                      selectedMember.crew && (
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            새 계급
+                          </label>
+                          <select
+                            value={formData.rankId}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                rankId: Number(e.target.value),
+                              })
+                            }
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            required
+                          >
+                            <option value={0}>계급 선택</option>
+                            {ranks?.map((rank: any) => (
+                              <option
+                                key={rank.id}
+                                value={rank.id}
+                                disabled={rank.id === selectedMember.rank?.id}
+                              >
+                                {rank.name}
+                                {rank.id === selectedMember.rank?.id
+                                  ? " (현재 계급)"
+                                  : ""}
+                              </option>
+                            ))}
+                          </select>
+                          <p className="mt-1 text-xs text-gray-500">
+                            현재 계급: {selectedMember.rank?.name || "없음"}
+                          </p>
+                        </div>
+                      )}
 
                     {/* 이벤트 날짜 */}
                     <div>
@@ -970,6 +1076,12 @@ export default function AdminMembersPage() {
                           scope="col"
                           className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                         >
+                          직급 변경
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
                           비고
                         </th>
                       </tr>
@@ -988,11 +1100,54 @@ export default function AdminMembersPage() {
                               <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                 입사
                               </span>
-                            ) : (
+                            ) : history.eventType === "leave" ? (
                               <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                 퇴사
                               </span>
+                            ) : (
+                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                직급 변경
+                              </span>
                             )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {history.eventType === "rank_change" &&
+                              history.oldRank &&
+                              history.newRank && (
+                                <div className="flex items-center">
+                                  <span className="px-2 py-1 text-xs rounded bg-gray-100">
+                                    {history.oldRank.name}
+                                  </span>
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-4 w-4 mx-2 text-gray-400"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                    />
+                                  </svg>
+                                  <span className="px-2 py-1 text-xs rounded font-medium bg-blue-100 text-blue-800">
+                                    {history.newRank.name}
+                                  </span>
+                                </div>
+                              )}
+                            {history.eventType === "join" &&
+                              history.newRank && (
+                                <div className="flex items-center">
+                                  <span className="px-2 py-1 text-xs rounded font-medium bg-blue-100 text-blue-800">
+                                    {history.newRank.name}
+                                  </span>
+                                  <span className="ml-2 text-xs text-gray-500">
+                                    (초기 직급)
+                                  </span>
+                                </div>
+                              )}
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500 max-w-md">
                             {history.note}

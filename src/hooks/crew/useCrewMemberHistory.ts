@@ -3,7 +3,7 @@ import { getCrewMemberHistory } from "@/libs/api/services/crew.service";
 
 export interface CrewMemberHistoryItem {
   id: number;
-  eventType: "join" | "leave";
+  eventType: "join" | "leave" | "rank_change";
   eventDate: string;
   note: string;
   createdAt: string;
@@ -12,6 +12,14 @@ export interface CrewMemberHistoryItem {
     name: string;
   };
   crew: {
+    id: number;
+    name: string;
+  };
+  oldRank?: {
+    id: number;
+    name: string;
+  };
+  newRank?: {
     id: number;
     name: string;
   };

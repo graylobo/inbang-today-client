@@ -159,6 +159,8 @@ export function useCreateCrewMember(resetForm: () => void) {
         eventType: "join" | "leave";
         eventDate: string;
         note: string;
+        oldRankId?: number;
+        newRankId?: number;
       };
     }) => {
       try {
@@ -204,9 +206,11 @@ export function useUpdateCrewMember(resetForm: () => void) {
       history: {
         streamerId: number;
         crewId: number;
-        eventType: "join" | "leave";
+        eventType: "join" | "leave" | "rank_change";
         eventDate: string;
         note: string;
+        oldRankId?: number;
+        newRankId?: number;
       };
     }) => {
       // Update the member first
