@@ -3,6 +3,7 @@
 import { useLiveStreamers } from "@/hooks/useLiveStreamers";
 
 interface Streamer {
+  nickname: string;
   name: string;
   profileImage: string;
   profileUrl: string;
@@ -83,11 +84,12 @@ export default function LiveStreamer({ crew }: LiveStreamerProps) {
               <div className="flex items-center space-x-3 mb-2">
                 <img
                   src={streamer.profileImage}
-                  alt={streamer.name}
+                  alt={streamer.nickname}
                   className="w-10 h-10 rounded-full"
                 />
+
                 <span className="font-medium dark:text-gray-100">
-                  {streamer.name}
+                  {streamer.nickname}
                 </span>
               </div>
               <h3 className="text-gray-800 dark:text-gray-200 font-medium line-clamp-2">
