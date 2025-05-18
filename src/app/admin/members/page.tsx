@@ -8,7 +8,9 @@ import {
 import { useCrewPermissionsList } from "@/hooks/crew-permission/useCrewPermission";
 import {
   CrewMemberHistoryItem,
+  useDeleteCrewMemberHistory,
   useGetCrewMemberHistory,
+  useUpdateCrewMemberHistory,
 } from "@/hooks/crew/useCrewMemberHistory";
 import {
   useCreateCrewMember,
@@ -211,6 +213,63 @@ export default function AdminMembersPage() {
   // 선택된 멤버의 크루 히스토리 조회
   const { data: memberHistory, isLoading: isLoadingHistory } =
     useGetCrewMemberHistory(selectedMember?.id);
+
+  // 히스토리 수정 모달 관련 상태
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [selectedHistory, setSelectedHistory] =
+    useState<CrewMemberHistoryItem | null>(null);
+  const [historyFormData, setHistoryFormData] = useState({
+    eventDate: "",
+    note: "",
+  });
+
+  // 히스토리 수정/삭제 mutation
+  const { mutate: updateHistory } = useUpdateCrewMemberHistory();
+  const { mutate: deleteHistory } = useDeleteCrewMemberHistory();
+
+  // 히스토리 수정 모달 열기
+  const handleEditHistory = (history: CrewMemberHistoryItem) => {
+    setSelectedHistory(history);
+    setHistoryFormData({
+      eventDate: history.eventDate,
+      note: history.note,
+    });
+    setIsHistoryModalOpen(true);
+  };
+
+  // 히스토리 수정 제출
+  const handleHistorySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (selectedHistory) {
+      updateHistory(
+        {
+          id: selectedHistory.id,
+          historyData: {
+            eventDate: historyFormData.eventDate,
+            note: historyFormData.note,
+          },
+        },
+        {
+          onSuccess: () => {
+            setIsHistoryModalOpen(false);
+            setSelectedHistory(null);
+          },
+        }
+      );
+    }
+  };
+
+  // 히스토리 삭제
+  const handleDeleteHistory = (historyId: number) => {
+    if (
+      window.confirm(
+        "정말로 이 히스토리 항목을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
+      )
+    ) {
+      deleteHistory(historyId);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1084,6 +1143,12 @@ export default function AdminMembersPage() {
                         >
                           비고
                         </th>
+                        <th
+                          scope="col"
+                          className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          작업
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -1152,12 +1217,115 @@ export default function AdminMembersPage() {
                           <td className="px-6 py-4 text-sm text-gray-500 max-w-md">
                             {history.note}
                           </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button
+                              onClick={() => handleEditHistory(history)}
+                              className="text-indigo-600 hover:text-indigo-900 mr-3"
+                            >
+                              수정
+                            </button>
+                            <button
+                              onClick={() => handleDeleteHistory(history.id)}
+                              className="text-red-600 hover:text-red-900"
+                            >
+                              삭제
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* 히스토리 수정 모달 */}
+          {isHistoryModalOpen && selectedHistory && (
+            <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                <h3 className="text-lg font-medium mb-4">히스토리 수정</h3>
+                <form onSubmit={handleHistorySubmit}>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        이벤트 타입
+                      </label>
+                      <input
+                        type="text"
+                        value={
+                          selectedHistory.eventType === "join"
+                            ? "입사"
+                            : selectedHistory.eventType === "leave"
+                            ? "퇴사"
+                            : "직급 변경"
+                        }
+                        disabled
+                        className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        이벤트 타입은 변경할 수 없습니다.
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        이벤트 날짜
+                      </label>
+                      <input
+                        type="date"
+                        value={historyFormData.eventDate}
+                        onChange={(e) =>
+                          setHistoryFormData({
+                            ...historyFormData,
+                            eventDate: e.target.value,
+                          })
+                        }
+                        max={getTodayDate()}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        비고 사항
+                      </label>
+                      <textarea
+                        value={historyFormData.note}
+                        onChange={(e) =>
+                          setHistoryFormData({
+                            ...historyFormData,
+                            note: e.target.value,
+                          })
+                        }
+                        rows={3}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        placeholder="비고 사항을 입력하세요"
+                      />
+                    </div>
+
+                    <div className="flex justify-end space-x-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsHistoryModalOpen(false);
+                          setSelectedHistory(null);
+                        }}
+                        className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
+                      >
+                        취소
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                      >
+                        저장
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
           )}
 

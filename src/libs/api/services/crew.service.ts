@@ -144,6 +144,24 @@ export async function createCrewMemberHistory(history: CrewMemberHistoryData) {
   return data;
 }
 
+export async function updateCrewMemberHistory(
+  id: number,
+  history: Partial<CrewMemberHistoryData>
+) {
+  const data = await apiRequest(API_ROUTES.crewMemberHistory.update, {
+    params: { id },
+    body: history,
+  });
+  return data;
+}
+
+export async function deleteCrewMemberHistory(id: number) {
+  const data = await apiRequest(API_ROUTES.crewMemberHistory.delete, {
+    params: { id },
+  });
+  return data;
+}
+
 export async function getCrewMemberHistory(streamerId?: number) {
   if (!streamerId) return [];
   const data = await apiRequest(API_ROUTES.crewMemberHistory.get, {

@@ -85,6 +85,8 @@ export const API_ROUTES = {
   crewMemberHistory: {
     get: { url: "/crew-member-histories/streamer/{streamerId}", method: "GET" },
     create: { url: "/crew-member-histories", method: "POST" },
+    update: { url: "/crew-member-histories/{id}", method: "PUT" },
+    delete: { url: "/crew-member-histories/{id}", method: "DELETE" },
   },
 } as const satisfies RouteObject;
 
