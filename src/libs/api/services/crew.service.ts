@@ -1,7 +1,7 @@
 "use server";
 
 import { CrewFormData } from "@/app/admin/crews/page";
-import { CrewMemberFormData } from "@/app/admin/members/page";
+import { StreamerFormData } from "@/app/admin/members/page";
 import { SignatureFormData } from "@/app/admin/signatures/page";
 import { apiRequest } from "@/libs/api/api-request";
 import { api } from "@/libs/api/axios";
@@ -68,25 +68,6 @@ export async function createCrewEarning(
   return data;
 }
 
-export async function getCrewMembers() {
-  const { data } = await api.get("/streamers");
-  return data;
-}
-
-export async function createCrewMember(member: CrewMemberFormData) {
-  const { data } = await api.post("/streamers", member);
-  return data;
-}
-
-export async function updateCrewMember(id: number, member: CrewMemberFormData) {
-  const { data } = await api.put(`/streamers/${id}`, member);
-  return data;
-}
-
-export async function deleteCrewMember(id: number) {
-  const { data } = await api.delete(`/streamers/${id}`);
-  return data;
-}
 
 export async function createCrew(formData: CrewFormData) {
   const { data } = await api.post("/crews", formData);

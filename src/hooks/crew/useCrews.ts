@@ -1,33 +1,26 @@
 import { CrewFormData } from "@/app/admin/crews/page";
-import { CrewMemberFormData } from "@/app/admin/members/page";
 import { SignatureFormData } from "@/app/admin/signatures/page";
 import { crewEarningsByDateOptions } from "@/hooks/crew/useCrews.option";
 import {
   Crew,
   CrewDetail,
-  CrewMember,
   DailyEarningResponse,
 } from "@/hooks/crew/useCrews.type";
 import {
   createCrew,
   createCrewBroadcastEarning,
   createCrewEarning,
-  createCrewMember,
-  createCrewMemberHistory,
   createCrewSignature,
   deleteCrew,
-  deleteCrewMember,
   deleteCrewSignature,
   getCrewByID,
   getCrewMemberHistory,
-  getCrewMembers,
   getCrewRanksByCrewID,
   getCrews,
   getCrewSignatures,
   getCrewsRankings,
   removeCrewMember,
   updateCrew,
-  updateCrewMember,
   updateCrewSignature,
 } from "@/libs/api/services/crew.service";
 import { getErrorMessage } from "@/libs/utils/error-handler";
@@ -133,110 +126,6 @@ export function useCreateCrewEarning(onClose: () => void) {
       queryClient.invalidateQueries({ queryKey: ["earnings"] });
       queryClient.invalidateQueries({ queryKey: ["crew"] });
       onClose();
-    },
-  });
-}
-
-export function useGetCrewMembers() {
-  return useQuery<CrewMember[]>({
-    queryKey: ["members"],
-    queryFn: () => getCrewMembers(),
-  });
-}
-
-export function useCreateCrewMember(resetForm: () => void) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      member,
-      history,
-    }: {
-      member: CrewMemberFormData;
-      history: {
-        streamerId?: number;
-        crewId: number;
-        eventType: "join" | "leave";
-        eventDate: string;
-        note: string;
-        oldRankId?: number;
-        newRankId?: number;
-      };
-    }) => {
-      try {
-        const response = await createCrewMember(member);
-
-        // After creating the member, create the history entry
-        if (response && response.id) {
-          // Since this is a new member, we need to add its ID to the history
-          const historyWithMemberId = {
-            ...history,
-            streamerId: response.id,
-          };
-
-          // Call the API to add history
-          await createCrewMemberHistory(historyWithMemberId);
-        }
-
-        return response;
-      } catch (error: any) {
-        console.log("error.response:::", error);
-        alert(error);
-        throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["crewMembers"] });
-      queryClient.invalidateQueries({ queryKey: ["memberHistories"] });
-      resetForm();
-    },
-  });
-}
-
-export function useUpdateCrewMember(resetForm: () => void) {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({
-      id,
-      member,
-      history,
-    }: {
-      id: number;
-      member: CrewMemberFormData;
-      history: {
-        streamerId: number;
-        crewId: number;
-        eventType: "join" | "leave" | "rank_change";
-        eventDate: string;
-        note: string;
-        oldRankId?: number;
-        newRankId?: number;
-      };
-    }) => {
-      // Update the member first
-      const memberResponse = await updateCrewMember(id, member);
-
-      // Then create the history entry
-      if (history) {
-        await createCrewMemberHistory(history);
-      }
-
-      return memberResponse;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["members"] });
-      queryClient.invalidateQueries({ queryKey: ["memberHistories"] });
-      resetForm();
-    },
-  });
-}
-
-export function useDeleteCrewMember() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: number) => deleteCrewMember(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["members"] });
     },
   });
 }

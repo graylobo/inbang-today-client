@@ -1,3 +1,5 @@
+import { Streamer } from "@/hooks/streamer/useStreamer.type";
+
 export interface Crew {
   id: number;
   name: string;
@@ -14,25 +16,11 @@ export interface Crew {
   }[];
 }
 
-export interface CrewMember {
-  id: number;
-  name: string;
-  soopId?: string;
-  crew: {
-    id: number;
-    name: string;
-  };
-  rank: {
-    id: number;
-    name: string;
-  };
-}
-
 export interface CrewDetail {
   id: number;
   name: string;
   description: string;
-  members: CrewMember[];
+  members: Streamer[];
   ranks: {
     id: number;
     name: string;

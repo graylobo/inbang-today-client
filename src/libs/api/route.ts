@@ -60,6 +60,13 @@ export const API_ROUTES = {
     getAll: { url: "/categories", method: "GET" },
     getById: { url: "/categories/{id}", method: "GET" },
   },
+  streamers: {
+    list: { url: "/streamers", method: "GET" },
+    getById: { url: "/streamers/{id}", method: "GET" },
+    create: { url: "/streamers", method: "POST" },
+    update: { url: "/streamers/{id}", method: "PUT" },
+    delete: { url: "/streamers/{id}", method: "DELETE" },
+  },
   streamerCategories: {
     getByStreamer: {
       url: "/streamer-categories/streamer/{streamerId}",

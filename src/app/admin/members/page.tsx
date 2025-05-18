@@ -13,40 +13,40 @@ import {
   useUpdateCrewMemberHistory,
 } from "@/hooks/crew/useCrewMemberHistory";
 import {
-  useCreateCrewMember,
-  useDeleteCrewMember,
-  useGetCrewMembers,
   useGetCrewRanksByCrewID,
   useGetCrews,
   useRemoveCrewMember,
-  useUpdateCrewMember,
 } from "@/hooks/crew/useCrews";
-import { CrewMember } from "@/hooks/crew/useCrews.type";
-import { useSearchStreamers } from "@/hooks/streamer/useStreamer";
+
+import {
+  useDeleteStreamer,
+  useGetStreamers,
+  useSearchStreamers,
+  useUpdateStreamer,
+} from "@/hooks/streamer/useStreamer";
 import { Streamer } from "@/hooks/streamer/useStreamer.type";
 import {
   createCrewMemberHistory,
   CrewMemberHistoryData,
 } from "@/libs/api/services/crew.service";
 import {
-  createStreamerBasicInfo,
+  createStreamer,
   getStreamerById,
-  updateStreamerBasicInfo,
 } from "@/libs/api/services/streamer.service";
 import { useAuthStore } from "@/store/authStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-export interface CrewMemberFormData {
+export interface StreamerFormData {
   name: string;
   soopId?: string;
-  crewId: number;
-  rankId: number;
+  crewId?: number;
+  rankId?: number;
   categoryIds?: number[];
-  eventType: "join" | "leave" | "rank_change" | "basic_info_only";
-  eventDate: string;
-  note: string;
+  eventType?: "join" | "leave" | "rank_change" | "basic_info_only";
+  eventDate?: string;
+  note?: string;
 }
 
 export default function AdminMembersPage() {
@@ -54,7 +54,7 @@ export default function AdminMembersPage() {
   const crewIdParam = searchParams.get("crewId");
   const { isSuperAdmin, isAdmin } = useAuthStore();
 
-  const [selectedMember, setSelectedMember] = useState<CrewMember | null>(null);
+  const [selectedMember, setSelectedMember] = useState<Streamer | null>(null);
   const [selectedCrewId, setSelectedCrewId] = useState<number | "all">(
     crewIdParam ? parseInt(crewIdParam) : "all"
   );
@@ -70,7 +70,7 @@ export default function AdminMembersPage() {
   };
 
   // 기본 폼 데이터 상태
-  const [formData, setFormData] = useState<CrewMemberFormData>({
+  const [formData, setFormData] = useState<StreamerFormData>({
     name: "",
     soopId: "",
     crewId: 0,
@@ -141,10 +141,12 @@ export default function AdminMembersPage() {
   const { crews: permittedCrews } = useCrewPermissionsList();
 
   // 선택된 크루의 계급 목록 조회
-  const { data: ranks } = useGetCrewRanksByCrewID(formData.crewId?.toString());
+  const { data: ranks } = useGetCrewRanksByCrewID(
+    formData.crewId?.toString() || ""
+  );
 
   // 모든 멤버 조회
-  const { data: members, isLoading: isLoadingMembers } = useGetCrewMembers();
+  const { data: members, isLoading: isLoadingMembers } = useGetStreamers();
 
   // 모든 카테고리 조회
   const { data: categories, isLoading: isLoadingCategories } =
@@ -154,14 +156,11 @@ export default function AdminMembersPage() {
   const { data: memberCategories, isLoading: isLoadingMemberCategories } =
     useGetStreamerCategories(selectedMember?.id);
 
-  // 멤버 생성 mutation
-  const { mutate: createCrewMember } = useCreateCrewMember(resetForm);
-
   // 멤버 업데이트 mutation
-  const { mutate: updateCrewMember } = useUpdateCrewMember(resetForm);
+  const { mutate: updateStreamer } = useUpdateStreamer(resetForm);
 
   // 멤버 삭제 mutation
-  const { mutate: deleteCrewMember } = useDeleteCrewMember();
+  const { mutate: deleteStreamer } = useDeleteStreamer();
 
   // 멤버 크루 탈퇴 mutation
   const { mutate: removeFromCrew } = useRemoveCrewMember();
@@ -361,7 +360,7 @@ export default function AdminMembersPage() {
         });
     } else {
       // 입사 또는 직급 변경의 경우 기존 로직 유지
-      updateCrewMember({
+      updateStreamer({
         id: streamerId,
         member: formDataWithExcel,
         history: historyData as any,
@@ -391,7 +390,7 @@ export default function AdminMembersPage() {
     }
 
     // 스트리머 기본 정보만 생성
-    createStreamerBasicInfo({
+    createStreamer({
       name: newStreamerData.name,
       soopId: newStreamerData.soopId,
     })
@@ -510,7 +509,7 @@ export default function AdminMembersPage() {
 
       // 멤버 업데이트 및 히스토리 생성
       if (streamerId) {
-        updateCrewMember({
+        updateStreamer({
           id: streamerId,
           member: formDataWithExcel,
           history: historyData as any,
@@ -529,7 +528,7 @@ export default function AdminMembersPage() {
     }
   };
 
-  const handleEdit = (member: CrewMember) => {
+  const handleEdit = (member: Streamer) => {
     // 슈퍼어드민이 아니면서 해당 크루에 대한 권한이 없는 경우 거부
     if (!isSuperAdmin && member.crew) {
       const hasPermission = permittedCrews?.some(
@@ -585,12 +584,14 @@ export default function AdminMembersPage() {
       const streamerDetails = await getStreamerById(streamerId);
 
       // 크루 멤버와 호환되는 형태로 변환
-      const memberData: CrewMember = {
+      const memberData: Streamer = {
         id: streamerDetails.id,
         name: streamerDetails.name,
         soopId: streamerDetails.soopId,
         crew: streamerDetails.crew,
         rank: streamerDetails.rank,
+        race: streamerDetails.race,
+        tier: streamerDetails.tier,
       };
 
       // 수정 모드 설정
@@ -977,7 +978,7 @@ export default function AdminMembersPage() {
                             ))}
                           </select>
                         </div>
-                        {formData.crewId > 0 && (
+                        {formData.crewId && formData.crewId > 0 && (
                           <div>
                             <label className="block text-sm font-medium text-gray-700">
                               계급
@@ -1147,7 +1148,7 @@ export default function AdminMembersPage() {
                           scope="col"
                           className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                         >
-                          수행자
+                          입력자
                         </th>
                         <th
                           scope="col"
@@ -1449,7 +1450,7 @@ export default function AdminMembersPage() {
                                   "정말로 이 멤버를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
                                 )
                               ) {
-                                deleteCrewMember(member.id);
+                                deleteStreamer(member.id);
                               }
                             }}
                             className="px-3 py-1 text-sm text-red-600 hover:text-red-700"

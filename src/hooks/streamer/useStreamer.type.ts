@@ -4,8 +4,14 @@ export interface Streamer {
   soopId: string;
   race: string;
   tier: string;
-  crew: string;
-  rank: string;
+  crew: {
+    id: number;
+    name: string;
+  };
+  rank: {
+    id: number;
+    name: string;
+  };
 }
 
 export interface LiveStreamer {
