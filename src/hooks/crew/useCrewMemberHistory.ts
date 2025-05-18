@@ -28,6 +28,11 @@ export interface CrewMemberHistoryItem {
     id: number;
     name: string;
   };
+  performedBy?: {
+    id: number;
+    name: string;
+  };
+  createdAt: string;
 }
 
 export function useGetCrewMemberHistory(streamerId?: number) {

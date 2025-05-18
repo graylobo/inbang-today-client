@@ -1145,6 +1145,12 @@ export default function AdminMembersPage() {
                         </th>
                         <th
                           scope="col"
+                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
+                          수행자
+                        </th>
+                        <th
+                          scope="col"
                           className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                         >
                           작업
@@ -1216,6 +1222,27 @@ export default function AdminMembersPage() {
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-500 max-w-md">
                             {history.note}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-500">
+                            {history.performedBy ? (
+                              <span className="text-xs text-gray-600">
+                                {history.performedBy.name || "알 수 없음"}
+                                {(() => {
+                                  console.log(
+                                    "history.performedBy::",
+                                    history.performedBy
+                                  );
+                                  return null;
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-gray-400">
+                                시스템
+                              </span>
+                            )}
+                            <span className="block text-xs text-gray-400 mt-1">
+                              {new Date(history.createdAt).toLocaleString()}
+                            </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button
