@@ -1,5 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import {
+  getLiveCrewsInfo,
+  LiveCrewsInfoResponse,
+} from "@/libs/api/services/crawler.service";
 
 export interface LiveCrewInfo {
   id: number;
@@ -7,18 +10,11 @@ export interface LiveCrewInfo {
   isOwnerLive: boolean;
 }
 
-interface LiveCrewsInfoResponse {
-  crews: LiveCrewInfo[];
-}
-
 export const useLiveCrewsInfo = () => {
   return useQuery<LiveCrewsInfoResponse>({
     queryKey: ["liveCrewsInfo"],
     queryFn: async () => {
-      const { data } = await axios.get<LiveCrewsInfoResponse>(
-        `${process.env.NEXT_PUBLIC_API_URL}/crawler/live-crews`
-      );
-      return data;
+      return getLiveCrewsInfo();
     },
     refetchInterval: 60000, // Refetch every 60 seconds
   });

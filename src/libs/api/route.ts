@@ -95,6 +95,13 @@ export const API_ROUTES = {
     update: { url: "/crew-member-histories/{id}", method: "PUT" },
     delete: { url: "/crew-member-histories/{id}", method: "DELETE" },
   },
+  crawler: {
+    broadcasts: { url: "/crawler/broadcasts", method: "GET" },
+    liveCrews: { url: "/crawler/live-crews", method: "GET" },
+    matchHistory: { url: "/crawler/match-history", method: "GET" },
+    saveMatchData: { url: "/crawler/save-match-data", method: "GET" },
+    updateSoopIds: { url: "/crawler/update-soop-ids", method: "GET" },
+  },
 } as const satisfies RouteObject;
 
 // URL에서 경로 파라미터 추출하는 타입
