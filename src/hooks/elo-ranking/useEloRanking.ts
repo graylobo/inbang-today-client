@@ -10,6 +10,7 @@ export interface EloRanking {
   gender: string;
   eloPoint: number;
   rank: number;
+  soopId: string;
 }
 
 export interface MonthlyRankingResponse {

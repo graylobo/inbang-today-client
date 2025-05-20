@@ -242,9 +242,7 @@ function StarTier() {
         </>
       )}
       {displayMode === "tier" && eloRankings && (
-        <div className="mt-[112px]">
-          {" "}
-          {/* Adjust margin to account for navbar (64px) + tabs (48px) */}
+        <div className="mt-[212px]">
           <TierSystem
             rankings={eloRankings.rankings}
             month={eloRankings.month}
