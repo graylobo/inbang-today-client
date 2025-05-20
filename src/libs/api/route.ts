@@ -35,6 +35,11 @@ export const API_ROUTES = {
       update: { url: "/user/{userId}/super-admin", method: "PATCH" },
     },
   },
+  eloRankings: {
+    monthly: {
+      get: { url: "/elo-rankings/monthly", method: "GET" },
+    },
+  },
   userPermission: {
     user: {
       get: { url: "/user-permissions/user/{userId}", method: "GET" },

@@ -4,6 +4,7 @@ export interface Streamer {
   soopId: string;
   race: string;
   tier: string;
+  gender?: string;
   crew: {
     id: number;
     name: string;
