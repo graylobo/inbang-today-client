@@ -17,6 +17,7 @@ interface TierSystemProps {
   };
   streamerGridRef: RefObject<HTMLDivElement>;
   showOnlyLive: boolean;
+  showOnlyMatched: boolean;
 }
 
 export default function TierSystem({
@@ -28,10 +29,28 @@ export default function TierSystem({
   dateRange,
   streamerGridRef,
   showOnlyLive,
+  showOnlyMatched,
 }: TierSystemProps) {
   const tieredRankings = useMemo(() => {
     return calculateTiers(rankings);
   }, [rankings]);
+
+  // Filter players based on showOnlyMatched
+  const filteredRankings = useMemo(() => {
+    if (!showOnlyMatched || !selectedStreamer || !opponents) {
+      return tieredRankings;
+    }
+
+    return tieredRankings.filter((player) => {
+      // Always include the selected streamer
+      if (player.id === selectedStreamer) {
+        return true;
+      }
+
+      // Check if this player has a match with the selected streamer
+      return opponents.some((match: any) => match.opponent.id === player.id);
+    });
+  }, [tieredRankings, showOnlyMatched, selectedStreamer, opponents]);
 
   // Group by tier
   const groupedByTier = useMemo(() => {
@@ -49,12 +68,12 @@ export default function TierSystem({
       계: [],
     };
 
-    tieredRankings.forEach((player) => {
+    filteredRankings.forEach((player) => {
       groups[player.calculatedTier].push(player);
     });
 
     return groups;
-  }, [tieredRankings]);
+  }, [filteredRankings]);
 
   return (
     <div className="p-4">

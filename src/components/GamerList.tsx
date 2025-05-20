@@ -196,20 +196,21 @@ function StarTier() {
         </button>
       </div>
 
+      {/* Navigation bar should be visible in both modes */}
+      <GamerListNavigation
+        selectedStreamer={selectedStreamer}
+        setSelectedStreamer={setSelectedStreamer}
+        dateRange={dateRange}
+        setDateRange={setDateRange}
+        showOnlyMatched={showOnlyMatched}
+        setShowOnlyMatched={setShowOnlyMatched}
+        showOnlyLive={showOnlyLive}
+        setShowOnlyLive={setShowOnlyLive}
+        onHeightChange={setNavHeight}
+      />
+
       {displayMode === "list" && (
         <>
-          <GamerListNavigation
-            selectedStreamer={selectedStreamer}
-            setSelectedStreamer={setSelectedStreamer}
-            dateRange={dateRange}
-            setDateRange={setDateRange}
-            showOnlyMatched={showOnlyMatched}
-            setShowOnlyMatched={setShowOnlyMatched}
-            showOnlyLive={showOnlyLive}
-            setShowOnlyLive={setShowOnlyLive}
-            onHeightChange={setNavHeight}
-          />
-
           {/* 네비게이션 바의 높이만큼 상단 여백 추가 */}
           <div
             className="transition-all duration-300"
@@ -242,7 +243,10 @@ function StarTier() {
         </>
       )}
       {displayMode === "tier" && eloRankings && (
-        <div className="mt-[212px]">
+        <div
+          className="transition-all duration-300"
+          style={{ marginTop: navHeight + 48 }} /* 48px for gender tabs */
+        >
           <TierSystem
             rankings={eloRankings.rankings}
             month={eloRankings.month}
@@ -252,6 +256,7 @@ function StarTier() {
             dateRange={dateRange}
             streamerGridRef={streamerGridRef}
             showOnlyLive={showOnlyLive}
+            showOnlyMatched={showOnlyMatched}
           />
         </div>
       )}
