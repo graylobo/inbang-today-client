@@ -246,6 +246,12 @@ function StarTier() {
           <TierSystem
             rankings={eloRankings.rankings}
             month={eloRankings.month}
+            opponents={opponents}
+            selectedStreamer={selectedStreamer}
+            setSelectedStreamer={setSelectedStreamer}
+            dateRange={dateRange}
+            streamerGridRef={streamerGridRef}
+            showOnlyLive={showOnlyLive}
           />
         </div>
       )}

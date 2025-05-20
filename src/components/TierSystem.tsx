@@ -3,22 +3,32 @@
 import { EloRanking } from "@/hooks/elo-ranking/useEloRanking";
 import { TierType, calculateTiers } from "@/utils/tierCalculator";
 import StreamerCard from "@/components/streaming/StreamerCard";
-import { useMemo, useRef } from "react";
+import { Dispatch, RefObject, SetStateAction, useMemo, useRef } from "react";
 
 interface TierSystemProps {
   rankings: EloRanking[];
   month: string;
+  opponents: any;
+  selectedStreamer: number | null;
+  setSelectedStreamer: Dispatch<SetStateAction<number | null>>;
+  dateRange: {
+    startDate: string;
+    endDate: string;
+  };
+  streamerGridRef: RefObject<HTMLDivElement>;
+  showOnlyLive: boolean;
 }
 
-export default function TierSystem({ rankings, month }: TierSystemProps) {
-  const streamerGridRef = useRef<HTMLDivElement>(null);
-
-  // Current date range - not relevant for the tier view but needed for StreamerCard props
-  const dateRange = {
-    startDate: new Date().toISOString().split("T")[0],
-    endDate: new Date().toISOString().split("T")[0],
-  };
-
+export default function TierSystem({
+  rankings,
+  month,
+  opponents,
+  selectedStreamer,
+  setSelectedStreamer,
+  dateRange,
+  streamerGridRef,
+  showOnlyLive,
+}: TierSystemProps) {
   const tieredRankings = useMemo(() => {
     return calculateTiers(rankings);
   }, [rankings]);
@@ -97,7 +107,6 @@ export default function TierSystem({ rankings, month }: TierSystemProps) {
               style={{
                 gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
               }}
-              ref={streamerGridRef}
             >
               {players.map((player) => (
                 <div key={player.id} className="relative">
@@ -109,7 +118,7 @@ export default function TierSystem({ rankings, month }: TierSystemProps) {
                     {player.calculatedTier}
                   </div>
 
-                  {/* Use the existing StreamerCard component */}
+                  {/* Use the existing StreamerCard component with all props */}
                   <StreamerCard
                     streamer={{
                       id: player.id,
@@ -117,16 +126,17 @@ export default function TierSystem({ rankings, month }: TierSystemProps) {
                       soopId: player.soopId,
                       race: player.race,
                       tier: player.tier,
+                      gender: player.gender,
                       // Add required structure for StreamerCard
                       crew: { id: 0, name: "" },
                       rank: { id: 0, name: "" },
                     }}
-                    opponents={[]}
-                    selectedStreamer={null}
-                    setSelectedStreamer={() => {}}
+                    opponents={opponents}
+                    selectedStreamer={selectedStreamer}
+                    setSelectedStreamer={setSelectedStreamer}
                     dateRange={dateRange}
                     streamerGridRef={streamerGridRef}
-                    showOnlyLive={false}
+                    showOnlyLive={showOnlyLive}
                   />
 
                   {/* ELO point display */}
