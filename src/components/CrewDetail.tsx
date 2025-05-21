@@ -8,6 +8,23 @@ import { useGetCrewByID } from "@/hooks/crew/useCrews";
 import Link from "next/link";
 import { useState } from "react";
 
+// Helper function to adapt crew data for LiveStreamer component
+const adaptCrewForLiveStreamer = (crew: any) => {
+  return {
+    id: crew.id,
+    name: crew.name,
+    members: crew.members.map((member: any) => ({
+      id: member.id,
+      name: member.name,
+      soopId: member.soopId,
+      rank: {
+        ...member.rank,
+        level: member.rank.level || 1, // Providing a default level if missing
+      },
+    })),
+  };
+};
+
 const TABS = [
   { id: "info", label: "멤버정보", Component: CrewInfo },
   { id: "earnings", label: "별풍수익", Component: CrewEarnings },
@@ -63,7 +80,22 @@ export default function CrewDetail({ crewId }: { crewId: string }) {
       </div>
 
       <div>
-        {ActiveComponent && <ActiveComponent crew={crew} crewId={crewId} />}
+        {(() => {
+          if (!ActiveComponent) return null;
+
+          switch (activeTab) {
+            case "info":
+              return <CrewInfo crew={crew} />;
+            case "earnings":
+              return <CrewEarnings crewId={crewId} />;
+            case "signatures":
+              return <CrewSignatures crewId={crewId} />;
+            case "live":
+              return <LiveStreamer crew={adaptCrewForLiveStreamer(crew)} />;
+            default:
+              return null;
+          }
+        })()}
       </div>
     </div>
   );
