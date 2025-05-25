@@ -71,6 +71,7 @@ export const API_ROUTES = {
     create: { url: "/streamers", method: "POST" },
     update: { url: "/streamers/{id}", method: "PUT" },
     delete: { url: "/streamers/{id}", method: "DELETE" },
+    removeFromCrew: { url: "/streamers/{id}/remove-from-crew", method: "POST" },
   },
   streamerCategories: {
     getByStreamer: {
@@ -106,6 +107,30 @@ export const API_ROUTES = {
     matchHistory: { url: "/crawler/match-history", method: "GET" },
     saveMatchData: { url: "/crawler/save-match-data", method: "GET" },
     updateSoopIds: { url: "/crawler/update-soop-ids", method: "GET" },
+  },
+  crews: {
+    list: { url: "/crews", method: "GET" },
+    getById: { url: "/crews/{crewId}", method: "GET" },
+    create: { url: "/crews", method: "POST" },
+    update: { url: "/crews/{id}", method: "PUT" },
+    delete: { url: "/crews/{id}", method: "DELETE" },
+    rankings: { url: "/crews/rankings", method: "GET" },
+  },
+  crewRanks: {
+    getByCrewId: { url: "/crew-ranks/crew/{crewId}", method: "GET" },
+  },
+  crewEarnings: {
+    getByCrewId: { url: "/crew-earnings/crew/{crewId}", method: "GET" },
+    create: { url: "/crew-earnings", method: "POST" },
+  },
+  crewBroadcasts: {
+    create: { url: "/crew-broadcasts", method: "POST" },
+  },
+  crewSignatures: {
+    getByCrewId: { url: "/crew-signatures/crew/{crewId}", method: "GET" },
+    create: { url: "/crew-signatures", method: "POST" },
+    update: { url: "/crew-signatures/{id}", method: "PUT" },
+    delete: { url: "/crew-signatures/{id}", method: "DELETE" },
   },
 } as const satisfies RouteObject;
 
