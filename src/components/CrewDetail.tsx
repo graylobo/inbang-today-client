@@ -6,7 +6,7 @@ import CrewSignatures from "@/components/crew-detail/CrewSignatures";
 import LiveStreamer from "@/components/crew-detail/LiveStreamer";
 import { useGetCrewByID } from "@/hooks/crew/useCrews";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 
 // Helper function to adapt crew data for LiveStreamer component
 const adaptCrewForLiveStreamer = (crew: any) => {
@@ -34,17 +34,78 @@ const TABS = [
 
 type TabType = (typeof TABS)[number]["id"];
 
-export default function CrewDetail({ crewId }: { crewId: string }) {
+// Loading component for consistent UI during loading
+const LoadingState = () => (
+  <div className="max-w-6xl mx-auto">
+    <div className="animate-pulse">
+      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
+      <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
+      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-6"></div>
+      <div className="flex space-x-8 mb-6">
+        {TABS.map((tab) => (
+          <div
+            key={tab.id}
+            className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-20"
+          ></div>
+        ))}
+      </div>
+      <div className="h-80 bg-gray-200 dark:bg-gray-700 rounded"></div>
+    </div>
+  </div>
+);
+
+// Error component for consistent UI during errors
+const ErrorState = () => (
+  <div className="max-w-6xl mx-auto">
+    <Link
+      href="/"
+      className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4 inline-block"
+    >
+      ← 목록으로 돌아가기
+    </Link>
+    <div className="p-4 border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800 rounded-md">
+      <h2 className="text-xl font-semibold text-red-800 dark:text-red-400 mb-2">
+        에러가 발생했습니다
+      </h2>
+      <p className="text-red-700 dark:text-red-300">
+        크루 정보를 불러오는 데 문제가 발생했습니다. 나중에 다시 시도해 주세요.
+      </p>
+    </div>
+  </div>
+);
+
+// Not found component for consistent UI when crew is not found
+const NotFoundState = () => (
+  <div className="max-w-6xl mx-auto">
+    <Link
+      href="/"
+      className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-4 inline-block"
+    >
+      ← 목록으로 돌아가기
+    </Link>
+    <div className="p-4 border border-yellow-300 bg-yellow-50 dark:bg-yellow-900/20 dark:border-yellow-800 rounded-md">
+      <h2 className="text-xl font-semibold text-yellow-800 dark:text-yellow-400 mb-2">
+        크루를 찾을 수 없습니다
+      </h2>
+      <p className="text-yellow-700 dark:text-yellow-300">
+        요청하신 크루 정보가 존재하지 않습니다.
+      </p>
+    </div>
+  </div>
+);
+
+// Content component to separate the data fetching logic from the rendering
+const CrewDetailContent = ({ crewId }: { crewId: string }) => {
   const { data: crew, error } = useGetCrewByID(crewId);
   const [activeTab, setActiveTab] = useState<TabType>("info");
 
-  if (error) return <div>에러가 발생했습니다.</div>;
-  if (!crew) return <div>크루 정보를 찾을 수 없습니다.</div>;
+  if (error) return <ErrorState />;
+  if (!crew) return <NotFoundState />;
 
   const ActiveComponent = TABS.find((tab) => tab.id === activeTab)?.Component;
 
   return (
-    <div className="max-w-6xl mx-auto ">
+    <div className="max-w-6xl mx-auto">
       <div className="mb-8">
         <Link
           href="/"
@@ -98,5 +159,13 @@ export default function CrewDetail({ crewId }: { crewId: string }) {
         })()}
       </div>
     </div>
+  );
+};
+
+export default function CrewDetail({ crewId }: { crewId: string }) {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <CrewDetailContent crewId={crewId} />
+    </Suspense>
   );
 }
