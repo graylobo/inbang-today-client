@@ -35,6 +35,25 @@ export const API_ROUTES = {
       update: { url: "/user/{userId}/super-admin", method: "PATCH" },
     },
   },
+  boards: {
+    list: { url: "/boards", method: "GET" },
+    getBySlug: { url: "/boards/slug/{slug}", method: "GET" },
+  },
+  posts: {
+    getByBoard: { url: "/posts/board/{boardId}", method: "GET" },
+    getById: { url: "/posts/{id}", method: "GET" },
+    create: { url: "/posts", method: "POST" },
+    update: { url: "/posts/{id}", method: "PUT" },
+    delete: { url: "/posts/{id}", method: "DELETE" },
+  },
+  comments: {
+    getByPost: { url: "/comments/post/{postId}", method: "GET" },
+    create: { url: "/comments", method: "POST" },
+    createReply: { url: "/comments/{parentId}/reply", method: "POST" },
+    update: { url: "/comments/{id}", method: "PUT" },
+    delete: { url: "/comments/{id}", method: "DELETE" },
+    verifyPassword: { url: "/comments/{id}/verify-password", method: "POST" },
+  },
   eloRankings: {
     monthly: {
       get: { url: "/elo-rankings/monthly", method: "GET" },

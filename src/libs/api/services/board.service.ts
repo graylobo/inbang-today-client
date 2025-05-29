@@ -1,5 +1,6 @@
 "use server";
-import { api } from "@/libs/api/axios";
+import { apiRequest } from "@/libs/api/api-request";
+import { API_ROUTES } from "@/libs/api/route";
 import { User } from "@/store/authStore";
 import {
   Order,
@@ -64,25 +65,26 @@ export interface CreateReplyDto extends CreateCommentDto {
 }
 
 // 게시판 관련 API
-export async function getBoards() {
+export async function getBoards(): Promise<Board[]> {
   try {
-    const response = await api.get<Board[]>("/boards");
-    return response.data;
+    return await apiRequest(API_ROUTES.boards.list);
   } catch (error) {
     console.log(error);
+    return [];
   }
 }
 
-export async function getBoardBySlug(slug: string) {
-  const response = await api.get<Board>(`/boards/slug/${slug}`);
-  return response.data;
+export async function getBoardBySlug(slug: string): Promise<Board> {
+  return await apiRequest(API_ROUTES.boards.getBySlug, {
+    params: { slug },
+  });
 }
 
 // 게시글 관련 API
 export async function getPosts(
   boardId: number,
   params: PaginationQueryDto = {}
-) {
+): Promise<PaginatedResponse<Post>> {
   const {
     page = 1,
     perPage = 30,
@@ -90,56 +92,60 @@ export async function getPosts(
     orderKey = "createdAt",
   } = params;
 
-  const response = await api.get<PaginatedResponse<Post>>(
-    `/posts/board/${boardId}`,
-    {
-      params: { page, perPage, order, orderKey },
-    }
-  );
-  return response.data;
+  return await apiRequest(API_ROUTES.posts.getByBoard, {
+    params: { boardId },
+    query: { page, perPage, order, orderKey },
+  });
 }
 
-export async function getPost(id: number) {
-  const response = await api.get<Post>(`/posts/${id}`);
-  return response.data;
+export async function getPost(id: number): Promise<Post> {
+  return await apiRequest(API_ROUTES.posts.getById, {
+    params: { id },
+  });
 }
 
-export async function createPost(data: CreatePostDto) {
-  const response = await api.post<Post>("/posts", data);
-  return response.data;
+export async function createPost(data: CreatePostDto): Promise<Post> {
+  return await apiRequest(API_ROUTES.posts.create, {
+    body: data,
+  });
 }
 
 export async function updatePost(
   id: number,
   data: Partial<CreatePostDto>,
   password?: string
-) {
-  const response = await api.put<Post>(`/posts/${id}`, { ...data, password });
-  return response.data;
+): Promise<Post> {
+  return await apiRequest(API_ROUTES.posts.update, {
+    params: { id },
+    body: { ...data, password },
+  });
 }
 
-export async function deletePost(id: number, password?: string) {
-  const res = await api.delete(`/posts/${id}`, { params: { password } });
-  return res.data;
+export async function deletePost(id: number, password?: string): Promise<any> {
+  return await apiRequest(API_ROUTES.posts.delete, {
+    params: { id },
+    query: { password },
+  });
 }
 
 // 댓글 관련 API
-export async function getComments(postId: number) {
-  const response = await api.get<Comment[]>(`/comments/post/${postId}`);
-  return response.data;
+export async function getComments(postId: number): Promise<Comment[]> {
+  return await apiRequest(API_ROUTES.comments.getByPost, {
+    params: { postId },
+  });
 }
 
-export async function createComment(data: CreateCommentDto) {
-  const response = await api.post<Comment>("/comments", data);
-  return response.data;
+export async function createComment(data: CreateCommentDto): Promise<Comment> {
+  return await apiRequest(API_ROUTES.comments.create, {
+    body: data,
+  });
 }
 
-export async function createReply(data: CreateReplyDto) {
-  const response = await api.post<Comment>(
-    `/comments/${data.parentId}/reply`,
-    data
-  );
-  return response.data;
+export async function createReply(data: CreateReplyDto): Promise<Comment> {
+  return await apiRequest(API_ROUTES.comments.createReply, {
+    params: { parentId: data.parentId },
+    body: data,
+  });
 }
 
 export async function updateComment(
@@ -147,21 +153,33 @@ export async function updateComment(
   content: string,
   password?: string,
   authorName?: string
-) {
-  const response = await api.put<Comment>(`/comments/${id}`, {
-    content,
-    password,
-    authorName,
+): Promise<Comment> {
+  return await apiRequest(API_ROUTES.comments.update, {
+    params: { id },
+    body: {
+      content,
+      password,
+      authorName,
+    },
   });
-  return response.data;
 }
 
-export async function deleteComment(id: number, password?: string) {
-  const res = await api.delete(`/comments/${id}`, { params: { password } });
-  return res.data;
+export async function deleteComment(
+  id: number,
+  password?: string
+): Promise<any> {
+  return await apiRequest(API_ROUTES.comments.delete, {
+    params: { id },
+    query: { password },
+  });
 }
 
-export async function verifyCommentPassword(id: number, password?: string) {
-  const res = await api.post(`/comments/${id}/verify-password`, { password });
-  return res.data;
+export async function verifyCommentPassword(
+  id: number,
+  password?: string
+): Promise<any> {
+  return await apiRequest(API_ROUTES.comments.verifyPassword, {
+    params: { id },
+    body: { password },
+  });
 }
