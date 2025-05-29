@@ -9,18 +9,37 @@ interface RankInfoProps {
 }
 
 export const RankInfo = ({ userRank, className }: RankInfoProps) => {
-  // Calculate progress to next level
+  // 서버에서 제공하는 값이 있으면 사용하고, 없으면 클라이언트에서 계산
   const currentLevel = userRank.level;
-  const nextLevel = currentLevel + 1;
-  const currentLevelPoints = calculateRequiredPoints(currentLevel);
-  const nextLevelPoints = calculateRequiredPoints(nextLevel);
-  const pointsNeeded = nextLevelPoints - currentLevelPoints;
-  const progress = Math.min(
-    100,
-    Math.round(
-      ((userRank.activityPoints - currentLevelPoints) / pointsNeeded) * 100
-    )
-  );
+  const nextLevel = userRank.nextLevel || currentLevel + 1;
+
+  // 서버에서 계산된 값을 먼저 사용
+  const nextLevelPoints =
+    userRank.nextLevelPoints || calculateRequiredPoints(nextLevel);
+  const pointsNeeded =
+    userRank.pointsNeeded !== undefined
+      ? userRank.pointsNeeded
+      : Math.max(0, nextLevelPoints - userRank.activityPoints);
+
+  // 서버에서 계산된 진행률을 먼저 사용하고, 없으면 클라이언트에서 계산
+  const progressValue =
+    userRank.progressPercent !== undefined
+      ? userRank.progressPercent
+      : (() => {
+          const currentLevelPoints = calculateRequiredPoints(currentLevel);
+          const calculatedPointsNeeded = nextLevelPoints - currentLevelPoints;
+
+          return calculatedPointsNeeded > 0
+            ? Math.min(
+                100,
+                Math.round(
+                  ((userRank.activityPoints - currentLevelPoints) /
+                    calculatedPointsNeeded) *
+                    100
+                )
+              )
+            : 100;
+        })();
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -59,7 +78,7 @@ export const RankInfo = ({ userRank, className }: RankInfoProps) => {
             {nextLevelPoints.toLocaleString()} 포인트
           </span>
         </div>
-        <Progress value={progress} className="h-2" />
+        <Progress value={progressValue} className="h-2" />
       </div>
 
       {userRank.levelHistory && userRank.levelHistory.length > 0 && (
