@@ -1,9 +1,7 @@
 "use server";
 
 import { api } from "@/libs/api/axios";
-import { createUrl } from "@/libs/api/route";
-import { RouteDefinition } from "@/libs/api/route";
-import { ExtractPathParams, PathParamsObject } from "@/libs/api/route"; // 이 타입들을 route.ts에서 export 해야 함
+import { createUrl, PathParamsObject, RouteDefinition } from "@/libs/api/route";
 
 // 경로 파라미터가 있는 URL만 params를 받도록 타입 제한
 export async function apiRequest<

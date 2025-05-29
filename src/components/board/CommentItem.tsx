@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import {
-  useUpdateComment,
   useDeleteComment,
+  useUpdateComment,
   useVerifyCommentPassword,
 } from "@/hooks/board/useBoards";
-import CommentForm from "./CommentForm";
 import { Comment, Post } from "@/libs/api/services/board.service";
 import { User } from "@/store/authStore";
-import Image from "next/image";
 import { maskIpAddress } from "@/utils/ipUtils";
+import Image from "next/image";
+import { useState } from "react";
+import CommentForm from "./CommentForm";
 
 interface CommentItemProps {
   comment: Comment;
@@ -113,13 +113,21 @@ export default function CommentItem({
     <div className="flex space-x-3">
       <div className="flex-shrink-0">
         {!post.board.isAnonymous || comment.author ? (
-          <Image
-            src={"/default-avatar.png"}
-            alt="Profile"
-            width={40}
-            height={40}
-            className="rounded-full"
-          />
+          comment.author?.image ? (
+            <Image
+              src={comment.author.image}
+              alt="Profile"
+              width={40}
+              height={40}
+              className="rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+              <span className="text-gray-700 dark:text-gray-300 text-sm font-medium">
+                {comment.author?.name?.[0] || comment.authorName?.[0] || "?"}
+              </span>
+            </div>
+          )
         ) : (
           <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
             <span className="text-gray-500 dark:text-gray-400 text-xs">
