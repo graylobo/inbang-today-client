@@ -4,10 +4,10 @@ import {
   getMyBadges,
   getLeaderboard,
 } from "@/libs/api/services/rank.service";
-import { UserRank, UserBadge } from "@/constants/rank";
+import { UserLevel, UserBadge } from "@/constants/rank";
 
 export const useUserRank = () => {
-  return useQuery<UserRank>({
+  return useQuery<UserLevel>({
     queryKey: ["userRank"],
     queryFn: () => getMyRank(),
   });
