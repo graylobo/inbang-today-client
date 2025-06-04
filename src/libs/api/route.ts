@@ -41,6 +41,7 @@ export const API_ROUTES = {
   },
   posts: {
     getByBoard: { url: "/posts/board/{boardId}", method: "GET" },
+    getByBoardSlug: { url: "/posts/board/slug/{slug}", method: "GET" },
     getById: { url: "/posts/{id}", method: "GET" },
     create: { url: "/posts", method: "POST" },
     update: { url: "/posts/{id}", method: "PUT" },

@@ -98,6 +98,23 @@ export async function getPosts(
   });
 }
 
+export async function getPostsBySlug(
+  slug: string,
+  params: PaginationQueryDto = {}
+): Promise<PaginatedResponse<Post>> {
+  const {
+    page = 1,
+    perPage = 30,
+    order = Order.DESC,
+    orderKey = "createdAt",
+  } = params;
+
+  return await apiRequest(API_ROUTES.posts.getByBoardSlug, {
+    params: { slug },
+    query: { page, perPage, order, orderKey },
+  });
+}
+
 export async function getPost(id: number): Promise<Post> {
   return await apiRequest(API_ROUTES.posts.getById, {
     params: { id },

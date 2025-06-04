@@ -3,6 +3,7 @@ import {
   getBoards,
   getBoardBySlug,
   getPosts,
+  getPostsBySlug,
   getPost,
   createPost,
   updatePost,
@@ -43,6 +44,17 @@ export const usePosts = (
   return useQuery({
     queryKey: ["posts", boardId, paginationParams],
     queryFn: () => getPosts(boardId, paginationParams),
+  });
+};
+
+export const usePostsBySlug = (
+  slug: string,
+  paginationParams: PaginationQueryDto = {}
+) => {
+  return useQuery({
+    queryKey: ["posts", "slug", slug, paginationParams],
+    queryFn: () => getPostsBySlug(slug, paginationParams),
+    enabled: !!slug,
   });
 };
 

@@ -5,7 +5,7 @@ import { use, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import PostForm from "@/components/board/PostForm";
 import Modal from "@/components/common/Modal";
-import { useBoardBySlug, usePosts } from "@/hooks/board/useBoards";
+import { useBoardBySlug, usePostsBySlug } from "@/hooks/board/useBoards";
 import { maskIpAddress } from "@/utils/ipUtils";
 import { UserIcon, EyeIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import { formatDate } from "@/utils/date.utils";
@@ -34,8 +34,8 @@ export default function BoardPage(props: { params: BoardPageParams }) {
   });
 
   const { data: board, isLoading: boardLoading } = useBoardBySlug(slug);
-  const { data: postsData, isLoading: postsLoading } = usePosts(
-    board?.id || 0,
+  const { data: postsData, isLoading: postsLoading } = usePostsBySlug(
+    slug,
     paginationParams
   );
 
