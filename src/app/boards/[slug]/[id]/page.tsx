@@ -25,6 +25,7 @@ import styles from "./index.module.scss";
 import Divider from "@/components/common/divider/Divider";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/utils/date.utils";
+import { PostDetailSkeleton } from "@/components/ui/skeleton";
 
 type PostPageParams = Promise<{
   slug: string;
@@ -47,7 +48,7 @@ export default function PostPage(props: { params: PostPageParams }) {
     router.push(`/boards/${slug}`);
   });
 
-  if (isLoading) return <div className="dark:text-gray-300">로딩 중...</div>;
+  if (isLoading) return <PostDetailSkeleton />;
   if (!post)
     return <div className="dark:text-gray-300">게시글을 찾을 수 없습니다.</div>;
 

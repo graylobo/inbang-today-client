@@ -15,6 +15,10 @@ import {
   DEFAULT_ITEMS_PER_PAGE,
   ITEMS_PER_PAGE_OPTIONS,
 } from "@/constants/pagination";
+import {
+  PostListSkeleton,
+  BoardHeaderSkeleton,
+} from "@/components/ui/skeleton";
 
 type BoardPageParams = Promise<{
   slug: string;
@@ -65,8 +69,18 @@ export default function BoardPage(props: { params: BoardPageParams }) {
     }));
   };
 
-  if (boardLoading || postsLoading)
-    return <div className="dark:text-gray-300">로딩 중...</div>;
+  // 로딩 상태 처리
+  if (boardLoading || postsLoading) {
+    return (
+      <div className="mx-auto">
+        <BoardHeaderSkeleton />
+        <PostListSkeleton
+          count={paginationParams.perPage || DEFAULT_ITEMS_PER_PAGE}
+        />
+      </div>
+    );
+  }
+
   if (!board)
     return <div className="dark:text-gray-300">게시판을 찾을 수 없습니다.</div>;
 
