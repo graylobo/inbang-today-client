@@ -220,3 +220,12 @@ export function CrewRankingSkeleton() {
     </div>
   );
 }
+
+// LIVE 뱃지용 스켈레톤
+export function LiveBadgesSkeleton() {
+  return (
+    <div className="absolute top-3 right-3 flex gap-2">
+      <Skeleton className="h-6 w-16 rounded-full opacity-60" />
+    </div>
+  );
+}

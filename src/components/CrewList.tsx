@@ -15,7 +15,8 @@ export default function CrewList({
   const [year, setYear] = useState(initialYear);
   const [month, setMonth] = useState(initialMonth);
   const { data: crews, isLoading, error } = useCrewsRankings(year, month);
-  const { data: liveCrewsData } = useLiveCrewsInfo();
+  const { data: liveCrewsData, isLoading: isLiveDataLoading } =
+    useLiveCrewsInfo();
 
   useEffect(() => {
     setYear(initialYear);
@@ -82,17 +83,25 @@ export default function CrewList({
 
               {/* Live badges */}
               <div className="absolute top-3 right-3 flex gap-2">
-                {isOwnerLive && (
-                  <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
-                    <span className="mr-1 h-2 w-2 bg-white rounded-full animate-pulse"></span>
-                    <span>대표 LIVE</span>
+                {isLiveDataLoading ? (
+                  <div className="flex gap-2">
+                    <div className="h-6 w-16 bg-gray-200 dark:bg-gray-600 rounded-full opacity-40 animate-pulse"></div>
                   </div>
-                )}
-                {liveStreamersCount > 0 && (
-                  <div className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
-                    <span className="mr-1 h-2 w-2 bg-white rounded-full animate-pulse"></span>
-                    <span>LIVE {liveStreamersCount}명</span>
-                  </div>
+                ) : (
+                  <>
+                    {isOwnerLive && (
+                      <div className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
+                        <span className="mr-1 h-2 w-2 bg-white rounded-full animate-pulse"></span>
+                        <span>대표 LIVE</span>
+                      </div>
+                    )}
+                    {liveStreamersCount > 0 && (
+                      <div className="bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
+                        <span className="mr-1 h-2 w-2 bg-white rounded-full animate-pulse"></span>
+                        <span>LIVE {liveStreamersCount}명</span>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
