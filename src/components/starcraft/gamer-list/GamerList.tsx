@@ -11,6 +11,7 @@ import {
 import { useClickOutside } from "@/hooks/useClickOutSide";
 import { format, subMonths } from "date-fns";
 import { useMemo, useRef, useState } from "react";
+import styles from "./GamerList.module.scss";
 
 // Gender type for filtering
 type GenderFilter = "All" | "Male" | "Female";
@@ -139,6 +140,7 @@ function StarTier() {
   useClickOutside(containerRef, () => {
     if (selectedStreamer) {
       setShowOnlyMatched(false);
+      setSelectedStreamer(null);
     }
   });
 
@@ -169,26 +171,26 @@ function StarTier() {
   return (
     <div ref={containerRef}>
       {/* Gender filter tabs */}
-      <div className="flex border-b mb-4 fixed top-[164px] left-0 right-0 z-10 bg-white">
+      <div className={styles.genderTabs}>
         <button
-          className={`py-3 px-6 font-medium ${
-            genderFilter === "All" ? "border-b-2 border-blue-500" : ""
+          className={`${styles.genderTabButton} ${
+            genderFilter === "All" ? styles.active : ""
           }`}
           onClick={() => handleGenderFilterChange("All")}
         >
           전체
         </button>
         <button
-          className={`py-3 px-6 font-medium ${
-            genderFilter === "Male" ? "border-b-2 border-blue-500" : ""
+          className={`${styles.genderTabButton} ${
+            genderFilter === "Male" ? styles.active : ""
           }`}
           onClick={() => handleGenderFilterChange("Male")}
         >
           남자
         </button>
         <button
-          className={`py-3 px-6 font-medium ${
-            genderFilter === "Female" ? "border-b-2 border-blue-500" : ""
+          className={`${styles.genderTabButton} ${
+            genderFilter === "Female" ? styles.active : ""
           }`}
           onClick={() => handleGenderFilterChange("Female")}
         >
@@ -213,17 +215,13 @@ function StarTier() {
         <>
           {/* 네비게이션 바의 높이만큼 상단 여백 추가 */}
           <div
-            className="transition-all duration-300"
-            style={{ marginTop: navHeight + 48 }} /* 48px for gender tabs */
+            className={styles.listContainer}
+            style={{
+              marginTop: navHeight + 48,
+            }} /* 48px for gender tabs */
           >
             {/* 기존 스트리머 그리드 */}
-            <div
-              className="grid gap-[10px] p-4"
-              style={{
-                gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-              }}
-              ref={streamerGridRef}
-            >
+            <div className={styles.streamerGrid} ref={streamerGridRef}>
               {filteredStreamers?.map((streamer) => {
                 return (
                   <StreamerCard
@@ -244,20 +242,22 @@ function StarTier() {
       )}
       {displayMode === "tier" && eloRankings && (
         <div
-          className="transition-all duration-300"
+          className={styles.tierContainer}
           style={{ marginTop: navHeight + 48 }} /* 48px for gender tabs */
         >
-          <TierSystem
-            rankings={eloRankings.rankings}
-            month={eloRankings.month}
-            opponents={opponents}
-            selectedStreamer={selectedStreamer}
-            setSelectedStreamer={setSelectedStreamer}
-            dateRange={dateRange}
-            streamerGridRef={streamerGridRef}
-            showOnlyLive={showOnlyLive}
-            showOnlyMatched={showOnlyMatched}
-          />
+          <div className={styles.tierWrapper}>
+            <TierSystem
+              rankings={eloRankings.rankings}
+              month={eloRankings.month}
+              opponents={opponents}
+              selectedStreamer={selectedStreamer}
+              setSelectedStreamer={setSelectedStreamer}
+              dateRange={dateRange}
+              streamerGridRef={streamerGridRef}
+              showOnlyLive={showOnlyLive}
+              showOnlyMatched={showOnlyMatched}
+            />
+          </div>
         </div>
       )}
     </div>
