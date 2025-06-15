@@ -174,7 +174,16 @@ function StreamerCard({
           <div className="flex items-center justify-between">
             <div className="font-bold text-nowrap">{streamer.name}</div>
             {liveInfo && (
-              <span className="px-2 py-1 bg-red-500 text-white text-xs rounded">
+              <span
+                className="px-2 py-1 bg-red-500 text-white text-xs rounded cursor-pointer hover:bg-red-600 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation(); // 카드 클릭 이벤트 방지
+                  window.open(
+                    `https://play.sooplive.co.kr/${streamer.soopId}`,
+                    "_blank"
+                  );
+                }}
+              >
                 LIVE
               </span>
             )}
