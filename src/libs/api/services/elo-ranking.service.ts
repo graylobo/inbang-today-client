@@ -1,9 +1,6 @@
+import { MonthlyRankingResponse } from "@/hooks/elo-ranking/useEloRanking";
 import { apiRequest } from "@/libs/api/api-request";
 import { API_ROUTES } from "@/libs/api/route";
-import {
-  EloRanking,
-  MonthlyRankingResponse,
-} from "@/hooks/elo-ranking/useEloRanking";
 
 export async function getMonthlyEloRanking(
   month: string,

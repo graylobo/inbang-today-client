@@ -83,26 +83,26 @@ export default function TierSystem({
       <div className="mb-8 p-4 bg-gray-100 rounded-lg">
         <h3 className="font-bold text-lg mb-2">계급 분포 시스템</h3>
         <p className="text-sm">
-          • 주 계급: 상위 9명 (고정)
+          • 주: 상위 9명 (고정)
           <br />
-          • 갑 계급: 상위 3%
+          • 갑: 상위 3%
           <br />
-          • 을 계급: 상위 5%
+          • 을: 상위 5%
           <br />
-          • 병 계급: 상위 7%
+          • 병: 상위 7%
           <br />
-          • 정 계급: 상위 10%
+          • 정: 상위 10%
           <br />
-          • 무 계급: 상위 15%
+          • 무: 상위 15%
           <br />
-          • 기 계급: 상위 18%
+          • 기: 상위 18%
           <br />
-          • 경 계급: 상위 17%
+          • 경: 상위 17%
           <br />
-          • 신 계급: 상위 13%
+          • 신: 상위 13%
           <br />
-          • 임 계급: 상위 8%
-          <br />• 계 계급: 상위 4%
+          • 임: 상위 8%
+          <br />• 계: 상위 4%
         </p>
       </div>
 
@@ -117,7 +117,7 @@ export default function TierSystem({
               style={{ backgroundColor: players[0]?.tierColor || "#333" }}
             >
               <span className="text-white">
-                {tier} 계급 ({players.length}명)
+                {tier} ({players.length}명)
               </span>
             </div>
 
