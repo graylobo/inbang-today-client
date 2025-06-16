@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     title: "스타크래프트 정보 - 스타티어표, 프로게이머 랭킹",
     description:
       "스타크래프트 관련 모든 정보를 한곳에서! 스타티어표부터 최신 경기 결과까지",
-    url: "https://seujinsa.com/starcraft",
+    url: "https://www.inbangtoday.com/starcraft",
     siteName: "Inbang Today",
     type: "website",
     locale: "ko_KR",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     images: ["/images/starcraft-og.jpg"],
   },
   alternates: {
-    canonical: "https://seujinsa.com/starcraft",
+    canonical: "https://www.inbangtoday.com/starcraft",
   },
   robots: {
     index: true,
@@ -62,11 +62,11 @@ export default function StarcraftLayout({
     "@type": "WebPage",
     name: "스타크래프트 정보",
     description: "스타크래프트 관련 종합 정보 페이지",
-    url: "https://seujinsa.com/starcraft",
+    url: "https://www.inbangtoday.com/starcraft",
     isPartOf: {
       "@type": "WebSite",
       name: "Inbang Today",
-      url: "https://seujinsa.com",
+      url: "https://www.inbangtoday.com",
     },
     about: {
       "@type": "VideoGame",

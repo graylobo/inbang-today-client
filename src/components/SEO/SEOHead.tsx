@@ -16,6 +16,11 @@ interface SEOHeadProps {
   noindex?: boolean;
   structuredData?: object;
   pageType?: "main" | "starcraft" | "excel" | "board" | "private";
+  additionalMetaTags?: Array<{
+    name?: string;
+    property?: string;
+    content: string;
+  }>;
 }
 
 export default function SEOHead({
@@ -29,6 +34,7 @@ export default function SEOHead({
   noindex = false,
   structuredData,
   pageType = "main",
+  additionalMetaTags = [],
 }: SEOHeadProps) {
   // 페이지 타입별 기본 키워드 설정
   const getDefaultKeywords = () => {
@@ -47,7 +53,7 @@ export default function SEOHead({
   };
 
   const finalKeywords = keywords || getDefaultKeywords();
-  const baseUrl = "https://seujinsa.com";
+  const baseUrl = "https://www.inbangtoday.com";
   const fullCanonicalUrl = canonicalUrl
     ? `${baseUrl}${canonicalUrl}`
     : undefined;
@@ -60,6 +66,22 @@ export default function SEOHead({
 
   return (
     <Head>
+      {/* Google Analytics 4 */}
+      <script
+        async
+        src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"
+      />
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'GA_MEASUREMENT_ID');
+          `,
+        }}
+      />
+
       {/* Basic Meta Tags */}
       <title>{title}</title>
       <meta name="description" content={description} />
@@ -68,6 +90,11 @@ export default function SEOHead({
       )}
       <meta name="author" content="Inbang Today" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta
+        name="google-site-verification"
+        content="YOUR_GOOGLE_VERIFICATION_CODE"
+      />
+      <link rel="icon" href="/favicon.ico" />
 
       {/* Robots */}
       {shouldNoIndex ? (
@@ -114,6 +141,16 @@ export default function SEOHead({
           }}
         />
       )}
+
+      {/* Additional Meta Tags */}
+      {additionalMetaTags.map((tag, index) => (
+        <meta
+          key={index}
+          name={tag.name}
+          property={tag.property}
+          content={tag.content}
+        />
+      ))}
     </Head>
   );
 }

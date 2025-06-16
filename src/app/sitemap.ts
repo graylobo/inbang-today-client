@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://seujinsa.com";
+  const baseUrl = "https://www.inbangtoday.com";
 
   // 정적 페이지들
   const staticPages = [

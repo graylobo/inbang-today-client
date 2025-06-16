@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "왼손생산",
     description: "스타크래프트,왼손생산,스타컨트롤",
-    url: "https://seujinsa.com/starcraft/left-control",
+    url: "https://www.inbangtoday.com/starcraft/left-control",
     siteName: "Inbang Today",
   },
 };

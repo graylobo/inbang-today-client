@@ -23,11 +23,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "엑셀 크루 랭킹 - 스타크래프트 엑셀방송 순위",
     description: "스타크래프트 엑셀방송 크루들의 실시간 랭킹을 확인하세요.",
-    url: "https://seujinsa.com",
+    url: "https://www.inbangtoday.com",
     type: "website",
   },
   alternates: {
-    canonical: "https://seujinsa.com",
+    canonical: "https://www.inbangtoday.com",
   },
 };
 
@@ -41,7 +41,7 @@ export default function Home() {
     "@type": "WebApplication",
     name: "Inbang Today",
     description: "스타크래프트 스타티어표, 엑셀방송 랭킹 정보 제공",
-    url: "https://seujinsa.com",
+    url: "https://www.inbangtoday.com",
     applicationCategory: "GameApplication",
     operatingSystem: "Any",
     offers: {

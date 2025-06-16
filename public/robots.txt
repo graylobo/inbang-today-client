@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://seujinsa.com/sitemap.xml
+Sitemap: https://www.inbangtoday.com/sitemap.xml
 
 # Allow specific pages for better indexing
 Allow: /star-tier

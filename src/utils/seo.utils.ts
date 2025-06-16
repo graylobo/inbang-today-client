@@ -17,7 +17,7 @@ export function generateMetadata({
   ogImage = "/images/og-image.jpg",
   noindex = false,
 }: SEOConfig): Metadata {
-  const baseUrl = "https://seujinsa.com";
+  const baseUrl = "https://www.inbangtoday.com";
   const fullCanonicalUrl = canonicalUrl ? `${baseUrl}${canonicalUrl}` : baseUrl;
   const fullOgImage = `${baseUrl}${ogImage}`;
 
@@ -105,13 +105,14 @@ export function generateWebsiteSchema() {
     "@type": "WebSite",
     name: "Inbang Today",
     alternateName: "인방투데이",
-    url: "https://seujinsa.com",
+    url: "https://www.inbangtoday.com",
     description: "스타크래프트 스타티어표, 엑셀방송 랭킹 정보",
     potentialAction: {
       "@type": "SearchAction",
       target: {
         "@type": "EntryPoint",
-        urlTemplate: "https://seujinsa.com/search?q={search_term_string}",
+        urlTemplate:
+          "https://www.inbangtoday.com/search?q={search_term_string}",
       },
       "query-input": "required name=search_term_string",
     },
@@ -145,7 +146,7 @@ export function generateGameRankingSchema(gameName: string, rankings: any[]) {
     startDate: new Date().toISOString(),
     location: {
       "@type": "VirtualLocation",
-      url: "https://seujinsa.com",
+      url: "https://www.inbangtoday.com",
     },
     organizer: {
       "@type": "Organization",

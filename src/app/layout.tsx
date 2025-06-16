@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://seujinsa.com"),
+  metadataBase: new URL("https://www.inbangtoday.com"),
   alternates: {
     canonical: "/",
   },
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
     title: "Inbang Today - 스타크래프트 스타티어표, 엑셀방송 랭킹",
     description:
       "스타크래프트 스타티어표, 엑셀방송 랭킹, 프로게이머 정보를 실시간으로 확인하세요. 숲 엑셀부터 최신 경기 결과까지!",
-    url: "https://seujinsa.com",
+    url: "https://www.inbangtoday.com",
     siteName: "Inbang Today",
     type: "website",
     locale: "ko_KR",
@@ -86,7 +86,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        <link rel="canonical" href="https://seujinsa.com" />
+        <link rel="canonical" href="https://www.inbangtoday.com" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </head>
