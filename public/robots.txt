@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://seujinsa.com/sitemap.xml
+
+# Allow specific pages for better indexing
+Allow: /star-tier
+Allow: /starcraft/
+Allow: /boards/
+
+# Block admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /user/profile/
+Disallow: /auth/
+
+# Crawl delay for respectful crawling
+Crawl-delay: 1 
