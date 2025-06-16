@@ -36,6 +36,7 @@ export default function SEOHead({
   pageType = "main",
   additionalMetaTags = [],
 }: SEOHeadProps) {
+  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   // 페이지 타입별 기본 키워드 설정
   const getDefaultKeywords = () => {
     switch (pageType) {
@@ -67,20 +68,24 @@ export default function SEOHead({
   return (
     <Head>
       {/* Google Analytics 4 */}
-      <script
-        async
-        src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"
-      />
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'GA_MEASUREMENT_ID');
-          `,
-        }}
-      />
+      {GA_MEASUREMENT_ID && (
+        <>
+          <script
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          />
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}');
+              `,
+            }}
+          />
+        </>
+      )}
 
       {/* Basic Meta Tags */}
       <title>{title}</title>
@@ -90,10 +95,6 @@ export default function SEOHead({
       )}
       <meta name="author" content="Inbang Today" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <meta
-        name="google-site-verification"
-        content="YOUR_GOOGLE_VERIFICATION_CODE"
-      />
       <link rel="icon" href="/favicon.ico" />
 
       {/* Robots */}
