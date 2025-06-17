@@ -105,7 +105,19 @@ export default function PostPage(props: { params: PostPageParams }) {
           <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400 mb-6">
             <div className="flex items-center gap-2">
               <div className="flex items-center">
-                <UserIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                {post.author?.image ? (
+                  <img
+                    src={post.author.image}
+                    alt="Profile"
+                    className="w-6 h-6 rounded-full object-cover mr-1.5 flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-6 h-6 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mr-1.5 flex-shrink-0">
+                    <span className="text-gray-500 dark:text-gray-400 text-xs">
+                      {post.author?.name?.[0] || post.authorName?.[0] || "?"}
+                    </span>
+                  </div>
+                )}
                 <span className="leading-none align-middle">
                   {post.author ? post.author.name : post.authorName}
                   {post.board.isAnonymous && post.ipAddress && (
