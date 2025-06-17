@@ -106,8 +106,8 @@ function NavBar() {
               <PopoverTrigger asChild>
                 <button className="rounded-full outline-none ring-offset-2 transition-all hover:ring-2 ring-blue-400">
                   <Avatar>
-                    {user.image && (
-                      <AvatarImage src={user.image} alt={user.name} />
+                    {user.profileImage && (
+                      <AvatarImage src={user.profileImage} alt={user.name} />
                     )}
                     <AvatarFallback>
                       {user.name?.[0]?.toUpperCase()}

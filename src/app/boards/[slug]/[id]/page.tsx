@@ -1,31 +1,32 @@
 "use client";
 
-import Link from "next/link";
-import { useAuthStore } from "@/store/authStore";
 import CommentSection from "@/components/board/CommentSection";
-import { usePost, useDeletePost } from "@/hooks/board/useBoards";
+import Divider from "@/components/common/divider/Divider";
+import { PostDetailSkeleton } from "@/components/ui/skeleton";
+import { useDeletePost, usePost } from "@/hooks/board/useBoards";
 import {
-  usePostLikeStatus,
   usePostLikeCounts,
+  usePostLikeStatus,
   useTogglePostLike,
 } from "@/hooks/board/useLikes";
-import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/authStore";
+import { formatDate } from "@/utils/date.utils";
 import { maskIpAddress } from "@/utils/ipUtils";
-import { use } from "react";
-import { UserIcon, EyeIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import {
-  HandThumbUpIcon,
+  CalendarIcon,
+  EyeIcon,
   HandThumbDownIcon,
+  HandThumbUpIcon,
 } from "@heroicons/react/24/outline";
 import {
-  HandThumbUpIcon as HandThumbUpIconSolid,
   HandThumbDownIcon as HandThumbDownIconSolid,
+  HandThumbUpIcon as HandThumbUpIconSolid,
 } from "@heroicons/react/24/solid";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { use } from "react";
 import styles from "./index.module.scss";
-import Divider from "@/components/common/divider/Divider";
-import { cn } from "@/lib/utils";
-import { formatDate } from "@/utils/date.utils";
-import { PostDetailSkeleton } from "@/components/ui/skeleton";
 
 type PostPageParams = Promise<{
   slug: string;
@@ -73,6 +74,8 @@ export default function PostPage(props: { params: PostPageParams }) {
     }
   };
 
+  console.log("post.author::", post.author);
+
   return (
     <div className={styles.container}>
       <div className="mb-10 flex justify-between items-center">
@@ -105,9 +108,9 @@ export default function PostPage(props: { params: PostPageParams }) {
           <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400 mb-6">
             <div className="flex items-center gap-2">
               <div className="flex items-center">
-                {post.author?.image ? (
+                {post.author?.profileImage ? (
                   <img
-                    src={post.author.image}
+                    src={post.author.profileImage}
                     alt="Profile"
                     className="w-6 h-6 rounded-full object-cover mr-1.5 flex-shrink-0"
                   />

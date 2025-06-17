@@ -31,7 +31,7 @@ export function useUpdateProfileImage() {
           user: state.user
             ? {
                 ...state.user,
-                image: data.data.profileImage,
+                profileImage: data.data.profileImage,
               }
             : null,
         }));

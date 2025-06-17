@@ -10,7 +10,7 @@ export interface User {
   createdAt: string;
   isAdmin: boolean;
   isSuperAdmin: boolean;
-  image?: string;
+  profileImage?: string;
 }
 
 interface AuthState {
@@ -59,6 +59,7 @@ export const useAuthStore = create<AuthState>()(
             name: user?.name || "",
             createdAt: user?.createdAt || "",
             isSuperAdmin: user?.isSuperAdmin || false,
+            profileImage: user?.profileImage,
           },
           isAdmin: user?.isAdmin || false,
           isSuperAdmin: user?.isSuperAdmin || false,

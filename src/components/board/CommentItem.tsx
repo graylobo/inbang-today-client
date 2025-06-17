@@ -113,9 +113,9 @@ export default function CommentItem({
     <div className="flex space-x-3">
       <div className="flex-shrink-0">
         {!post.board.isAnonymous || comment.author ? (
-          comment.author?.image ? (
+          comment.author?.profileImage ? (
             <Image
-              src={comment.author.image}
+              src={comment.author.profileImage}
               alt="Profile"
               width={40}
               height={40}
