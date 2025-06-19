@@ -10,18 +10,21 @@ import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useUserRank, useUserBadges } from "@/api-hooks/rank.hooks";
 import { RankInfo } from "@/components/rank/RankInfo";
+import { useUpdateNickname } from "@/hooks/auth/useAuthHooks";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 export default function ProfilePage() {
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const [isEditing, setIsEditing] = useState(false);
   const [nickname, setNickname] = useState(user?.name || "");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: rank } = useUserRank();
   const { data: badges } = useUserBadges();
+  const { mutate: updateNickname, isPending: isUpdatingNickname } =
+    useUpdateNickname();
 
   useEffect(() => {
     if (user?.name) {
@@ -39,8 +42,28 @@ export default function ProfilePage() {
   };
 
   const handleSave = async () => {
-    // TODO: API call to update nickname
-    setIsEditing(false);
+    if (nickname.trim() === "") {
+      toast.error("닉네임을 입력해주세요.");
+      return;
+    }
+
+    if (nickname === user?.name) {
+      setIsEditing(false);
+      return;
+    }
+
+    updateNickname(nickname, {
+      onSuccess: (updatedUser) => {
+        toast.success("닉네임이 성공적으로 변경되었습니다.");
+        setUser({ ...user, ...updatedUser });
+        setIsEditing(false);
+      },
+      onError: (error: any) => {
+        console.error("닉네임 업데이트 에러:", error);
+        toast.error(error.message || "닉네임 변경에 실패했습니다.");
+        setNickname(user?.name || "");
+      },
+    });
   };
 
   const { mutate: uploadImage, isPending } = useUpdateProfileImage();
@@ -134,10 +157,16 @@ export default function ProfilePage() {
         <div className="flex justify-end space-x-4">
           {isEditing ? (
             <>
-              <Button variant="outline" onClick={handleCancel}>
+              <Button
+                variant="outline"
+                onClick={handleCancel}
+                disabled={isUpdatingNickname}
+              >
                 취소
               </Button>
-              <Button onClick={handleSave}>저장</Button>
+              <Button onClick={handleSave} disabled={isUpdatingNickname}>
+                {isUpdatingNickname ? "저장 중..." : "저장"}
+              </Button>
             </>
           ) : (
             <Button onClick={handleEdit}>수정</Button>

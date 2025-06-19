@@ -7,7 +7,7 @@ import {
   getTempUserInfo,
 } from "@/libs/api/services/auth.service";
 import { User } from "@/store/authStore";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface VerifyNicknameResponse {
   isAvailable: boolean;
@@ -35,6 +35,8 @@ export function useVerifyNickname(nickname: string, enabled: boolean = true) {
 }
 
 export function useUpdateNickname() {
+  const queryClient = useQueryClient();
+
   return useMutation<User, Error, string>({
     mutationFn: async (nickname: string) => {
       try {
@@ -45,6 +47,12 @@ export function useUpdateNickname() {
         console.error("닉네임 업데이트 에러:", error);
         throw error;
       }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+    },
+    onError: (error) => {
+      console.error("Nickname update failed:", error);
     },
   });
 }
