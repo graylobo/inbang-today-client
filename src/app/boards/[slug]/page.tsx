@@ -118,7 +118,7 @@ export default function BoardPage(props: { params: BoardPageParams }) {
                     <p className="dark:text-gray-100">
                       <span className="mr-2">{`${post.title}`}</span>
                       {post.comments.length > 0 && (
-                        <span className="text-blue-500 dark:text-gray-400">
+                        <span className="text-blue-500 dark:text-blue-400 text-sm">
                           [{post.comments.length}]
                         </span>
                       )}

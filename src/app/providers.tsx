@@ -13,6 +13,8 @@ export const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: 1,
+      staleTime: 1000 * 60 * 1, // 1분 동안 캐시 유지
+      gcTime: 1000 * 60 * 10, // 10분 동안 메모리에 보관
     },
   },
 });
