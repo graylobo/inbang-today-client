@@ -11,6 +11,11 @@ export interface LikeCounts {
   dislikes: number;
 }
 
+export interface ToggleLikeResponse {
+  status: LikeStatus;
+  counts: LikeCounts;
+}
+
 export async function getPostLikeStatus(postId: number): Promise<LikeStatus> {
   const route = API_ROUTES.likes.posts.getStatus;
   return await apiRequest({
@@ -30,7 +35,7 @@ export async function getPostLikeCounts(postId: number): Promise<LikeCounts> {
 export async function togglePostLike(
   postId: number,
   action: "like" | "dislike"
-): Promise<void> {
+): Promise<ToggleLikeResponse> {
   const route = API_ROUTES.likes.posts[action];
   return await apiRequest({
     url: createUrl(route.url, { params: { postId } }),
