@@ -11,12 +11,39 @@
   width: 1050px;
 }
 
+:global(.dark) .genderTabs {
+  background-color: #1f2937;
+  border-bottom: 1px solid #374151;
+}
+
 .genderTabButton {
   padding: 0.75rem 1.5rem;
   font-weight: 500;
+  color: #374151;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #3b82f6;
+  }
 
   &.active {
     border-bottom: 2px solid #3b82f6;
+    color: #3b82f6;
+  }
+}
+
+:global(.dark) .genderTabButton {
+  color: #d1d5db;
+
+  &:hover {
+    color: #60a5fa;
+  }
+
+  &.active {
+    color: #60a5fa;
   }
 }
 
