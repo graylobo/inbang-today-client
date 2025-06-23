@@ -5,9 +5,7 @@ import Divider from "@/components/common/divider/Divider";
 import { PostDetailSkeleton } from "@/components/ui/skeleton";
 import { useDeletePost, usePost } from "@/hooks/board/useBoards";
 import {
-  usePostLikeCounts,
-  usePostLikeStatus,
-  useTogglePostLike,
+  useOptimisticPostLike
 } from "@/hooks/board/useLikes";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
@@ -40,10 +38,12 @@ export default function PostPage(props: { params: PostPageParams }) {
   const { user } = useAuthStore();
   const router = useRouter();
   const { data: post, isLoading } = usePost(postId);
-  const { data: likeStatus } = usePostLikeStatus(postId);
-  const { data: likeCounts = { likes: 0, dislikes: 0 } } =
-    usePostLikeCounts(postId);
-  const toggleLike = useTogglePostLike();
+  const {
+    status: likeStatus,
+    counts: likeCounts,
+    toggleLike,
+    isLoading: likeLoading,
+  } = useOptimisticPostLike(postId);
 
   const deletePost = useDeletePost(() => {
     router.push(`/boards/${slug}`);
@@ -66,12 +66,8 @@ export default function PostPage(props: { params: PostPageParams }) {
     }
   };
 
-  const handleLikeClick = async (action: "like" | "dislike") => {
-    try {
-      await toggleLike.mutateAsync({ postId, action });
-    } catch (error) {
-      console.error("좋아요/싫어요 처리 실패:", error);
-    }
+  const handleLikeClick = (action: "like" | "dislike") => {
+    toggleLike(action);
   };
 
   console.log("post.author::", post.author);

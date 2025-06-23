@@ -1,12 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  LikeStatus,
   LikeCounts,
+  LikeStatus,
   ToggleLikeResponse,
-  getPostLikeStatus,
   getPostLikeCounts,
+  getPostLikeStatus,
   togglePostLike,
 } from "@/libs/api/services/likes.service";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // 게시글 좋아요/싫어요 상태 조회
 export const usePostLikeStatus = (postId: number) => {
@@ -27,7 +28,149 @@ export const usePostLikeCounts = (postId: number) => {
   });
 };
 
-// 게시글 좋아요 토글
+// 🚀 빠른 클릭 대응 좋아요 훅 (유튜브 방식)
+export const useOptimisticPostLike = (postId: number) => {
+  const queryClient = useQueryClient();
+
+  // 서버 데이터 가져오기
+  const { data: serverStatus } = usePostLikeStatus(postId);
+  const { data: serverCounts } = usePostLikeCounts(postId);
+
+  // 로컬 상태 (즉시 반응용)
+  const [localStatus, setLocalStatus] = useState<LikeStatus | null>(null);
+  const [localCounts, setLocalCounts] = useState<LikeCounts | null>(null);
+
+  // 디바운스용 타이머
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const lastAction = useRef<{
+    action: "like" | "dislike";
+    timestamp: number;
+  } | null>(null);
+
+  // 서버 상태로 로컬 상태 초기화
+  useEffect(() => {
+    if (serverStatus && !localStatus) {
+      setLocalStatus(serverStatus);
+    }
+  }, [serverStatus, localStatus]);
+
+  useEffect(() => {
+    if (serverCounts && !localCounts) {
+      setLocalCounts(serverCounts);
+    }
+  }, [serverCounts, localCounts]);
+
+  // 실제 서버 요청 mutation
+  const serverMutation = useMutation({
+    mutationFn: async ({ action }: { action: "like" | "dislike" }) => {
+      return await togglePostLike(postId, action);
+    },
+    onSuccess: (response: ToggleLikeResponse) => {
+      // 서버 응답으로 캐시 업데이트
+      queryClient.setQueryData(["postLikeStatus", postId], response.status);
+      queryClient.setQueryData(["postLikeCounts", postId], response.counts);
+
+      // 로컬 상태도 서버 상태로 동기화
+      setLocalStatus(response.status);
+      setLocalCounts(response.counts);
+    },
+    onError: () => {
+      // 실패시 서버 상태로 롤백
+      if (serverStatus) setLocalStatus(serverStatus);
+      if (serverCounts) setLocalCounts(serverCounts);
+    },
+  });
+
+  // 🎯 즉시 UI 업데이트 + 디바운싱된 서버 요청
+  const handleToggle = useCallback(
+    (action: "like" | "dislike") => {
+      if (!localStatus || !localCounts) return;
+
+      // 1. 즉시 로컬 상태 업데이트 ⚡
+      let newStatus: LikeStatus;
+      let newCounts: LikeCounts;
+
+      if (action === "like") {
+        if (localStatus.liked) {
+          // 좋아요 취소
+          newStatus = { liked: false, disliked: false };
+          newCounts = {
+            ...localCounts,
+            likes: Math.max(0, localCounts.likes - 1),
+          };
+        } else if (localStatus.disliked) {
+          // 싫어요 → 좋아요
+          newStatus = { liked: true, disliked: false };
+          newCounts = {
+            likes: localCounts.likes + 1,
+            dislikes: Math.max(0, localCounts.dislikes - 1),
+          };
+        } else {
+          // 처음 좋아요
+          newStatus = { liked: true, disliked: false };
+          newCounts = { ...localCounts, likes: localCounts.likes + 1 };
+        }
+      } else {
+        // dislike
+        if (localStatus.disliked) {
+          // 싫어요 취소
+          newStatus = { liked: false, disliked: false };
+          newCounts = {
+            ...localCounts,
+            dislikes: Math.max(0, localCounts.dislikes - 1),
+          };
+        } else if (localStatus.liked) {
+          // 좋아요 → 싫어요
+          newStatus = { liked: false, disliked: true };
+          newCounts = {
+            likes: Math.max(0, localCounts.likes - 1),
+            dislikes: localCounts.dislikes + 1,
+          };
+        } else {
+          // 처음 싫어요
+          newStatus = { liked: false, disliked: true };
+          newCounts = { ...localCounts, dislikes: localCounts.dislikes + 1 };
+        }
+      }
+
+      setLocalStatus(newStatus);
+      setLocalCounts(newCounts);
+
+      // 2. 디바운싱된 서버 요청 📡
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+
+      lastAction.current = { action, timestamp: Date.now() };
+
+      debounceTimer.current = setTimeout(() => {
+        if (lastAction.current && !serverMutation.isPending) {
+          serverMutation.mutate({ action: lastAction.current.action });
+        }
+      }, 500); // 0.5초 디바운스
+    },
+    [localStatus, localCounts, serverMutation]
+  );
+
+  // 컴포넌트 언마운트시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+    };
+  }, []);
+
+  return {
+    // 로컬 상태 우선, 없으면 서버 상태
+    status: localStatus || serverStatus || { liked: false, disliked: false },
+    counts: localCounts || serverCounts || { likes: 0, dislikes: 0 },
+    toggleLike: handleToggle,
+    isLoading: serverMutation.isPending,
+  };
+};
+
+// 기존 좋아요 토글 (호환성 유지)
 export const useTogglePostLike = () => {
   const queryClient = useQueryClient();
 
