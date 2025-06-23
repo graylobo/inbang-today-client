@@ -8,5 +8,6 @@ export const ERROR_MESSAGES: Record<string, string> = {
   [ErrorCode.NOT_FOUND_USER]: "존재하지 않는 유저입니다.",
   [ErrorCode.DUPLICATE_BROADCAST_DATE]: "이미 존재하는 방송 날짜입니다.",
   [ErrorCode.UNAUTHORIZED]: "로그인이 필요합니다.",
+  [ErrorCode.AUTHENTICATION_REQUIRED]: "로그인이 필요합니다.",
   DEFAULT: "오류가 발생했습니다. 다시 시도해 주세요.",
 };

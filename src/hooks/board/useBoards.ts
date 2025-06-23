@@ -164,6 +164,9 @@ export const useCreateComment = (onSuccess?: () => void) => {
       });
       onSuccess?.();
     },
+    onError: (error) => {
+      alert(getErrorMessage(error));
+    },
   });
 };
 
@@ -177,6 +180,9 @@ export const useCreateReply = (onSuccess?: () => void) => {
         queryKey: ["comments", variables.postId],
       });
       onSuccess?.();
+    },
+    onError: (error) => {
+      alert(getErrorMessage(error));
     },
   });
 };
