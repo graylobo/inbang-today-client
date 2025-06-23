@@ -40,12 +40,9 @@ export const useOptimisticPostLike = (postId: number) => {
   const [localStatus, setLocalStatus] = useState<LikeStatus | null>(null);
   const [localCounts, setLocalCounts] = useState<LikeCounts | null>(null);
 
-  // 디바운스용 타이머
+  // 디바운스용 타이머 및 상태 추적
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
-  const lastAction = useRef<{
-    action: "like" | "dislike";
-    timestamp: number;
-  } | null>(null);
+  const isSyncingRef = useRef(false);
 
   // 서버 상태로 로컬 상태 초기화
   useEffect(() => {
@@ -73,15 +70,58 @@ export const useOptimisticPostLike = (postId: number) => {
       // 로컬 상태도 서버 상태로 동기화
       setLocalStatus(response.status);
       setLocalCounts(response.counts);
+      isSyncingRef.current = false;
     },
     onError: () => {
       // 실패시 서버 상태로 롤백
       if (serverStatus) setLocalStatus(serverStatus);
       if (serverCounts) setLocalCounts(serverCounts);
+      isSyncingRef.current = false;
     },
   });
 
-  // 🎯 즉시 UI 업데이트 + 디바운싱된 서버 요청
+  // 🔄 서버와 로컬 상태 동기화 함수
+  const syncWithServer = useCallback(() => {
+    if (!localStatus || !serverStatus || isSyncingRef.current) return;
+
+    // 현재 로컬 상태와 서버 상태 비교
+    const localLiked = localStatus.liked;
+    const localDisliked = localStatus.disliked;
+    const serverLiked = serverStatus.liked;
+    const serverDisliked = serverStatus.disliked;
+
+    // 상태가 같으면 서버 요청 불필요
+    if (localLiked === serverLiked && localDisliked === serverDisliked) {
+      return;
+    }
+
+    isSyncingRef.current = true;
+
+    // 🎯 로컬 상태에 맞는 action 계산
+    let actionToSend: "like" | "dislike";
+
+    if (localLiked && !serverLiked) {
+      // 로컬: 좋아요, 서버: 좋아요 안됨 → like 전송
+      actionToSend = "like";
+    } else if (!localLiked && serverLiked) {
+      // 로컬: 좋아요 안됨, 서버: 좋아요됨 → like 전송 (토글로 취소)
+      actionToSend = "like";
+    } else if (localDisliked && !serverDisliked) {
+      // 로컬: 싫어요, 서버: 싫어요 안됨 → dislike 전송
+      actionToSend = "dislike";
+    } else if (!localDisliked && serverDisliked) {
+      // 로컬: 싫어요 안됨, 서버: 싫어요됨 → dislike 전송 (토글로 취소)
+      actionToSend = "dislike";
+    } else {
+      // 예상치 못한 상태
+      isSyncingRef.current = false;
+      return;
+    }
+
+    serverMutation.mutate({ action: actionToSend });
+  }, [localStatus, serverStatus, serverMutation]);
+
+  // 🎯 즉시 UI 업데이트 + 디바운싱된 서버 동기화
   const handleToggle = useCallback(
     (action: "like" | "dislike") => {
       if (!localStatus || !localCounts) return;
@@ -136,20 +176,16 @@ export const useOptimisticPostLike = (postId: number) => {
       setLocalStatus(newStatus);
       setLocalCounts(newCounts);
 
-      // 2. 디바운싱된 서버 요청 📡
+      // 2. 디바운싱된 서버 동기화 📡
       if (debounceTimer.current) {
         clearTimeout(debounceTimer.current);
       }
 
-      lastAction.current = { action, timestamp: Date.now() };
-
       debounceTimer.current = setTimeout(() => {
-        if (lastAction.current && !serverMutation.isPending) {
-          serverMutation.mutate({ action: lastAction.current.action });
-        }
+        syncWithServer();
       }, 500); // 0.5초 디바운스
     },
-    [localStatus, localCounts, serverMutation]
+    [localStatus, localCounts, syncWithServer]
   );
 
   // 컴포넌트 언마운트시 타이머 정리
