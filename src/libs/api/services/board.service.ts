@@ -1,4 +1,3 @@
-"use server";
 import { apiRequest } from "@/libs/api/api-request";
 import { API_ROUTES } from "@/libs/api/route";
 import { User } from "@/store/authStore";

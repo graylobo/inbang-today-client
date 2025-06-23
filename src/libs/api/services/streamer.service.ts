@@ -1,4 +1,3 @@
-"use server";
 import { StreamerFormData } from "@/app/admin/members/page";
 import { apiRequest } from "@/libs/api/api-request";
 import { api } from "@/libs/api/axios";

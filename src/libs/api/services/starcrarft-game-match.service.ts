@@ -1,5 +1,3 @@
-"use server";
-
 import { StarCraftMatchQuery } from "@/hooks/match/useStarCraftMatch.type";
 import { api } from "@/libs/api/axios";
 

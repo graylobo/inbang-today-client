@@ -1,5 +1,3 @@
-"use server";
-
 import { CrewFormData } from "@/app/admin/crews/page";
 import { SignatureFormData } from "@/app/admin/signatures/page";
 import { apiRequest } from "@/libs/api/api-request";

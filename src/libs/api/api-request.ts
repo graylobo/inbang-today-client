@@ -1,5 +1,3 @@
-"use server";
-
 import { api } from "@/libs/api/axios";
 import { createUrl, PathParamsObject, RouteDefinition } from "@/libs/api/route";
 
