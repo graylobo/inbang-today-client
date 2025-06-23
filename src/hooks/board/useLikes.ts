@@ -28,7 +28,7 @@ export const usePostLikeCounts = (postId: number) => {
   });
 };
 
-// 🚀 빠른 클릭 대응 좋아요 훅 (유튜브 방식)
+// 🚀 유튜브 방식 좋아요 훅 (매 클릭마다 서버 요청 + Race Condition 해결)
 export const useOptimisticPostLike = (postId: number) => {
   const queryClient = useQueryClient();
 
@@ -40,9 +40,9 @@ export const useOptimisticPostLike = (postId: number) => {
   const [localStatus, setLocalStatus] = useState<LikeStatus | null>(null);
   const [localCounts, setLocalCounts] = useState<LikeCounts | null>(null);
 
-  // 디바운스용 타이머 및 상태 추적
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
-  const isSyncingRef = useRef(false);
+  // Race condition 해결을 위한 요청 추적
+  const lastRequestId = useRef<number>(0);
+  const abortController = useRef<AbortController | null>(null);
 
   // 서버 상태로 로컬 상태 초기화
   useEffect(() => {
@@ -57,76 +57,21 @@ export const useOptimisticPostLike = (postId: number) => {
     }
   }, [serverCounts, localCounts]);
 
-  // 실제 서버 요청 mutation
-  const serverMutation = useMutation({
-    mutationFn: async ({ action }: { action: "like" | "dislike" }) => {
-      return await togglePostLike(postId, action);
-    },
-    onSuccess: (response: ToggleLikeResponse) => {
-      // 서버 응답으로 캐시 업데이트
-      queryClient.setQueryData(["postLikeStatus", postId], response.status);
-      queryClient.setQueryData(["postLikeCounts", postId], response.counts);
-
-      // 로컬 상태도 서버 상태로 동기화
-      setLocalStatus(response.status);
-      setLocalCounts(response.counts);
-      isSyncingRef.current = false;
-    },
-    onError: () => {
-      // 실패시 서버 상태로 롤백
-      if (serverStatus) setLocalStatus(serverStatus);
-      if (serverCounts) setLocalCounts(serverCounts);
-      isSyncingRef.current = false;
-    },
-  });
-
-  // 🔄 서버와 로컬 상태 동기화 함수
-  const syncWithServer = useCallback(() => {
-    if (!localStatus || !serverStatus || isSyncingRef.current) return;
-
-    // 현재 로컬 상태와 서버 상태 비교
-    const localLiked = localStatus.liked;
-    const localDisliked = localStatus.disliked;
-    const serverLiked = serverStatus.liked;
-    const serverDisliked = serverStatus.disliked;
-
-    // 상태가 같으면 서버 요청 불필요
-    if (localLiked === serverLiked && localDisliked === serverDisliked) {
-      return;
-    }
-
-    isSyncingRef.current = true;
-
-    // 🎯 로컬 상태에 맞는 action 계산
-    let actionToSend: "like" | "dislike";
-
-    if (localLiked && !serverLiked) {
-      // 로컬: 좋아요, 서버: 좋아요 안됨 → like 전송
-      actionToSend = "like";
-    } else if (!localLiked && serverLiked) {
-      // 로컬: 좋아요 안됨, 서버: 좋아요됨 → like 전송 (토글로 취소)
-      actionToSend = "like";
-    } else if (localDisliked && !serverDisliked) {
-      // 로컬: 싫어요, 서버: 싫어요 안됨 → dislike 전송
-      actionToSend = "dislike";
-    } else if (!localDisliked && serverDisliked) {
-      // 로컬: 싫어요 안됨, 서버: 싫어요됨 → dislike 전송 (토글로 취소)
-      actionToSend = "dislike";
-    } else {
-      // 예상치 못한 상태
-      isSyncingRef.current = false;
-      return;
-    }
-
-    serverMutation.mutate({ action: actionToSend });
-  }, [localStatus, serverStatus, serverMutation]);
-
-  // 🎯 즉시 UI 업데이트 + 디바운싱된 서버 동기화
+  // 🎯 유튜브 방식: 매 클릭마다 즉시 서버 요청
   const handleToggle = useCallback(
-    (action: "like" | "dislike") => {
+    async (action: "like" | "dislike") => {
       if (!localStatus || !localCounts) return;
 
-      // 1. 즉시 로컬 상태 업데이트 ⚡
+      // 1. 이전 요청 취소 (Race Condition 방지)
+      if (abortController.current) {
+        abortController.current.abort();
+      }
+      abortController.current = new AbortController();
+
+      // 2. 현재 요청에 고유 ID 부여
+      const currentRequestId = ++lastRequestId.current;
+
+      // 3. 즉시 로컬 상태 업데이트 ⚡ (낙관적 업데이트)
       let newStatus: LikeStatus;
       let newCounts: LikeCounts;
 
@@ -176,23 +121,41 @@ export const useOptimisticPostLike = (postId: number) => {
       setLocalStatus(newStatus);
       setLocalCounts(newCounts);
 
-      // 2. 디바운싱된 서버 동기화 📡
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
-      }
+      // 4. 즉시 서버 요청 📡 (유튜브 방식)
+      try {
+        const response = await togglePostLike(postId, action);
 
-      debounceTimer.current = setTimeout(() => {
-        syncWithServer();
-      }, 500); // 0.5초 디바운스
+        // 5. 가장 최신 요청인지 확인 (Race Condition 방지)
+        if (currentRequestId === lastRequestId.current) {
+          // 서버 응답으로 캐시 및 로컬 상태 업데이트
+          queryClient.setQueryData(["postLikeStatus", postId], response.status);
+          queryClient.setQueryData(["postLikeCounts", postId], response.counts);
+          setLocalStatus(response.status);
+          setLocalCounts(response.counts);
+        }
+        // else: 더 최신 요청이 있으므로 이 응답은 무시
+      } catch (error) {
+        // 6. 에러 처리: 요청이 취소된 것이 아니라면 롤백
+        if (
+          currentRequestId === lastRequestId.current &&
+          !abortController.current?.signal.aborted
+        ) {
+          // 가장 최신 요청이고 취소되지 않은 에러라면 롤백
+          if (serverStatus) setLocalStatus(serverStatus);
+          if (serverCounts) setLocalCounts(serverCounts);
+
+          console.error("좋아요 처리 실패:", error);
+        }
+      }
     },
-    [localStatus, localCounts, syncWithServer]
+    [localStatus, localCounts, postId, queryClient, serverStatus, serverCounts]
   );
 
-  // 컴포넌트 언마운트시 타이머 정리
+  // 컴포넌트 언마운트시 요청 취소
   useEffect(() => {
     return () => {
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current);
+      if (abortController.current) {
+        abortController.current.abort();
       }
     };
   }, []);
@@ -202,7 +165,7 @@ export const useOptimisticPostLike = (postId: number) => {
     status: localStatus || serverStatus || { liked: false, disliked: false },
     counts: localCounts || serverCounts || { likes: 0, dislikes: 0 },
     toggleLike: handleToggle,
-    isLoading: serverMutation.isPending,
+    isLoading: false, // 로컬 상태는 항상 즉시 업데이트되므로 로딩 없음
   };
 };
 
