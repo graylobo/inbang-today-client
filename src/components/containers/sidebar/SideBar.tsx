@@ -26,7 +26,7 @@ const menuItems = [
     icon: "/common/community.jpg",
     primaryText: "커뮤니티",
     subItems: [
-      { primaryText: "익명 게시판", href: "/boards/anonymous" },
+      // { primaryText: "익명 게시판", href: "/boards/anonymous" },
       { primaryText: "자유 게시판", href: "/boards/free" },
     ],
   },
