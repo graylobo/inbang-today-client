@@ -3,6 +3,7 @@ import "./globals.css";
 import BaseLayout from "@/layouts/Base";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 export const metadata: Metadata = {
   title: {
@@ -83,34 +84,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
-
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
         <link rel="canonical" href="https://www.inbangtoday.com" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-
-        {/* Google Analytics 4 */}
-        {GA_MEASUREMENT_ID && (
-          <>
-            <script
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-            />
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  window.dataLayer = window.dataLayer || [];
-                  function gtag(){dataLayer.push(arguments);}
-                  gtag('js', new Date());
-                  gtag('config', '${GA_MEASUREMENT_ID}');
-                `,
-              }}
-            />
-          </>
-        )}
 
         {/* Google AdSense */}
         <script
@@ -120,6 +99,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`vsc-initialized ${GeistSans.className}`}>
+        <GoogleAnalytics />
         <Providers>
           <BaseLayout>{children}</BaseLayout>
         </Providers>
