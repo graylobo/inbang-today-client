@@ -5,6 +5,7 @@ export type RouteObject = { [key: string]: RouteDefinition | RouteObject };
 export const API_ROUTES = {
   auth: {
     login: { url: "/auth/login", method: "POST" },
+    logout: { url: "/auth/logout", method: "POST" },
     register: { url: "/auth/register", method: "POST" },
     verifyNickname: { url: "/auth/verify-nickname", method: "GET" },
     updateNickname: { url: "/auth/update-nickname", method: "POST" },

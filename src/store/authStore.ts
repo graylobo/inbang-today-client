@@ -69,16 +69,13 @@ export const useAuthStore = create<AuthState>()(
       },
       logout: async () => {
         try {
-          // 서버 사이드에서 쿠키 제거
+          // 서버에서 httpOnly 쿠키 제거
           await logoutApi();
-
-          // 클라이언트 사이드에서 쿠키 제거
-          document.cookie =
-            "access_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
 
           return set({
             user: null,
             token: null,
+            isAuthenticated: false,
             isAdmin: false,
             isSuperAdmin: false,
             authInitialized: true,
@@ -89,6 +86,7 @@ export const useAuthStore = create<AuthState>()(
           return set({
             user: null,
             token: null,
+            isAuthenticated: false,
             isAdmin: false,
             isSuperAdmin: false,
             authInitialized: true,

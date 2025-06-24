@@ -2,13 +2,6 @@ import { apiRequest } from "@/libs/api/api-request";
 import { API_ROUTES } from "@/libs/api/route";
 import { User } from "@/store/authStore";
 
-// 클라이언트 사이드 쿠키 유틸리티 함수들
-function setCookie(name: string, value: string, days: number = 7) {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;secure;samesite=strict`;
-}
-
 function getCookie(name: string): string | null {
   const nameEQ = name + "=";
   const ca = document.cookie.split(";");
@@ -20,19 +13,10 @@ function getCookie(name: string): string | null {
   return null;
 }
 
-function deleteCookie(name: string) {
-  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;`;
-}
-
 export async function login(username: string, password: string) {
   const data = await apiRequest(API_ROUTES.auth.login, {
     body: { name: username, password },
   });
-
-  // 클라이언트 사이드에서 쿠키 설정
-  if (typeof window !== "undefined" && data.access_token) {
-    setCookie("access_token", data.access_token);
-  }
 
   return data;
 }
@@ -89,11 +73,15 @@ export async function getTempUserInfo() {
 }
 
 export async function logout() {
-  // 클라이언트 사이드에서 쿠키 삭제
-  if (typeof window !== "undefined") {
-    deleteCookie("access_token");
+  try {
+    const result = await apiRequest(API_ROUTES.auth.logout);
+    return result;
+  } catch (error) {
+    console.error("로그아웃 중 오류 발생:", error);
+    // 서버 요청이 실패해도 클라이언트에서는 성공으로 처리
+    // (이미 토큰이 만료되었거나 네트워크 문제일 수 있음)
+    return { success: true };
   }
-  return { success: true };
 }
 
 export async function getProfile() {
