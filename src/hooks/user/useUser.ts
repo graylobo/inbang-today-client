@@ -1,9 +1,8 @@
-import { useAuthStore, User } from "@/store/authStore";
 import {
-  getUserProfile,
   getUsers,
-  updateProfileImage,
+  updateProfileImage
 } from "@/libs/api/services/user.service";
+import { useAuthStore, User } from "@/store/authStore";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 
