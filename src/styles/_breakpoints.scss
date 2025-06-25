@@ -8,7 +8,8 @@ $breakpoints: (
   "large-desktop": 1200px,
 );
 
-@mixin respond-to($breakpoint) {
+// ~이상
+@mixin respond-to-min($breakpoint) {
   @if map.has-key($breakpoints, $breakpoint) {
     @if meta.type-of(map.get($breakpoints, $breakpoint)) == "string" {
       @media #{map.get($breakpoints, $breakpoint)} {
@@ -23,8 +24,24 @@ $breakpoints: (
     @warn "Unknown breakpoint: #{$breakpoint}";
   }
 }
+// ~이하
+@mixin respond-to-max($breakpoint) {
+  @if map.has-key($breakpoints, $breakpoint) {
+    @if meta.type-of(map.get($breakpoints, $breakpoint)) == "string" {
+      @media #{map.get($breakpoints, $breakpoint)} {
+        @content;
+      }
+    } @else {
+      @media (max-width: map.get($breakpoints, $breakpoint)) {
+        @content;
+      }
+    }
+  } @else {
+    @warn "Unknown breakpoint: #{$breakpoint}";
+  }
+}
 
 // 사용 예시:
-// @include respond-to('tablet') {
+// @include respond-to-min('tablet') {
 //   font-size: 16px;
 // }

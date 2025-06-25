@@ -1,7 +1,7 @@
 @use "@/styles/mixins.scss" as *;
 
 .nav {
-  @include respond-to("desktop") {
+  @include respond-to-min("desktop") {
     margin-left: 240px;
   }
 }

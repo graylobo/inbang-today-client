@@ -1,5 +1,5 @@
 import { Providers } from "@/app/providers";
-import "./globals.css";
+import "./globals.scss";
 import BaseLayout from "@/layouts/Base";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";

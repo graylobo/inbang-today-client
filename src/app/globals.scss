@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "../styles/mixins.scss";
+
 @layer base {
   :root {
     --drawer-bg: #ffffff;
@@ -74,6 +76,11 @@
 
   body {
     @apply text-gray-900 dark:text-gray-100 bg-white dark:bg-dark-bg font-sans;
+
+    @include respond-to-max("tablet") {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
   }
 }
 
