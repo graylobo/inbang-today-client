@@ -8,8 +8,8 @@ import GoogleAnalytics from "@/components/GoogleAnalytics";
 export const metadata: Metadata = {
   title: {
     default:
-      "Inbang Today - 스타크래프트 스타티어표, 엑셀방송, 스타크래프트 랭킹",
-    template: "%s | Inbang Today",
+      "인방투데이 - 스타크래프트 스타티어표, 엑셀방송, 스타크래프트 랭킹",
+    template: "%s | 인방투데이",
   },
   description:
     "스타크래프트 스타티어표, 엑셀방송 랭킹, 스타크래프트 프로게이머 정보를 한곳에서! 숲 엑셀부터 최신 스타크래프트 경기 결과까지 실시간으로 확인하세요.",
@@ -28,9 +28,9 @@ export const metadata: Metadata = {
     "ASL",
     "KSL",
   ],
-  authors: [{ name: "Inbang Today" }],
-  creator: "Inbang Today",
-  publisher: "Inbang Today",
+  authors: [{ name: "인방투데이" }],
+  creator: "인방투데이",
+  publisher: "인방투데이",
   formatDetection: {
     email: false,
     address: false,
@@ -41,11 +41,11 @@ export const metadata: Metadata = {
     canonical: "/",
   },
   openGraph: {
-    title: "Inbang Today - 스타크래프트 스타티어표, 엑셀방송 랭킹",
+    title: "인방투데이 - 스타크래프트 스타티어표, 엑셀방송 랭킹",
     description:
       "스타크래프트 스타티어표, 엑셀방송 랭킹, 프로게이머 정보를 실시간으로 확인하세요. 숲 엑셀부터 최신 경기 결과까지!",
     url: "https://www.inbangtoday.com",
-    siteName: "Inbang Today",
+    siteName: "인방투데이",
     type: "website",
     locale: "ko_KR",
     images: [
@@ -53,13 +53,13 @@ export const metadata: Metadata = {
         url: "/images/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "Inbang Today - 스타크래프트 스타티어표",
+        alt: "인방투데이 - 스타크래프트 스타티어표",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Inbang Today - 스타크래프트 스타티어표, 엑셀방송",
+    title: "인방투데이 - 스타크래프트 스타티어표, 엑셀방송",
     description: "스타크래프트 스타티어표, 엑셀방송 랭킹 정보",
     images: ["/images/og-image.jpg"],
   },

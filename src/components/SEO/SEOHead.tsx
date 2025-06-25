@@ -24,7 +24,7 @@ interface SEOHeadProps {
 }
 
 export default function SEOHead({
-  title = "Inbang Today - 스타크래프트 스타티어표, 엑셀방송 랭킹",
+  title = "인방투데이 - 스타크래프트 스타티어표, 엑셀방송 랭킹",
   description = "스타크래프트 스타티어표, 엑셀방송 랭킹, 프로게이머 정보를 실시간으로 확인하세요.",
   keywords,
   canonicalUrl,
@@ -72,7 +72,7 @@ export default function SEOHead({
       {finalKeywords.length > 0 && (
         <meta name="keywords" content={finalKeywords.join(", ")} />
       )}
-      <meta name="author" content="Inbang Today" />
+      <meta name="author" content="인방투데이" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <link rel="icon" href="/favicon.ico" />
 
@@ -96,7 +96,7 @@ export default function SEOHead({
       <meta property="og:image" content={fullOgImage} />
       <meta property="og:image:width" content="1200" />
       <meta property="og:image:height" content="630" />
-      <meta property="og:site_name" content="Inbang Today" />
+      <meta property="og:site_name" content="인방투데이" />
       <meta property="og:locale" content="ko_KR" />
       {fullCanonicalUrl && (
         <meta property="og:url" content={fullCanonicalUrl} />

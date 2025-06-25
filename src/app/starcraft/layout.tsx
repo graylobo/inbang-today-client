@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 // 스타크래프트 섹션의 기본 메타데이터
 export const metadata: Metadata = {
   title: {
-    template: `%s | 스타크래프트 - Inbang Today`,
+    template: `%s | 스타크래프트 - 인방투데이`,
     default: "스타크래프트 정보 - 스타티어표, 프로게이머 랭킹, 경기 결과",
   },
   description:
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     description:
       "스타크래프트 관련 모든 정보를 한곳에서! 스타티어표부터 최신 경기 결과까지",
     url: "https://www.inbangtoday.com/starcraft",
-    siteName: "Inbang Today",
+    siteName: "인방투데이",
     type: "website",
     locale: "ko_KR",
     images: [
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
         url: "/images/starcraft-og.jpg",
         width: 1200,
         height: 630,
-        alt: "스타크래프트 정보 - Inbang Today",
+        alt: "스타크래프트 정보 - 인방투데이",
       },
     ],
   },
@@ -65,7 +65,7 @@ export default function StarcraftLayout({
     url: "https://www.inbangtoday.com/starcraft",
     isPartOf: {
       "@type": "WebSite",
-      name: "Inbang Today",
+      name: "인방투데이",
       url: "https://www.inbangtoday.com",
     },
     about: {

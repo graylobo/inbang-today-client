@@ -36,7 +36,7 @@ function StarTierPage() {
     },
     publisher: {
       "@type": "Organization",
-      name: "Inbang Today",
+      name: "인방투데이",
     },
   };
 

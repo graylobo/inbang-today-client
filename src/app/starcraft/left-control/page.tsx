@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     title: "왼손생산",
     description: "스타크래프트,왼손생산,스타컨트롤",
     url: "https://www.inbangtoday.com/starcraft/left-control",
-    siteName: "Inbang Today",
+    siteName: "인방투데이",
   },
 };
 

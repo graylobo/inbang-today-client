@@ -25,9 +25,9 @@ export function generateMetadata({
     title,
     description,
     keywords: keywords.length > 0 ? keywords : undefined,
-    authors: [{ name: "Inbang Today" }],
-    creator: "Inbang Today",
-    publisher: "Inbang Today",
+    authors: [{ name: "인방투데이" }],
+    creator: "인방투데이",
+    publisher: "인방투데이",
     metadataBase: new URL(baseUrl),
     alternates: {
       canonical: fullCanonicalUrl,
@@ -36,7 +36,7 @@ export function generateMetadata({
       title,
       description,
       url: fullCanonicalUrl,
-      siteName: "Inbang Today",
+      siteName: "인방투데이",
       type: "website",
       locale: "ko_KR",
       images: [
@@ -103,7 +103,7 @@ export function generateWebsiteSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Inbang Today",
+    name: "인방투데이",
     alternateName: "인방투데이",
     url: "https://www.inbangtoday.com",
     description: "스타크래프트 스타티어표, 엑셀방송 랭킹 정보",
@@ -150,7 +150,7 @@ export function generateGameRankingSchema(gameName: string, rankings: any[]) {
     },
     organizer: {
       "@type": "Organization",
-      name: "Inbang Today",
+      name: "인방투데이",
     },
   };
 }

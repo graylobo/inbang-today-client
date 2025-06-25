@@ -39,7 +39,7 @@ export default function Home() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebApplication",
-    name: "Inbang Today",
+    name: "인방투데이",
     description: "스타크래프트 스타티어표, 엑셀방송 랭킹 정보 제공",
     url: "https://www.inbangtoday.com",
     applicationCategory: "GameApplication",
@@ -51,7 +51,7 @@ export default function Home() {
     },
     author: {
       "@type": "Organization",
-      name: "Inbang Today",
+      name: "인방투데이",
     },
     keywords: "스타티어표, 엑셀방송, 스타크래프트, 숲 엑셀",
   };
