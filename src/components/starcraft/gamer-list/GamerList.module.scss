@@ -1,14 +1,38 @@
+@use "../../../styles/breakpoints" as *;
+
+.gamerContainer {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1050px;
+  margin: 0 auto;
+
+  @include respond-to-max("tablet") {
+    padding: 0 20px;
+  }
+
+  @include respond-to-max("mobile") {
+    padding: 0 10px;
+  }
+}
+
 .genderTabs {
   display: flex;
   border-bottom: 1px solid #e5e7eb;
   margin-bottom: 1rem;
-  position: fixed;
-  top: 128px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
   background-color: white;
-  width: 1050px;
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  @include respond-to-max("tablet") {
+    margin-bottom: 0.8rem;
+  }
+
+  @include respond-to-max("mobile") {
+    margin-bottom: 0.6rem;
+  }
 }
 
 :global(.dark) .genderTabs {
@@ -24,6 +48,17 @@
   border: none;
   cursor: pointer;
   transition: color 0.2s ease;
+  flex: 1;
+
+  @include respond-to-max("tablet") {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  @include respond-to-max("mobile") {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
 
   &:hover {
     color: #3b82f6;
@@ -47,6 +82,12 @@
   }
 }
 
+.contentArea {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
 .listContainer {
   transition: all 0.3s;
   display: flex;
@@ -57,8 +98,18 @@
 .streamerGrid {
   display: grid;
   gap: 10px;
-  width: 1050px;
+  width: 100%;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+
+  @include respond-to-max("tablet") {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  @include respond-to-max("mobile") {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 6px;
+  }
 }
 
 .tierContainer {
@@ -68,5 +119,5 @@
 }
 
 .tierWrapper {
-  width: 1050px;
+  width: 100%;
 }

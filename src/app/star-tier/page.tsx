@@ -51,17 +51,11 @@ function StarTierPage() {
         structuredData={jsonLd}
       />
 
-      <div>
+      <div className="pt-[50px]">
         <header className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">스타크래프트 스타티어표</h1>
-          <p className="text-lg text-gray-600 mb-4">
-            스타크래프트 프로게이머들의 실시간 랭킹과 티어 시스템을 확인하세요.
-            ASL, KSL 경기 결과를 바탕으로 한 정확한 순위표와 승률 정보를
-            제공합니다.
-          </p>
+          <h1 className="text-4xl font-bold mb-4">스타크래프트 티어표</h1>
           <div className="text-sm text-gray-500">
-            <span>실시간 업데이트</span> • <span>정확한 전적</span> •{" "}
-            <span>상세 통계</span>
+            <span>실시간 업데이트 출처: 엘로보드</span>
           </div>
         </header>
         <StarTier />

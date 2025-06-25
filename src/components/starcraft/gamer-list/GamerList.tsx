@@ -174,34 +174,6 @@ function StarTier() {
 
   return (
     <div ref={containerRef}>
-      {/* Gender filter tabs */}
-      <div className={styles.genderTabs}>
-        <button
-          className={`${styles.genderTabButton} ${
-            genderFilter === "All" ? styles.active : ""
-          }`}
-          onClick={() => handleGenderFilterChange("All")}
-        >
-          전체
-        </button>
-        <button
-          className={`${styles.genderTabButton} ${
-            genderFilter === "Male" ? styles.active : ""
-          }`}
-          onClick={() => handleGenderFilterChange("Male")}
-        >
-          남자
-        </button>
-        <button
-          className={`${styles.genderTabButton} ${
-            genderFilter === "Female" ? styles.active : ""
-          }`}
-          onClick={() => handleGenderFilterChange("Female")}
-        >
-          여자
-        </button>
-      </div>
-
       {/* Navigation bar should be visible in both modes */}
       <GamerListNavigation
         selectedStreamer={selectedStreamer}
@@ -215,103 +187,127 @@ function StarTier() {
         onHeightChange={setNavHeight}
       />
 
-      {displayMode === "list" && (
-        <>
-          {/* 네비게이션 바의 높이만큼 상단 여백 추가 */}
-          <div
-            className={styles.listContainer}
-            style={{
-              marginTop: navHeight + 48,
-            }} /* 48px for gender tabs */
+      {/* Unified gamer container with tabs and content */}
+      <div className={styles.gamerContainer}>
+        {/* Gender filter tabs */}
+        <div className={styles.genderTabs}>
+          <button
+            className={`${styles.genderTabButton} ${
+              genderFilter === "All" ? styles.active : ""
+            }`}
+            onClick={() => handleGenderFilterChange("All")}
           >
-            {/* 기존 스트리머 그리드 */}
-            <div className={styles.streamerGrid} ref={streamerGridRef}>
-              {isLoadingStreamers
-                ? // 로딩 중일 때 스켈레톤 UI 표시
-                  Array.from({ length: 12 }).map((_, index) => (
-                    <StreamerCardSkeleton key={index} />
-                  ))
-                : filteredStreamers?.map((streamer) => {
-                    return (
-                      <StreamerCard
-                        key={streamer.id}
-                        streamer={streamer}
-                        opponents={opponents}
-                        selectedStreamer={selectedStreamer}
-                        setSelectedStreamer={setSelectedStreamer}
-                        dateRange={dateRange}
-                        streamerGridRef={streamerGridRef}
-                        showOnlyLive={showOnlyLive}
-                      />
-                    );
-                  })}
+            전체
+          </button>
+          <button
+            className={`${styles.genderTabButton} ${
+              genderFilter === "Male" ? styles.active : ""
+            }`}
+            onClick={() => handleGenderFilterChange("Male")}
+          >
+            남자
+          </button>
+          <button
+            className={`${styles.genderTabButton} ${
+              genderFilter === "Female" ? styles.active : ""
+            }`}
+            onClick={() => handleGenderFilterChange("Female")}
+          >
+            여자
+          </button>
+        </div>
+
+        {/* Content area */}
+        <div className={styles.contentArea}>
+          {displayMode === "list" && (
+            <div className={styles.listContainer}>
+              {/* 기존 스트리머 그리드 */}
+              <div className={styles.streamerGrid} ref={streamerGridRef}>
+                {isLoadingStreamers
+                  ? // 로딩 중일 때 스켈레톤 UI 표시
+                    Array.from({ length: 12 }).map((_, index) => (
+                      <StreamerCardSkeleton key={index} />
+                    ))
+                  : filteredStreamers?.map((streamer) => {
+                      return (
+                        <StreamerCard
+                          key={streamer.id}
+                          streamer={streamer}
+                          opponents={opponents}
+                          selectedStreamer={selectedStreamer}
+                          setSelectedStreamer={setSelectedStreamer}
+                          dateRange={dateRange}
+                          streamerGridRef={streamerGridRef}
+                          showOnlyLive={showOnlyLive}
+                        />
+                      );
+                    })}
+              </div>
             </div>
-          </div>
-        </>
-      )}
-      {displayMode === "tier" && (
-        <div
-          className={styles.tierContainer}
-          style={{ marginTop: navHeight + 48 }} /* 48px for gender tabs */
-        >
-          <div className={styles.tierWrapper}>
-            {isLoadingEloRankings ? (
-              // 티어 시스템 로딩 중 스켈레톤 UI
-              <div className="p-4">
-                <div className="h-8 bg-gray-300 rounded w-48 mb-6 animate-pulse"></div>
-                <div className="mb-8 p-4 bg-gray-100 rounded-lg">
-                  <div className="h-6 bg-gray-300 rounded w-32 mb-2 animate-pulse"></div>
-                  <div className="space-y-1">
-                    {Array.from({ length: 6 }).map((_, index) => (
-                      <div
-                        key={index}
-                        className="h-4 bg-gray-300 rounded animate-pulse"
-                      ></div>
-                    ))}
-                  </div>
-                </div>
-                <div className="space-y-8">
-                  {Array.from({ length: 3 }).map((_, tierIndex) => (
-                    <div key={tierIndex} className="mb-8">
-                      <div className="h-12 bg-gray-400 rounded-t-lg animate-pulse"></div>
-                      <div className="p-4 bg-gray-100 rounded-b-lg">
-                        <div
-                          className="grid gap-[10px]"
-                          style={{
-                            gridTemplateColumns:
-                              "repeat(auto-fill, minmax(150px, 1fr))",
-                          }}
-                        >
-                          {Array.from({ length: 6 }).map((_, cardIndex) => (
-                            <div key={cardIndex} className="relative">
-                              <StreamerCardSkeleton />
-                              <div className="mt-1 p-2 bg-gray-300 rounded-md animate-pulse">
-                                <div className="h-4 bg-gray-400 rounded"></div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+          )}
+
+          {displayMode === "tier" && (
+            <div className={styles.tierContainer}>
+              <div className={styles.tierWrapper}>
+                {isLoadingEloRankings ? (
+                  // 티어 시스템 로딩 중 스켈레톤 UI
+                  <div className="p-4">
+                    <div className="h-8 bg-gray-300 rounded w-48 mb-6 animate-pulse"></div>
+                    <div className="mb-8 p-4 bg-gray-100 rounded-lg">
+                      <div className="h-6 bg-gray-300 rounded w-32 mb-2 animate-pulse"></div>
+                      <div className="space-y-1">
+                        {Array.from({ length: 6 }).map((_, index) => (
+                          <div
+                            key={index}
+                            className="h-4 bg-gray-300 rounded animate-pulse"
+                          ></div>
+                        ))}
                       </div>
                     </div>
-                  ))}
-                </div>
+                    <div className="space-y-8">
+                      {Array.from({ length: 3 }).map((_, tierIndex) => (
+                        <div key={tierIndex} className="mb-8">
+                          <div className="h-12 bg-gray-400 rounded-t-lg animate-pulse"></div>
+                          <div className="p-4 bg-gray-100 rounded-b-lg">
+                            <div
+                              className="grid gap-[10px]"
+                              style={{
+                                gridTemplateColumns:
+                                  "repeat(auto-fill, minmax(150px, 1fr))",
+                              }}
+                            >
+                              {Array.from({ length: 6 }).map((_, cardIndex) => (
+                                <div key={cardIndex} className="relative">
+                                  <StreamerCardSkeleton />
+                                  <div className="mt-1 p-2 bg-gray-300 rounded-md animate-pulse">
+                                    <div className="h-4 bg-gray-400 rounded"></div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : eloRankings ? (
+                  <TierSystem
+                    rankings={eloRankings.rankings}
+                    month={eloRankings.month}
+                    opponents={opponents}
+                    selectedStreamer={selectedStreamer}
+                    setSelectedStreamer={setSelectedStreamer}
+                    dateRange={dateRange}
+                    streamerGridRef={streamerGridRef}
+                    showOnlyLive={showOnlyLive}
+                    showOnlyMatched={showOnlyMatched}
+                  />
+                ) : null}
               </div>
-            ) : eloRankings ? (
-              <TierSystem
-                rankings={eloRankings.rankings}
-                month={eloRankings.month}
-                opponents={opponents}
-                selectedStreamer={selectedStreamer}
-                setSelectedStreamer={setSelectedStreamer}
-                dateRange={dateRange}
-                streamerGridRef={streamerGridRef}
-                showOnlyLive={showOnlyLive}
-                showOnlyMatched={showOnlyMatched}
-              />
-            ) : null}
-          </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
