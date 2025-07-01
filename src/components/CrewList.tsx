@@ -36,7 +36,7 @@ export default function CrewList({
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">엑셀 크루 랭킹</h2>
+        <h2 className="text-xl font-bold">엑셀 방송 랭킹</h2>
         <div className="flex gap-4">
           <select
             value={year}
