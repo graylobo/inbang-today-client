@@ -10,6 +10,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "liveimg.sooplive.co.kr",
       },
+      {
+        protocol: "https",
+        hostname: "file.inbangtoday.com",
+      },
     ],
   },
   experimental: {
