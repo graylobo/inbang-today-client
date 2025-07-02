@@ -38,10 +38,10 @@ export interface Comment {
   password?: string;
   createdAt: string;
   updatedAt: string;
+  deletedAt: string | null;
   post: Post;
   parent: Comment | null;
   replies: Comment[];
-  isDeleted: boolean;
 }
 
 export interface CreatePostDto {

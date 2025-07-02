@@ -54,7 +54,7 @@ export default function CommentItem({
   const isPostAuthor =
     comment.author?.id === post.author?.id ||
     comment.authorName === post.authorName;
-  const isDeletedComment = comment.isDeleted;
+  const isDeletedComment = comment.deletedAt !== null;
 
   const handleEdit = () => {
     if (post.board.isAnonymous && !comment.author) {
@@ -96,7 +96,7 @@ export default function CommentItem({
 
   const renderContent = (comment: Comment) => {
     // 삭제된 댓글인 경우 "삭제된 댓글입니다" 표시
-    if (comment.isDeleted) {
+    if (comment.deletedAt !== null) {
       return "삭제된 댓글입니다.";
     }
 
