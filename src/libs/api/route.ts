@@ -7,6 +7,7 @@ export const API_ROUTES = {
     login: { url: "/auth/login", method: "POST" },
     logout: { url: "/auth/logout", method: "POST" },
     register: { url: "/auth/register", method: "POST" },
+    me: { url: "/auth/me", method: "GET" },
     verifyNickname: { url: "/auth/verify-nickname", method: "GET" },
     updateNickname: { url: "/auth/update-nickname", method: "POST" },
     completeSocialSignup: {

@@ -95,7 +95,6 @@ export default function SetNicknamePage() {
 
     const isValid = await handleValidateNickname();
     if (!isValid) return;
-
     // 임시 사용자인 경우 (소셜 로그인 후 회원가입 완료)
     if (tempUserInfo) {
       console.log("소셜 회원가입 완료 요청:", { nickname, tempUserInfo });
@@ -144,8 +143,7 @@ export default function SetNicknamePage() {
             닉네임 설정
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            사용하실 닉네임을 입력해주세요. 한 번 설정한 닉네임은 변경이 어려울
-            수 있습니다.
+            사용하실 닉네임을 입력해주세요.
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>

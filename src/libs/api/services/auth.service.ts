@@ -1,17 +1,5 @@
 import { apiRequest } from "@/libs/api/api-request";
 import { API_ROUTES } from "@/libs/api/route";
-import { User } from "@/store/authStore";
-
-function getCookie(name: string): string | null {
-  const nameEQ = name + "=";
-  const ca = document.cookie.split(";");
-  for (let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) === " ") c = c.substring(1, c.length);
-    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-  }
-  return null;
-}
 
 export async function login(username: string, password: string) {
   const data = await apiRequest(API_ROUTES.auth.login, {
@@ -53,21 +41,22 @@ export async function completeSocialSignup(
 }
 
 export async function getTempUserInfo() {
-  // 클라이언트 사이드에서 실행
+  // 서버 API를 통해 임시 사용자 정보 가져오기
   try {
     if (typeof window === "undefined") {
       return null;
     }
 
-    const tempUserInfoCookie = getCookie("temp_user_info");
+    const response = await apiRequest(API_ROUTES.auth.me);
 
-    if (!tempUserInfoCookie) {
-      return null;
+    // 임시 사용자인 경우에만 tempUserInfo 반환
+    if (response.isTempUser && response.tempUserInfo) {
+      return response.tempUserInfo;
     }
 
-    return JSON.parse(tempUserInfoCookie);
+    return null;
   } catch (error) {
-    console.error("임시 사용자 정보 파싱 오류:", error);
+    console.error("임시 사용자 정보 조회 오류:", error);
     return null;
   }
 }
