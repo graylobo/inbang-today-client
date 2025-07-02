@@ -137,7 +137,7 @@ export default function CommentItem({
         ) : (
           <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
             <span className="text-gray-500 dark:text-gray-400 text-xs">
-              {isDeletedComment ? "삭제" : "익명"}
+              익명
             </span>
           </div>
         )}
@@ -153,11 +153,7 @@ export default function CommentItem({
                 : "dark:text-gray-200"
             }`}
           >
-            {isDeletedComment
-              ? "삭제된 사용자"
-              : comment.author
-              ? comment.author.name
-              : comment.authorName}
+            {comment.author ? comment.author.name : comment.authorName}
             {isPostAuthor && !post.board.isAnonymous && !isDeletedComment && (
               <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-0.5 rounded">
                 작성자
