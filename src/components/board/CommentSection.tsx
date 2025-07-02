@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import CommentForm from "./CommentForm";
-import CommentItem from "./CommentItem";
+import Divider from "@/components/common/divider/Divider";
 import { useComments } from "@/hooks/board/useBoards";
 import { Post } from "@/libs/api/services/board.service";
 import { User } from "@/store/authStore";
-import Divider from "@/components/common/divider/Divider";
+import CommentForm from "./CommentForm";
+import CommentItem from "./CommentItem";
 
 interface CommentSectionProps {
   post: Post;
