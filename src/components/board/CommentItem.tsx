@@ -54,6 +54,7 @@ export default function CommentItem({
   const isPostAuthor =
     comment.author?.id === post.author?.id ||
     comment.authorName === post.authorName;
+  const isDeletedComment = comment.isDeleted;
 
   const handleEdit = () => {
     if (post.board.isAnonymous && !comment.author) {
@@ -94,6 +95,11 @@ export default function CommentItem({
   };
 
   const renderContent = (comment: Comment) => {
+    // 삭제된 댓글인 경우 "삭제된 댓글입니다" 표시
+    if (comment.isDeleted) {
+      return "삭제된 댓글입니다.";
+    }
+
     if (comment.parent) {
       const replyToUsername =
         comment.parent.author?.name || comment.parent.authorName;
@@ -131,7 +137,7 @@ export default function CommentItem({
         ) : (
           <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
             <span className="text-gray-500 dark:text-gray-400 text-xs">
-              익명
+              {isDeletedComment ? "삭제" : "익명"}
             </span>
           </div>
         )}
@@ -142,17 +148,23 @@ export default function CommentItem({
             className={`font-medium ${
               isPostAuthor && !post.board.isAnonymous
                 ? "text-blue-500 dark:text-blue-400"
+                : isDeletedComment
+                ? "text-gray-500 dark:text-gray-500"
                 : "dark:text-gray-200"
             }`}
           >
-            {comment.author ? comment.author.name : comment.authorName}
-            {isPostAuthor && !post.board.isAnonymous && (
+            {isDeletedComment
+              ? "삭제된 사용자"
+              : comment.author
+              ? comment.author.name
+              : comment.authorName}
+            {isPostAuthor && !post.board.isAnonymous && !isDeletedComment && (
               <span className="ml-2 text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300 px-2 py-0.5 rounded">
                 작성자
               </span>
             )}
           </span>
-          {post.board.isAnonymous && comment.ipAddress && (
+          {post.board.isAnonymous && comment.ipAddress && !isDeletedComment && (
             <span className="text-xs text-gray-500 dark:text-gray-400">
               ({maskIpAddress(comment.ipAddress)})
             </span>
@@ -216,17 +228,25 @@ export default function CommentItem({
           </div>
         ) : (
           <>
-            <span className="mt-1 text-gray-800 dark:text-gray-300">
+            <span
+              className={`mt-1 ${
+                isDeletedComment
+                  ? "text-gray-500 dark:text-gray-500 italic"
+                  : "text-gray-800 dark:text-gray-300"
+              }`}
+            >
               {renderContent(comment)}
             </span>
             <div className="mt-2 space-x-4">
-              <button
-                onClick={() => setShowReplyForm(!showReplyForm)}
-                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                답글
-              </button>
-              {isAuthor ? (
+              {!isDeletedComment && (
+                <button
+                  onClick={() => setShowReplyForm(!showReplyForm)}
+                  className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                >
+                  답글
+                </button>
+              )}
+              {!isDeletedComment && isAuthor ? (
                 <>
                   <button
                     onClick={handleEdit}
@@ -242,6 +262,7 @@ export default function CommentItem({
                   </button>
                 </>
               ) : (
+                !isDeletedComment &&
                 post.board.isAnonymous && (
                   <>
                     <button

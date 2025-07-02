@@ -41,6 +41,7 @@ export interface Comment {
   post: Post;
   parent: Comment | null;
   replies: Comment[];
+  isDeleted: boolean;
 }
 
 export interface CreatePostDto {
