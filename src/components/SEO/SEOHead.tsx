@@ -53,7 +53,7 @@ export default function SEOHead({
   };
 
   const finalKeywords = keywords || getDefaultKeywords();
-  const baseUrl = "https://www.inbangtoday.com";
+  const baseUrl = "https://inbangtoday.com";
   const fullCanonicalUrl = canonicalUrl
     ? `${baseUrl}${canonicalUrl}`
     : undefined;

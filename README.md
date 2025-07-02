@@ -79,7 +79,7 @@ Before deploying to production:
 
 3. **Configure Domain**
 
-   - Update all instances of `https://www.inbangtoday.com` to your actual domain
+   - Update all instances of `https://inbangtoday.com` to your actual domain
    - Files to update: `src/app/layout.tsx`, `src/utils/seo.utils.ts`, `src/app/sitemap.ts`
 
 4. **Submit to Search Engines**

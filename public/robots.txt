@@ -1,19 +1,24 @@
 User-agent: *
 Allow: /
 
-# Sitemap location
-Sitemap: https://www.inbangtoday.com/sitemap.xml
-
-# Allow specific pages for better indexing
+# 주요 페이지 우선 허용 (메인페이지 우선)
+Allow: /$
 Allow: /star-tier
 Allow: /starcraft/
+Allow: /crews/
 Allow: /boards/
+
+# Sitemap location
+Sitemap: https://inbangtoday.com/sitemap.xml
 
 # Block admin and private areas
 Disallow: /admin/
 Disallow: /api/
 Disallow: /user/profile/
 Disallow: /auth/
+Disallow: /login
+Disallow: /register
+Disallow: /signin
 
-# Crawl delay for respectful crawling
+# 메인 페이지 우선 크롤링을 위한 설정
 Crawl-delay: 1 
