@@ -116,6 +116,12 @@ export const API_ROUTES = {
       like: { url: "/likes/posts/{postId}/like", method: "POST" },
       dislike: { url: "/likes/posts/{postId}/dislike", method: "POST" },
     },
+    comments: {
+      getStatus: { url: "/likes/comments/{commentId}/status", method: "GET" },
+      getCounts: { url: "/likes/comments/{commentId}/count", method: "GET" },
+      like: { url: "/likes/comments/{commentId}/like", method: "POST" },
+      dislike: { url: "/likes/comments/{commentId}/dislike", method: "POST" },
+    },
   },
   crewMemberHistory: {
     get: { url: "/crew-member-histories/streamer/{streamerId}", method: "GET" },

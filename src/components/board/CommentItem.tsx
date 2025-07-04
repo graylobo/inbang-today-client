@@ -5,6 +5,7 @@ import {
   useUpdateComment,
   useVerifyCommentPassword,
 } from "@/hooks/board/useBoards";
+import { useOptimisticCommentLike } from "@/hooks/board/useLikes";
 import { Comment, Post } from "@/libs/api/services/board.service";
 import { User } from "@/store/authStore";
 import { maskIpAddress } from "@/utils/ipUtils";
@@ -49,6 +50,13 @@ export default function CommentItem({
     },
     () => alert("비밀번호가 일치하지 않습니다.")
   );
+
+  // 댓글 좋아요 훅
+  const {
+    status: likeStatus,
+    counts: likeCounts,
+    toggleLike,
+  } = useOptimisticCommentLike(comment.id);
 
   const isAuthor = user && comment.author && user.id === comment.author.id;
   const isPostAuthor =
@@ -233,42 +241,92 @@ export default function CommentItem({
             >
               {renderContent(comment)}
             </span>
-            <div className="mt-2 space-x-4">
+            <div className="mt-2 flex items-center space-x-4">
               {!isDeletedComment && (
-                <button
-                  onClick={() => setShowReplyForm(!showReplyForm)}
-                  className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                >
-                  답글
-                </button>
-              )}
-              {!isDeletedComment && isAuthor ? (
                 <>
                   <button
-                    onClick={handleEdit}
+                    onClick={() => setShowReplyForm(!showReplyForm)}
                     className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
                   >
-                    수정
+                    답글
                   </button>
+                  {/* 수정/삭제 버튼들 */}
+                  {isAuthor ? (
+                    <>
+                      <button
+                        onClick={handleEdit}
+                        className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                      >
+                        수정
+                      </button>
+                      <button
+                        onClick={handleDeleteClick}
+                        className="text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                      >
+                        삭제
+                      </button>
+                    </>
+                  ) : (
+                    post.board.isAnonymous && (
+                      <button
+                        onClick={handleDeleteClick}
+                        className="text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                      >
+                        삭제
+                      </button>
+                    )
+                  )}
+                  {/* 댓글 좋아요 버튼 */}
                   <button
-                    onClick={handleDeleteClick}
-                    className="text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    onClick={() => toggleLike("like")}
+                    className={`flex items-center space-x-1 text-sm transition-colors ${
+                      likeStatus.liked
+                        ? "text-red-500 hover:text-red-600"
+                        : "text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400"
+                    }`}
                   >
-                    삭제
+                    <svg
+                      className="w-4 h-4"
+                      fill={likeStatus.liked ? "currentColor" : "none"}
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                    {likeCounts.likes > 0 && <span>{likeCounts.likes}</span>}
+                  </button>
+                  {/* 댓글 싫어요 버튼 */}
+                  <button
+                    onClick={() => toggleLike("dislike")}
+                    className={`flex items-center space-x-1 text-sm transition-colors ${
+                      likeStatus.disliked
+                        ? "text-blue-500 hover:text-blue-600"
+                        : "text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400"
+                    }`}
+                  >
+                    <svg
+                      className="w-4 h-4 transform rotate-180"
+                      fill={likeStatus.disliked ? "currentColor" : "none"}
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                    {likeCounts.dislikes > 0 && (
+                      <span>{likeCounts.dislikes}</span>
+                    )}
                   </button>
                 </>
-              ) : (
-                !isDeletedComment &&
-                post.board.isAnonymous && (
-                  <>
-                    <button
-                      onClick={handleDeleteClick}
-                      className="text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                    >
-                      삭제
-                    </button>
-                  </>
-                )
               )}
             </div>
           </>

@@ -5,6 +5,12 @@ import {
   getPostLikeCounts,
   getPostLikeStatus,
   togglePostLike,
+  CommentLikeCounts,
+  CommentLikeStatus,
+  ToggleCommentLikeResponse,
+  getCommentLikeCounts,
+  getCommentLikeStatus,
+  toggleCommentLike,
 } from "@/libs/api/services/likes.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -275,6 +281,306 @@ export const useTogglePostLike = () => {
       if (context?.previousCounts) {
         queryClient.setQueryData(
           ["postLikeCounts", postId],
+          context.previousCounts
+        );
+      }
+    },
+  });
+};
+
+// =================== 댓글 좋아요 관련 훅들 ===================
+
+// 댓글 좋아요 상태 조회
+export const useCommentLikeStatus = (commentId: number) => {
+  return useQuery<CommentLikeStatus>({
+    queryKey: ["commentLikeStatus", commentId],
+    queryFn: () => getCommentLikeStatus(commentId),
+    staleTime: 1000 * 60, // 1분
+  });
+};
+
+// 댓글 좋아요 수 조회
+export const useCommentLikeCounts = (commentId: number) => {
+  return useQuery<CommentLikeCounts>({
+    queryKey: ["commentLikeCounts", commentId],
+    queryFn: () => getCommentLikeCounts(commentId),
+    staleTime: 1000 * 60, // 1분
+  });
+};
+
+// 🚀 댓글 좋아요 최적화 훅 (즉시 반응)
+export const useOptimisticCommentLike = (commentId: number) => {
+  const queryClient = useQueryClient();
+
+  // 서버 데이터 가져오기
+  const { data: serverStatus } = useCommentLikeStatus(commentId);
+  const { data: serverCounts } = useCommentLikeCounts(commentId);
+
+  // 로컬 상태 (즉시 반응용)
+  const [localStatus, setLocalStatus] = useState<CommentLikeStatus | null>(
+    null
+  );
+  const [localCounts, setLocalCounts] = useState<CommentLikeCounts | null>(
+    null
+  );
+
+  // Race condition 해결을 위한 요청 추적
+  const lastRequestId = useRef<number>(0);
+  const abortController = useRef<AbortController | null>(null);
+
+  // 서버 상태로 로컬 상태 초기화
+  useEffect(() => {
+    if (serverStatus && !localStatus) {
+      setLocalStatus(serverStatus);
+    }
+  }, [serverStatus, localStatus]);
+
+  useEffect(() => {
+    if (serverCounts && !localCounts) {
+      setLocalCounts(serverCounts);
+    }
+  }, [serverCounts, localCounts]);
+
+  // 🎯 댓글 좋아요/싫어요 토글
+  const handleToggle = useCallback(
+    async (action: "like" | "dislike") => {
+      if (!localStatus || !localCounts) return;
+
+      // 1. 이전 요청 취소 (Race Condition 방지)
+      if (abortController.current) {
+        abortController.current.abort();
+      }
+      abortController.current = new AbortController();
+
+      // 2. 현재 요청에 고유 ID 부여
+      const currentRequestId = ++lastRequestId.current;
+
+      // 3. 즉시 로컬 상태 업데이트 ⚡ (낙관적 업데이트)
+      let newStatus: CommentLikeStatus;
+      let newCounts: CommentLikeCounts;
+
+      if (action === "like") {
+        if (localStatus.liked) {
+          // 좋아요 취소
+          newStatus = { liked: false, disliked: false };
+          newCounts = {
+            ...localCounts,
+            likes: Math.max(0, localCounts.likes - 1),
+          };
+        } else if (localStatus.disliked) {
+          // 싫어요 → 좋아요
+          newStatus = { liked: true, disliked: false };
+          newCounts = {
+            likes: localCounts.likes + 1,
+            dislikes: Math.max(0, localCounts.dislikes - 1),
+          };
+        } else {
+          // 처음 좋아요
+          newStatus = { liked: true, disliked: false };
+          newCounts = { ...localCounts, likes: localCounts.likes + 1 };
+        }
+      } else {
+        // dislike
+        if (localStatus.disliked) {
+          // 싫어요 취소
+          newStatus = { liked: false, disliked: false };
+          newCounts = {
+            ...localCounts,
+            dislikes: Math.max(0, localCounts.dislikes - 1),
+          };
+        } else if (localStatus.liked) {
+          // 좋아요 → 싫어요
+          newStatus = { liked: false, disliked: true };
+          newCounts = {
+            likes: Math.max(0, localCounts.likes - 1),
+            dislikes: localCounts.dislikes + 1,
+          };
+        } else {
+          // 처음 싫어요
+          newStatus = { liked: false, disliked: true };
+          newCounts = { ...localCounts, dislikes: localCounts.dislikes + 1 };
+        }
+      }
+
+      setLocalStatus(newStatus);
+      setLocalCounts(newCounts);
+
+      // 4. 즉시 서버 요청 📡
+      try {
+        const response = await toggleCommentLike(commentId, action);
+
+        // 5. 가장 최신 요청인지 확인 (Race Condition 방지)
+        if (currentRequestId === lastRequestId.current) {
+          // 서버 응답으로 캐시 및 로컬 상태 업데이트
+          queryClient.setQueryData(
+            ["commentLikeStatus", commentId],
+            response.status
+          );
+          queryClient.setQueryData(
+            ["commentLikeCounts", commentId],
+            response.counts
+          );
+          setLocalStatus(response.status);
+          setLocalCounts(response.counts);
+        }
+      } catch (error) {
+        // 6. 에러 처리: 요청이 취소된 것이 아니라면 롤백
+        if (
+          currentRequestId === lastRequestId.current &&
+          !abortController.current?.signal.aborted
+        ) {
+          // 가장 최신 요청이고 취소되지 않은 에러라면 롤백
+          if (serverStatus) setLocalStatus(serverStatus);
+          if (serverCounts) setLocalCounts(serverCounts);
+
+          console.error("댓글 좋아요/싫어요 처리 실패:", error);
+        }
+      }
+    },
+    [
+      localStatus,
+      localCounts,
+      commentId,
+      queryClient,
+      serverStatus,
+      serverCounts,
+    ]
+  );
+
+  // 컴포넌트 언마운트시 요청 취소
+  useEffect(() => {
+    return () => {
+      if (abortController.current) {
+        abortController.current.abort();
+      }
+    };
+  }, []);
+
+  return {
+    // 로컬 상태 우선, 없으면 서버 상태
+    status: localStatus || serverStatus || { liked: false, disliked: false },
+    counts: localCounts || serverCounts || { likes: 0, dislikes: 0 },
+    toggleLike: handleToggle,
+    isLoading: false, // 로컬 상태는 항상 즉시 업데이트되므로 로딩 없음
+  };
+};
+
+// 기존 댓글 좋아요/싫어요 토글 (호환성 유지)
+export const useToggleCommentLike = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      commentId,
+      action,
+    }: {
+      commentId: number;
+      action: "like" | "dislike";
+    }) => {
+      return await toggleCommentLike(commentId, action);
+    },
+    // 🚀 낙관적 업데이트 - 즉각적인 UI 반응
+    onMutate: async ({ commentId, action }) => {
+      // 진행 중인 쿼리들 취소
+      await queryClient.cancelQueries({
+        queryKey: ["commentLikeStatus", commentId],
+      });
+      await queryClient.cancelQueries({
+        queryKey: ["commentLikeCounts", commentId],
+      });
+
+      // 현재 상태 백업
+      const previousStatus = queryClient.getQueryData<CommentLikeStatus>([
+        "commentLikeStatus",
+        commentId,
+      ]);
+      const previousCounts = queryClient.getQueryData<CommentLikeCounts>([
+        "commentLikeCounts",
+        commentId,
+      ]);
+
+      // 즉시 UI 업데이트
+      if (previousStatus && previousCounts) {
+        let newStatus: CommentLikeStatus;
+        let newCounts: CommentLikeCounts;
+
+        if (action === "like") {
+          if (previousStatus.liked) {
+            // 좋아요 취소
+            newStatus = { liked: false, disliked: false };
+            newCounts = {
+              ...previousCounts,
+              likes: Math.max(0, previousCounts.likes - 1),
+            };
+          } else if (previousStatus.disliked) {
+            // 싫어요 → 좋아요
+            newStatus = { liked: true, disliked: false };
+            newCounts = {
+              likes: previousCounts.likes + 1,
+              dislikes: Math.max(0, previousCounts.dislikes - 1),
+            };
+          } else {
+            // 처음 좋아요
+            newStatus = { liked: true, disliked: false };
+            newCounts = { ...previousCounts, likes: previousCounts.likes + 1 };
+          }
+        } else {
+          // dislike
+          if (previousStatus.disliked) {
+            // 싫어요 취소
+            newStatus = { liked: false, disliked: false };
+            newCounts = {
+              ...previousCounts,
+              dislikes: Math.max(0, previousCounts.dislikes - 1),
+            };
+          } else if (previousStatus.liked) {
+            // 좋아요 → 싫어요
+            newStatus = { liked: false, disliked: true };
+            newCounts = {
+              likes: Math.max(0, previousCounts.likes - 1),
+              dislikes: previousCounts.dislikes + 1,
+            };
+          } else {
+            // 처음 싫어요
+            newStatus = { liked: false, disliked: true };
+            newCounts = {
+              ...previousCounts,
+              dislikes: previousCounts.dislikes + 1,
+            };
+          }
+        }
+
+        // 즉시 캐시 업데이트
+        queryClient.setQueryData(["commentLikeStatus", commentId], newStatus);
+        queryClient.setQueryData(["commentLikeCounts", commentId], newCounts);
+      }
+
+      // 롤백용 데이터 반환
+      return { previousStatus, previousCounts };
+    },
+    // 🎯 성공 시 서버 응답으로 정확한 상태 업데이트
+    onSuccess: (response: ToggleCommentLikeResponse, { commentId }) => {
+      // 서버에서 받은 정확한 상태로 캐시 업데이트
+      queryClient.setQueryData(
+        ["commentLikeStatus", commentId],
+        response.status
+      );
+      queryClient.setQueryData(
+        ["commentLikeCounts", commentId],
+        response.counts
+      );
+    },
+    // 실패 시 이전 상태로 롤백
+    onError: (err, { commentId }, context) => {
+      if (context?.previousStatus) {
+        queryClient.setQueryData(
+          ["commentLikeStatus", commentId],
+          context.previousStatus
+        );
+      }
+      if (context?.previousCounts) {
+        queryClient.setQueryData(
+          ["commentLikeCounts", commentId],
           context.previousCounts
         );
       }
