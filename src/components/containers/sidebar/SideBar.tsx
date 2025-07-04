@@ -11,7 +11,7 @@ import { useMediaQuery } from "@/hooks/client/use-media-query";
 const menuItems = [
   {
     icon: "/common/soop-logo.png",
-    primaryText: "SOOP",
+    primaryText: "숲",
     subItems: [
       { primaryText: "엑셀 랭킹", href: "/", icon: "/common/excel-logo.png" },
       {
@@ -23,19 +23,31 @@ const menuItems = [
   },
 
   {
-    icon: "/common/community.jpg",
+    icon: "/common/volunteering.png",
     primaryText: "커뮤니티",
     subItems: [
       // { primaryText: "익명 게시판", href: "/boards/anonymous" },
-      { primaryText: "자유 게시판", href: "/boards/free" },
+      {
+        primaryText: "자유 게시판",
+        href: "/boards/free",
+        icon: "/common/board.png",
+      },
     ],
   },
   {
-    icon: "/common/starcraft-logo.png",
-    primaryText: "스타크래프트",
+    icon: "/common/playground.png",
+    primaryText: "놀이터",
     subItems: [
-      { primaryText: "왼손생산", href: "/starcraft/left-control" },
-      { primaryText: "빌드알리미", href: "/starcraft/build-alert" },
+      {
+        primaryText: "왼손생산",
+        href: "/starcraft/left-control",
+        icon: "/common/left-control.png",
+      },
+      {
+        primaryText: "빌드알리미",
+        href: "/starcraft/build-alert",
+        icon: "/common/build-alarm.png",
+      },
     ],
   },
   // {
