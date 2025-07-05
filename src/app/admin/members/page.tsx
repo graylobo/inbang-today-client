@@ -428,7 +428,10 @@ export default function AdminMembersPage() {
     const missingFields = [];
 
     // 이벤트 타입에 따른 필수 필드 검증
-    if (formData.eventType === "join") {
+    if (formData.eventType === "basic_info_only") {
+      if (!formData.name.trim()) missingFields.push("스트리머 이름");
+      if (!formData.soopId?.trim()) missingFields.push("숲 ID (SOOP ID)");
+    } else if (formData.eventType === "join") {
       if (!formData.crewId) missingFields.push("크루");
       if (!formData.rankId) missingFields.push("계급");
     } else if (formData.eventType === "rank_change") {
@@ -439,15 +442,17 @@ export default function AdminMembersPage() {
       }
     }
 
-    if (!formData.eventDate) missingFields.push("이벤트 날짜");
+    if (formData.eventType !== "basic_info_only" && !formData.eventDate) {
+      missingFields.push("이벤트 날짜");
+    }
 
     if (missingFields.length > 0) {
       alert(`다음 필드를 입력해주세요: ${missingFields.join(", ")}`);
       return;
     }
 
-    // 슈퍼어드민이 아니면서 해당 크루에 대한 권한이 없는 경우 거부
-    if (!isSuperAdmin) {
+    // 슈퍼어드민이 아니면서 해당 크루에 대한 권한이 없는 경우 거부 (기본 정보 수정 제외)
+    if (formData.eventType !== "basic_info_only" && !isSuperAdmin) {
       const hasPermission = permittedCrews?.some(
         (crew: any) => crew.id === formData.crewId
       );
@@ -462,6 +467,38 @@ export default function AdminMembersPage() {
       ...formData,
       categoryIds: excelCategoryId ? [excelCategoryId] : [],
     };
+
+    // 기본 정보 수정 처리
+    if (formData.eventType === "basic_info_only") {
+      // 기본 정보만 업데이트
+      updateStreamer({
+        id: streamerId,
+        member: {
+          name: formData.name,
+          soopId: formData.soopId,
+          categoryIds: excelCategoryId ? [excelCategoryId] : [],
+          eventType: "basic_info_only",
+        },
+        history: {
+          streamerId,
+          crewId: 0,
+          eventType: "join", // 기본값 (실제로는 사용되지 않음)
+          eventDate: "",
+          note: "",
+        } as any,
+      });
+
+      // Excel 카테고리 정보 설정
+      if (excelCategoryId) {
+        setCategories({
+          streamerId,
+          categoryIds: [excelCategoryId],
+        });
+      }
+
+      resetForm();
+      return;
+    }
 
     // 퇴사 이벤트 처리
     if (formData.eventType === "leave" && memberCrew) {
@@ -542,16 +579,14 @@ export default function AdminMembersPage() {
 
     setSelectedMember(member);
 
-    // 멤버가 이미 크루에 속해 있으면 퇴사 또는 직급변경, 없으면 입사만 선택 가능
-    const eventType = member.crew ? "rank_change" : "join";
-
+    // 기본적으로 기본 정보 수정을 선택하도록 설정
     setFormData({
       name: member.name,
       soopId: member.soopId || "",
       crewId: member?.crew?.id || 0,
       rankId: member?.rank?.id || 0,
       categoryIds: [], // 초기값으로 빈 배열 설정, memberCategories 로드 후 업데이트됨
-      eventType: eventType,
+      eventType: "basic_info_only",
       eventDate: getTodayDate(),
       note: "",
     });
@@ -597,17 +632,14 @@ export default function AdminMembersPage() {
       // 수정 모드 설정
       setSelectedMember(memberData);
 
-      // 멤버가 이미 크루에 속해 있으면 퇴사 또는 직급변경, 없으면 입사만 선택 가능
-      const eventType = memberData.crew ? "rank_change" : "join";
-
-      // 폼 데이터 업데이트
+      // 폼 데이터 업데이트 (기본 정보 수정을 기본값으로 설정)
       setFormData({
         name: memberData.name,
         soopId: memberData.soopId || "",
         crewId: memberData.crew?.id || 0,
         rankId: memberData.rank?.id || 0,
         categoryIds: [],
-        eventType: eventType,
+        eventType: "basic_info_only",
         eventDate: getTodayDate(),
         note: "",
       });
@@ -669,7 +701,7 @@ export default function AdminMembersPage() {
                 : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
             }`}
           >
-            스트리머 신규 등록
+            스트리머 등록
           </button>
           <button
             onClick={() => setActiveTab("manageCrew")}
@@ -679,7 +711,7 @@ export default function AdminMembersPage() {
                 : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
             }`}
           >
-            크루 멤버 관리
+            스트리머 관리
           </button>
         </nav>
       </div>
@@ -745,7 +777,7 @@ export default function AdminMembersPage() {
       {activeTab === "manageCrew" && (
         <>
           <div className="bg-white shadow-sm rounded-lg p-6">
-            <h2 className="text-lg font-medium mb-4">크루 멤버 관리</h2>
+            <h2 className="text-lg font-medium mb-4">스트리머 관리</h2>
 
             {/* 스트리머 검색 섹션 */}
             <div className="mb-6">
@@ -879,6 +911,24 @@ export default function AdminMembersPage() {
                         이벤트 타입
                       </label>
                       <div className="mt-2 space-x-4">
+                        <label className="inline-flex items-center">
+                          <input
+                            type="radio"
+                            name="eventType"
+                            value="basic_info_only"
+                            checked={formData.eventType === "basic_info_only"}
+                            onChange={() =>
+                              setFormData({
+                                ...formData,
+                                eventType: "basic_info_only",
+                              })
+                            }
+                            className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">
+                            기본 정보 수정
+                          </span>
+                        </label>
                         <label
                           className={`inline-flex items-center ${
                             !selectedMember.crew ? "" : "opacity-50"
@@ -944,11 +994,55 @@ export default function AdminMembersPage() {
                         </label>
                       </div>
                       <p className="mt-1 text-xs text-gray-500">
-                        {selectedMember.crew
+                        {formData.eventType === "basic_info_only"
+                          ? "스트리머의 기본 정보(이름, 숲 ID)를 수정할 수 있습니다."
+                          : selectedMember.crew
                           ? "멤버가 현재 크루에 속해있어 직급 변경 또는 퇴사를 선택할 수 있습니다."
                           : "멤버가 크루에 속해있지 않아 입사만 선택 가능합니다."}
                       </p>
                     </div>
+
+                    {/* 기본 정보 수정인 경우 이름과 숲 ID 입력 */}
+                    {formData.eventType === "basic_info_only" && (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            스트리머 이름
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.name}
+                            onChange={(e) =>
+                              setFormData({ ...formData, name: e.target.value })
+                            }
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            숲 ID (SOOP ID)
+                          </label>
+                          <input
+                            type="text"
+                            value={formData.soopId}
+                            onChange={(e) =>
+                              setFormData({
+                                ...formData,
+                                soopId: e.target.value,
+                              })
+                            }
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            placeholder="예: woowakgood, dkdlel123"
+                            required
+                          />
+                          <p className="mt-1 text-xs text-gray-500">
+                            프로필 이미지와 방송국 URL은 숲 ID에서 자동
+                            생성됩니다.
+                          </p>
+                        </div>
+                      </>
+                    )}
 
                     {/* 입사인 경우 크루 및 계급 선택 */}
                     {formData.eventType === "join" && (
@@ -1044,41 +1138,45 @@ export default function AdminMembersPage() {
                         </div>
                       )}
 
-                    {/* 이벤트 날짜 */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        이벤트 날짜
-                      </label>
-                      <input
-                        type="date"
-                        value={formData.eventDate}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            eventDate: e.target.value,
-                          })
-                        }
-                        max={getTodayDate()}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        required
-                      />
-                    </div>
+                    {/* 이벤트 날짜 (기본 정보 수정 시에는 표시하지 않음) */}
+                    {formData.eventType !== "basic_info_only" && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          이벤트 날짜
+                        </label>
+                        <input
+                          type="date"
+                          value={formData.eventDate}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              eventDate: e.target.value,
+                            })
+                          }
+                          max={getTodayDate()}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          required
+                        />
+                      </div>
+                    )}
 
-                    {/* 비고 (메모) */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        비고 사항
-                      </label>
-                      <textarea
-                        value={formData.note}
-                        onChange={(e) =>
-                          setFormData({ ...formData, note: e.target.value })
-                        }
-                        rows={3}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        placeholder="입사/퇴사 관련 비고 사항을 입력하세요"
-                      />
-                    </div>
+                    {/* 비고 (메모) - 기본 정보 수정 시에는 표시하지 않음 */}
+                    {formData.eventType !== "basic_info_only" && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          비고 사항
+                        </label>
+                        <textarea
+                          value={formData.note}
+                          onChange={(e) =>
+                            setFormData({ ...formData, note: e.target.value })
+                          }
+                          rows={3}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          placeholder="입사/퇴사 관련 비고 사항을 입력하세요"
+                        />
+                      </div>
+                    )}
 
                     <div className="flex justify-end space-x-3">
                       <button
@@ -1092,7 +1190,9 @@ export default function AdminMembersPage() {
                         type="submit"
                         className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
                       >
-                        저장
+                        {formData.eventType === "basic_info_only"
+                          ? "정보 수정"
+                          : "저장"}
                       </button>
                     </div>
                   </div>
