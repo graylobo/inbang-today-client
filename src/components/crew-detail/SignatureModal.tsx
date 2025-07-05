@@ -88,15 +88,15 @@ export default function SignatureModal({
         {/* 헤더 */}
         <div className="flex justify-between items-center p-3 border-b dark:border-gray-700 shrink-0">
           <h2 className="text-lg font-bold truncate dark:text-gray-100">
-            {signature.songName} ({signature.starballoonCount}별)
+            {signature.songName} ({signature.starballoonCount}개)
           </h2>
           <div className="flex gap-2 shrink-0">
-            <button
+            {/* <button
               onClick={() => setIsFullscreen(!isFullscreen)}
               className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm text-gray-700 dark:text-gray-300 transition-colors"
             >
               {isFullscreen ? "축소" : "확대"}
-            </button>
+            </button> */}
             <button
               onClick={onClose}
               className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm text-gray-700 dark:text-gray-300 transition-colors"
@@ -138,8 +138,8 @@ export default function SignatureModal({
                     : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600"
                 }`}
               >
-                {dance.member?.name} (
-                {format(new Date(dance.performedAt), "yyyy-MM-dd (eee)", {
+                {dance.memberName} (
+                {format(new Date(dance.performedAt), "yyyy-MM-dd", {
                   locale: ko,
                 })}
                 )

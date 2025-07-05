@@ -17,7 +17,7 @@ export interface SignatureFormData {
   signatureImageUrl: string;
   description?: string;
   dances: {
-    memberId: number;
+    memberName: string;
     danceVideoUrl: string;
     performedAt: string;
   }[];
@@ -32,7 +32,7 @@ export default function SignaturesPage() {
     songName: "",
     signatureImageUrl: "",
     description: "",
-    dances: [{ memberId: 0, danceVideoUrl: "", performedAt: "" }],
+    dances: [{ memberName: "", danceVideoUrl: "", performedAt: "" }],
   });
 
   const resetForm = () => {
@@ -42,7 +42,7 @@ export default function SignaturesPage() {
       songName: "",
       signatureImageUrl: "",
       description: "",
-      dances: [{ memberId: 0, danceVideoUrl: "", performedAt: "" }],
+      dances: [{ memberName: "", danceVideoUrl: "", performedAt: "" }],
     });
     setIsEditing(false);
   };
@@ -91,7 +91,7 @@ export default function SignaturesPage() {
       ...formData,
       dances: [
         ...formData.dances,
-        { memberId: 0, danceVideoUrl: "", performedAt: "" },
+        { memberName: "", danceVideoUrl: "", performedAt: "" },
       ],
     });
   };
@@ -124,7 +124,7 @@ export default function SignaturesPage() {
             setSelectedCrewID(Number(e.target.value));
             resetForm();
           }}
-          className="rounded-md border-gray-300"
+          className="rounded-md border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 p-2"
         >
           <option value={0}>크루 선택</option>
           {crews?.map((crew: any) => (
@@ -154,7 +154,7 @@ export default function SignaturesPage() {
                     e.target.value === "" ? 0 : Number(e.target.value),
                 })
               }
-              className="mt-1 block w-full rounded-md border-gray-300"
+              className="mt-1 block w-full rounded-md border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 p-2"
               required
             />
           </div>
@@ -172,7 +172,7 @@ export default function SignaturesPage() {
                   songName: e.target.value,
                 })
               }
-              className="mt-1 block w-full rounded-md border-gray-300"
+              className="mt-1 block w-full rounded-md border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 p-2"
               required
             />
           </div>
@@ -190,8 +190,8 @@ export default function SignaturesPage() {
                   signatureImageUrl: e.target.value,
                 })
               }
-              className="mt-1 block w-full rounded-md border-gray-300"
-              required
+              className="mt-1 block w-full rounded-md border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 p-2"
+              placeholder="선택 사항"
             />
           </div>
 
@@ -207,7 +207,7 @@ export default function SignaturesPage() {
                   description: e.target.value,
                 })
               }
-              className="mt-1 block w-full rounded-md border-gray-300"
+              className="mt-1 block w-full rounded-md border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 p-2"
               rows={3}
             />
           </div>
@@ -241,29 +241,18 @@ export default function SignaturesPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    크루원
+                    크루원 이름
                   </label>
-                  <select
-                    value={dance.memberId}
+                  <input
+                    type="text"
+                    value={dance.memberName}
                     onChange={(e) =>
-                      handleDanceChange(
-                        index,
-                        "memberId",
-                        Number(e.target.value)
-                      )
+                      handleDanceChange(index, "memberName", e.target.value)
                     }
-                    className="mt-1 block w-full rounded-md border-gray-300"
+                    className="mt-1 block w-full rounded-md border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 p-2"
+                    placeholder="크루원 이름을 입력하세요"
                     required
-                  >
-                    <option value={0}>크루원 선택</option>
-                    {crews
-                      ?.find((c) => c.id === selectedCrewID)
-                      ?.members.map((member: any) => (
-                        <option key={member.id} value={member.id}>
-                          {member.name}
-                        </option>
-                      ))}
-                  </select>
+                  />
                 </div>
 
                 <div>
@@ -276,7 +265,7 @@ export default function SignaturesPage() {
                     onChange={(e) =>
                       handleDanceChange(index, "danceVideoUrl", e.target.value)
                     }
-                    className="mt-1 block w-full rounded-md border-gray-300"
+                    className="mt-1 block w-full rounded-md border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 p-2"
                     required
                   />
                 </div>
@@ -291,7 +280,7 @@ export default function SignaturesPage() {
                     onChange={(e) =>
                       handleDanceChange(index, "performedAt", e.target.value)
                     }
-                    className="mt-1 block w-full rounded-md border-gray-300"
+                    className="mt-1 block w-full rounded-md border-2 border-gray-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 p-2"
                     required
                   />
                 </div>
