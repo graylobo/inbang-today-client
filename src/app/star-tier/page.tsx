@@ -55,7 +55,7 @@ function StarTierPage() {
         <header className="mb-8">
           <h1 className="text-4xl font-bold mb-4">스타크래프트 티어표</h1>
           <div className="text-sm text-gray-500">
-            <span>실시간 업데이트 출처: 엘로보드</span>
+            <span>실시간 업데이트 출처: <a href="https://eloboard.com/" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700">엘로보드</a></span>
           </div>
         </header>
         <StarTier />

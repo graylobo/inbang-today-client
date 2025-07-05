@@ -78,13 +78,6 @@ export default function BuildAlert() {
 
   return (
     <main className="mt-[76px] min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Ad spaces - placeholder for now */}
-      <aside className="w-[320px] md:w-[728px] mx-auto mb-4">
-        <div className="h-[100px] bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-gray-500">
-          광고 영역
-        </div>
-      </aside>
-
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
