@@ -33,9 +33,8 @@ export interface DateFormatOptions {
  */
 export const toKoreanTime = (dateString: string): Date => {
   const date = new Date(dateString);
-  // Create a new date with the UTC time plus 9 hours
-  const koreanDate = new Date(date.getTime());
-  koreanDate.setUTCHours(koreanDate.getUTCHours() + 9);
+  // UTC 시간에 9시간(한국 시간대)을 밀리초 단위로 더함
+  const koreanDate = new Date(date.getTime() + 9 * 60 * 60 * 1000);
   return koreanDate;
 };
 
@@ -48,14 +47,10 @@ export const isToday = (dateString: string): boolean => {
   const koreanDate = toKoreanTime(dateString);
   const today = new Date();
 
-  // Convert today to Korean time for comparison
-  const koreanToday = new Date(today.getTime());
-  koreanToday.setUTCHours(koreanToday.getUTCHours() + 9);
-
   return (
-    koreanDate.getFullYear() === koreanToday.getFullYear() &&
-    koreanDate.getMonth() === koreanToday.getMonth() &&
-    koreanDate.getDate() === koreanToday.getDate()
+    koreanDate.getFullYear() === today.getFullYear() &&
+    koreanDate.getMonth() === today.getMonth() &&
+    koreanDate.getDate() === today.getDate()
   );
 };
 
@@ -66,7 +61,7 @@ export const isToday = (dateString: string): boolean => {
  */
 const getElapsedTimeString = (date: Date): string => {
   const now = new Date();
-  now.setUTCHours(now.getUTCHours()); // 현재 KST
+
   const diff = Math.floor((now.getTime() - date.getTime()) / 1000); // 초 단위
 
   if (diff < 10) return "방금전";

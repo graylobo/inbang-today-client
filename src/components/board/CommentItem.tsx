@@ -12,6 +12,7 @@ import { maskIpAddress } from "@/utils/ipUtils";
 import Image from "next/image";
 import { useState } from "react";
 import CommentForm from "./CommentForm";
+import { formatDate } from "@/utils/date.utils";
 
 interface CommentItemProps {
   comment: Comment;
@@ -174,7 +175,9 @@ export default function CommentItem({
             </span>
           )}
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            {new Date(comment.createdAt).toLocaleString()}
+            {formatDate(comment.createdAt, "mm.dd hh:mm:ss", {
+              showElapsedForToday: true,
+            })}
           </span>
         </div>
 

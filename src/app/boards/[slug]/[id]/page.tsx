@@ -127,7 +127,9 @@ export default function PostPage(props: { params: PostPageParams }) {
               <div className="flex items-center">
                 <CalendarIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
                 <span className="leading-none align-middle">
-                  {formatDate(post.createdAt, "mm.dd hh:mm:ss")}
+                  {formatDate(post.createdAt, "mm.dd hh:mm:ss", {
+                    showElapsedForToday: true,
+                  })}
                 </span>
               </div>
               <div className="flex items-center">
