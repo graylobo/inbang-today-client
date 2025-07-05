@@ -4,6 +4,12 @@ import { EloRanking } from "@/hooks/elo-ranking/useEloRanking";
 import { TierType, calculateTiers } from "@/utils/tierCalculator";
 import StreamerCard from "@/components/streaming/StreamerCard";
 import { Dispatch, RefObject, SetStateAction, useMemo, useRef } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface TierSystemProps {
   rankings: EloRanking[];
@@ -76,101 +82,110 @@ export default function TierSystem({
   }, [filteredRankings]);
 
   return (
-    <div className="p-4">
-      <h2 className="text-2xl font-bold mb-6">{month} 계급 랭킹</h2>
-
-      {/* Tier system explanation */}
-      <div className="mb-8 p-4 bg-gray-100 rounded-lg">
-        <h3 className="font-bold text-lg mb-2">계급 분포 시스템</h3>
-        <p className="text-sm">
-          • 주: 상위 9명 (고정)
-          <br />
-          • 갑: 상위 3%
-          <br />
-          • 을: 상위 5%
-          <br />
-          • 병: 상위 7%
-          <br />
-          • 정: 상위 10%
-          <br />
-          • 무: 상위 15%
-          <br />
-          • 기: 상위 18%
-          <br />
-          • 경: 상위 17%
-          <br />
-          • 신: 상위 13%
-          <br />
-          • 임: 상위 8%
-          <br />• 계: 상위 4%
-        </p>
-      </div>
-
-      {/* Tiers display */}
-      {Object.entries(groupedByTier).map(([tier, players]) => {
-        if (players.length === 0) return null;
-
-        return (
-          <div key={tier} className="mb-8">
-            <div
-              className="text-xl font-bold py-2 px-4 rounded-t-lg"
-              style={{ backgroundColor: players[0]?.tierColor || "#333" }}
+    <TooltipProvider delayDuration={0}>
+      <div className="p-4">
+        <div className="flex items-center gap-2 mb-6">
+          <h2 className="text-2xl font-bold">{month} 계급 랭킹</h2>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                className="w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-600 transition-colors cursor-help"
+                type="button"
+              >
+                ?
+              </button>
+            </TooltipTrigger>
+            <TooltipContent
+              className="max-w-xs z-[9999] bg-white border border-gray-200 shadow-lg"
+              side="bottom"
+              sideOffset={5}
             >
-              <span className="text-white">
-                {tier} ({players.length}명)
-              </span>
-            </div>
-
-            <div
-              className="grid gap-[10px] p-4 bg-gray-100 rounded-b-lg"
-              style={{
-                gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-              }}
-            >
-              {players.map((player) => (
-                <div key={player.id} className="relative">
-                  {/* Add tier badge to the corner */}
-                  <div
-                    className="absolute top-2 right-2 z-10 px-2 py-1 rounded text-sm text-white font-bold"
-                    style={{ backgroundColor: player.tierColor }}
-                  >
-                    {player.calculatedTier}
-                  </div>
-
-                  {/* Use the existing StreamerCard component with all props */}
-                  <StreamerCard
-                    streamer={{
-                      id: player.id,
-                      name: player.name,
-                      soopId: player.soopId,
-                      race: player.race,
-                      tier: player.tier,
-                      gender: player.gender,
-                      // Add required structure for StreamerCard
-                      crew: { id: 0, name: "" },
-                      rank: { id: 0, name: "" },
-                    }}
-                    opponents={opponents}
-                    selectedStreamer={selectedStreamer}
-                    setSelectedStreamer={setSelectedStreamer}
-                    dateRange={dateRange}
-                    streamerGridRef={streamerGridRef}
-                    showOnlyLive={showOnlyLive}
-                  />
-
-                  {/* ELO point display */}
-                  <div className="mt-1 p-2 bg-gray-800 text-white text-sm rounded-md flex justify-between">
-                    <span>Rank {player.rank}</span>
-                    <span className="font-bold">
-                      {Math.round(player.eloPoint)}p
-                    </span>
-                  </div>
+              <div className="text-sm text-gray-900">
+                <h3 className="font-bold mb-2">계급 분포 시스템</h3>
+                <div className="space-y-1">
+                  <div>• 주: 상위 9명 (고정)</div>
+                  <div>• 갑: 상위 3%</div>
+                  <div>• 을: 상위 5%</div>
+                  <div>• 병: 상위 7%</div>
+                  <div>• 정: 상위 10%</div>
+                  <div>• 무: 상위 15%</div>
+                  <div>• 기: 상위 18%</div>
+                  <div>• 경: 상위 17%</div>
+                  <div>• 신: 상위 13%</div>
+                  <div>• 임: 상위 8%</div>
+                  <div>• 계: 상위 4%</div>
                 </div>
-              ))}
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+
+        {/* Tiers display */}
+        {Object.entries(groupedByTier).map(([tier, players]) => {
+          if (players.length === 0) return null;
+
+          return (
+            <div key={tier} className="mb-8">
+              <div
+                className="text-xl font-bold py-2 px-4 rounded-t-lg"
+                style={{ backgroundColor: players[0]?.tierColor || "#333" }}
+              >
+                <span className="text-white">
+                  {tier} ({players.length}명)
+                </span>
+              </div>
+
+              <div
+                className="grid gap-[10px] p-4 bg-gray-100 rounded-b-lg"
+                style={{
+                  gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
+                }}
+              >
+                {players.map((player) => (
+                  <div key={player.id} className="relative">
+                    {/* Add tier badge to the corner */}
+                    <div
+                      className="absolute top-2 right-2 z-10 px-2 py-1 rounded text-sm text-white font-bold"
+                      style={{ backgroundColor: player.tierColor }}
+                    >
+                      {player.calculatedTier}
+                    </div>
+
+                    {/* Use the existing StreamerCard component with all props */}
+                    <StreamerCard
+                      streamer={{
+                        id: player.id,
+                        name: player.name,
+                        soopId: player.soopId,
+                        race: player.race,
+                        tier: player.tier,
+                        gender: player.gender,
+                        // Add required structure for StreamerCard
+                        crew: { id: 0, name: "" },
+                        rank: { id: 0, name: "" },
+                      }}
+                      opponents={opponents}
+                      selectedStreamer={selectedStreamer}
+                      setSelectedStreamer={setSelectedStreamer}
+                      dateRange={dateRange}
+                      streamerGridRef={streamerGridRef}
+                      showOnlyLive={showOnlyLive}
+                    />
+
+                    {/* ELO point display */}
+                    <div className="mt-1 p-2 bg-gray-800 text-white text-sm rounded-md flex justify-between">
+                      <span>Rank {player.rank}</span>
+                      <span className="font-bold">
+                        {Math.round(player.eloPoint)}p
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+    </TooltipProvider>
   );
 }
