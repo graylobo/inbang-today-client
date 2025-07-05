@@ -26,13 +26,20 @@ export interface SignatureFormData {
 export default function SignaturesPage() {
   const [selectedCrewID, setSelectedCrewID] = useState<number>(0);
   const [isEditing, setIsEditing] = useState(false);
+
+  const getTodayDate = () => {
+    return new Date().toISOString().split("T")[0];
+  };
+
   const [formData, setFormData] = useState<SignatureFormData>({
     crewId: 0,
     starballoonCount: 0,
     songName: "",
     signatureImageUrl: "",
     description: "",
-    dances: [{ memberName: "", danceVideoUrl: "", performedAt: "" }],
+    dances: [
+      { memberName: "", danceVideoUrl: "", performedAt: getTodayDate() },
+    ],
   });
 
   const resetForm = () => {
@@ -42,7 +49,9 @@ export default function SignaturesPage() {
       songName: "",
       signatureImageUrl: "",
       description: "",
-      dances: [{ memberName: "", danceVideoUrl: "", performedAt: "" }],
+      dances: [
+        { memberName: "", danceVideoUrl: "", performedAt: getTodayDate() },
+      ],
     });
     setIsEditing(false);
   };
@@ -91,7 +100,7 @@ export default function SignaturesPage() {
       ...formData,
       dances: [
         ...formData.dances,
-        { memberName: "", danceVideoUrl: "", performedAt: "" },
+        { memberName: "", danceVideoUrl: "", performedAt: getTodayDate() },
       ],
     });
   };
@@ -272,7 +281,7 @@ export default function SignaturesPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    촬영 일자
+                    방송 일자
                   </label>
                   <input
                     type="date"

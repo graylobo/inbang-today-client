@@ -679,7 +679,7 @@ export default function AdminMembersPage() {
                 : "text-gray-500 hover:text-gray-700 hover:border-gray-300"
             }`}
           >
-            크루 멤버십 관리
+            크루 멤버 관리
           </button>
         </nav>
       </div>
@@ -745,7 +745,7 @@ export default function AdminMembersPage() {
       {activeTab === "manageCrew" && (
         <>
           <div className="bg-white shadow-sm rounded-lg p-6">
-            <h2 className="text-lg font-medium mb-4">크루 멤버십 관리</h2>
+            <h2 className="text-lg font-medium mb-4">크루 멤버 관리</h2>
 
             {/* 스트리머 검색 섹션 */}
             <div className="mb-6">
@@ -831,7 +831,7 @@ export default function AdminMembersPage() {
                 </button>
               </div>
               <p className="mt-1 text-xs text-gray-500">
-                스트리머를 검색하여 크루 멤버십을 관리하세요.
+                스트리머를 검색하여 크루 멤버를 관리하세요.
               </p>
             </div>
 

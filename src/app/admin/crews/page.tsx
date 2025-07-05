@@ -508,7 +508,7 @@ export default function AdminCrewsPage() {
                       href={`/admin/members?crewId=${crew.id}`}
                       className="text-green-600 hover:text-green-900"
                     >
-                      멤버 관리
+                      스트리머 관리
                     </Link>
                     <button
                       onClick={() => openRankModal(crew)}
