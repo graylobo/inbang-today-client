@@ -44,7 +44,13 @@ export interface StreamerFormData {
   crewId?: number;
   rankId?: number;
   categoryIds?: number[];
-  eventType?: "join" | "leave" | "rank_change" | "basic_info_only";
+  eventType?:
+    | "join"
+    | "leave"
+    | "rank_change"
+    | "basic_info_only"
+    | "history_add";
+  historyEventType?: "join" | "leave" | "rank_change";
   eventDate?: string;
   note?: string;
 }
@@ -105,6 +111,7 @@ export default function AdminMembersPage() {
       rankId: 0,
       categoryIds: [],
       eventType: "basic_info_only",
+      historyEventType: "join",
       eventDate: getTodayDate(),
       note: "",
     });
@@ -218,8 +225,11 @@ export default function AdminMembersPage() {
   const [selectedHistory, setSelectedHistory] =
     useState<CrewMemberHistoryItem | null>(null);
   const [historyFormData, setHistoryFormData] = useState({
+    crewId: 0,
+    eventType: "join" as "join" | "leave" | "rank_change",
     eventDate: "",
     note: "",
+    rankId: 0,
   });
 
   // 히스토리 수정/삭제 mutation
@@ -230,8 +240,11 @@ export default function AdminMembersPage() {
   const handleEditHistory = (history: CrewMemberHistoryItem) => {
     setSelectedHistory(history);
     setHistoryFormData({
+      crewId: history.crew.id,
+      eventType: history.eventType,
       eventDate: history.eventDate,
       note: history.note,
+      rankId: history.newRank?.id || history.oldRank?.id || 0,
     });
     setIsHistoryModalOpen(true);
   };
@@ -245,8 +258,19 @@ export default function AdminMembersPage() {
         {
           id: selectedHistory.id,
           historyData: {
+            crewId: historyFormData.crewId,
+            eventType: historyFormData.eventType,
             eventDate: historyFormData.eventDate,
             note: historyFormData.note,
+            newRankId:
+              historyFormData.eventType === "join" ||
+              historyFormData.eventType === "rank_change"
+                ? historyFormData.rankId
+                : undefined,
+            oldRankId:
+              historyFormData.eventType === "rank_change"
+                ? selectedHistory.oldRank?.id
+                : undefined,
           },
         },
         {
@@ -431,6 +455,16 @@ export default function AdminMembersPage() {
     if (formData.eventType === "basic_info_only") {
       if (!formData.name.trim()) missingFields.push("스트리머 이름");
       if (!formData.soopId?.trim()) missingFields.push("숲 ID (SOOP ID)");
+    } else if (formData.eventType === "history_add") {
+      if (!formData.crewId) missingFields.push("크루");
+      if (!formData.historyEventType) missingFields.push("히스토리 타입");
+      if (
+        (formData.historyEventType === "join" ||
+          formData.historyEventType === "rank_change") &&
+        !formData.rankId
+      ) {
+        missingFields.push("계급");
+      }
     } else if (formData.eventType === "join") {
       if (!formData.crewId) missingFields.push("크루");
       if (!formData.rankId) missingFields.push("계급");
@@ -497,6 +531,34 @@ export default function AdminMembersPage() {
       }
 
       resetForm();
+      return;
+    }
+
+    // 히스토리 추가 처리
+    if (formData.eventType === "history_add") {
+      const historyData: any = {
+        streamerId,
+        crewId: formData.crewId,
+        eventType: formData.historyEventType,
+        eventDate: formData.eventDate,
+        note: formData.note,
+        newRankId:
+          formData.historyEventType === "join" ||
+          formData.historyEventType === "rank_change"
+            ? formData.rankId
+            : undefined,
+      };
+
+      // 히스토리만 추가 (실제 멤버 정보는 변경하지 않음)
+      createCrewMemberHistory(historyData as CrewMemberHistoryData)
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["memberHistories"] });
+          resetForm();
+        })
+        .catch((error) => {
+          console.error("히스토리 추가 중 오류 발생:", error);
+          alert(error);
+        });
       return;
     }
 
@@ -587,6 +649,7 @@ export default function AdminMembersPage() {
       rankId: member?.rank?.id || 0,
       categoryIds: [], // 초기값으로 빈 배열 설정, memberCategories 로드 후 업데이트됨
       eventType: "basic_info_only",
+      historyEventType: "join",
       eventDate: getTodayDate(),
       note: "",
     });
@@ -640,6 +703,7 @@ export default function AdminMembersPage() {
         rankId: memberData.rank?.id || 0,
         categoryIds: [],
         eventType: "basic_info_only",
+        historyEventType: "join",
         eventDate: getTodayDate(),
         note: "",
       });
@@ -992,10 +1056,30 @@ export default function AdminMembersPage() {
                             직급 변경
                           </span>
                         </label>
+                        <label className="inline-flex items-center">
+                          <input
+                            type="radio"
+                            name="eventType"
+                            value="history_add"
+                            checked={formData.eventType === "history_add"}
+                            onChange={() =>
+                              setFormData({
+                                ...formData,
+                                eventType: "history_add",
+                              })
+                            }
+                            className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">
+                            크루 히스토리 수정
+                          </span>
+                        </label>
                       </div>
                       <p className="mt-1 text-xs text-gray-500">
                         {formData.eventType === "basic_info_only"
                           ? "스트리머의 기본 정보(이름, 숲 ID)를 수정할 수 있습니다."
+                          : formData.eventType === "history_add"
+                          ? "과거 크루 입사/퇴사/직급변경 기록을 추가할 수 있습니다. 현재 크루 상태와 무관하게 히스토리를 추가할 수 있습니다."
                           : selectedMember.crew
                           ? "멤버가 현재 크루에 속해있어 직급 변경 또는 퇴사를 선택할 수 있습니다."
                           : "멤버가 크루에 속해있지 않아 입사만 선택 가능합니다."}
@@ -1041,6 +1125,90 @@ export default function AdminMembersPage() {
                             생성됩니다.
                           </p>
                         </div>
+                      </>
+                    )}
+
+                    {/* 히스토리 추가인 경우 */}
+                    {formData.eventType === "history_add" && (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">
+                            크루 선택
+                          </label>
+                          <select
+                            value={formData.crewId}
+                            onChange={(e) => {
+                              const newCrewId = Number(e.target.value);
+                              setFormData({
+                                ...formData,
+                                crewId: newCrewId,
+                                rankId: 0,
+                              });
+                            }}
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                            required
+                          >
+                            <option value={0}>크루 선택</option>
+                            {allCrews?.map((crew: any) => (
+                              <option key={crew.id} value={crew.id}>
+                                {crew.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        {formData.crewId && formData.crewId > 0 && (
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700">
+                              히스토리 타입
+                            </label>
+                            <select
+                              value={formData.historyEventType || "join"}
+                              onChange={(e) =>
+                                setFormData({
+                                  ...formData,
+                                  historyEventType: e.target.value as
+                                    | "join"
+                                    | "leave"
+                                    | "rank_change",
+                                })
+                              }
+                              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                              required
+                            >
+                              <option value="join">입사</option>
+                              <option value="leave">퇴사</option>
+                              <option value="rank_change">직급 변경</option>
+                            </select>
+                          </div>
+                        )}
+                        {formData.crewId &&
+                          formData.crewId > 0 &&
+                          (formData.historyEventType === "join" ||
+                            formData.historyEventType === "rank_change") && (
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700">
+                                계급
+                              </label>
+                              <select
+                                value={formData.rankId}
+                                onChange={(e) =>
+                                  setFormData({
+                                    ...formData,
+                                    rankId: Number(e.target.value),
+                                  })
+                                }
+                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                required
+                              >
+                                <option value={0}>계급 선택</option>
+                                {ranks?.map((rank: any) => (
+                                  <option key={rank.id} value={rank.id}>
+                                    {rank.name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          )}
                       </>
                     )}
 
@@ -1377,24 +1545,78 @@ export default function AdminMembersPage() {
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700">
+                        크루
+                      </label>
+                      <select
+                        value={historyFormData.crewId}
+                        onChange={(e) =>
+                          setHistoryFormData({
+                            ...historyFormData,
+                            crewId: Number(e.target.value),
+                          })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        required
+                      >
+                        <option value={0}>크루 선택</option>
+                        {allCrews?.map((crew: any) => (
+                          <option key={crew.id} value={crew.id}>
+                            {crew.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
                         이벤트 타입
                       </label>
-                      <input
-                        type="text"
-                        value={
-                          selectedHistory.eventType === "join"
-                            ? "입사"
-                            : selectedHistory.eventType === "leave"
-                            ? "퇴사"
-                            : "직급 변경"
+                      <select
+                        value={historyFormData.eventType}
+                        onChange={(e) =>
+                          setHistoryFormData({
+                            ...historyFormData,
+                            eventType: e.target.value as
+                              | "join"
+                              | "leave"
+                              | "rank_change",
+                          })
                         }
-                        disabled
-                        className="mt-1 block w-full rounded-md border-gray-300 bg-gray-100 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                      />
-                      <p className="mt-1 text-xs text-gray-500">
-                        이벤트 타입은 변경할 수 없습니다.
-                      </p>
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        required
+                      >
+                        <option value="join">입사</option>
+                        <option value="leave">퇴사</option>
+                        <option value="rank_change">직급 변경</option>
+                      </select>
                     </div>
+
+                    {(historyFormData.eventType === "join" ||
+                      historyFormData.eventType === "rank_change") && (
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          계급
+                        </label>
+                        <select
+                          value={historyFormData.rankId}
+                          onChange={(e) =>
+                            setHistoryFormData({
+                              ...historyFormData,
+                              rankId: Number(e.target.value),
+                            })
+                          }
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                          required
+                        >
+                          <option value={0}>계급 선택</option>
+                          {ranks?.map((rank: any) => (
+                            <option key={rank.id} value={rank.id}>
+                              {rank.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700">
