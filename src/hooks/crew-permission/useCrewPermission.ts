@@ -1,15 +1,12 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useAuthStore } from "@/store/authStore";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Crew, CrewPermission } from "./useCrewPermission.type";
 import {
-  assignCrewPermission,
   checkCrewPermission,
   getPermittedCrews,
-  getUserPermissions,
-  removeCrewPermission,
 } from "@/libs/api/services/user-permission.service";
+import { useAuthStore } from "@/store/authStore";
+import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Crew } from "./useCrewPermission.type";
 
 export function useCheckCrewPermission(crewId?: number) {
   const { user, isAdmin, authInitialized } = useAuthStore();
@@ -30,40 +27,6 @@ export function useGetPermittedCrews() {
     queryKey: ["permittedCrews", user?.id],
     queryFn: () => getPermittedCrews(),
     enabled: !!user,
-  });
-}
-
-export function useGetUserPermissions(userId: number) {
-  return useQuery<CrewPermission[]>({
-    queryKey: ["userPermissions", userId],
-    queryFn: () => getUserPermissions(userId),
-    enabled: !!userId,
-  });
-}
-
-export function useAssignCrewPermission() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ userId, crewId }: { userId: number; crewId: number }) =>
-      assignCrewPermission(userId, crewId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["permittedCrews"] });
-      queryClient.invalidateQueries({ queryKey: ["userPermissions"] });
-    },
-  });
-}
-
-export function useRemoveCrewPermission() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ userId, crewId }: { userId: number; crewId: number }) =>
-      removeCrewPermission(userId, crewId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["permittedCrews"] });
-      queryClient.invalidateQueries({ queryKey: ["userPermissions"] });
-    },
   });
 }
 
