@@ -155,7 +155,7 @@ export default function PermissionsManagementPage() {
           onChange={(e) => handleUserSelect(Number(e.target.value))}
         >
           <option value="">사용자 선택...</option>
-          {users &&
+          {Array.isArray(users) &&
             users.map((user: any) => (
               <option key={user.id} value={user.id}>
                 {user.name} ({user.email})
@@ -265,7 +265,7 @@ export default function PermissionsManagementPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {crews &&
+                  {Array.isArray(crews) &&
                     crews.map((crew: any) => {
                       const hasPermission = hasPermissionForCrew(crew.id);
                       return (

@@ -25,12 +25,28 @@ import {
 } from "@/libs/api/services/crew.service";
 import { getErrorMessage } from "@/libs/utils/error-handler";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export function useGetCrews() {
-  return useQuery<Crew[]>({
+  const router = useRouter();
+
+  const query = useQuery<Crew[]>({
     queryKey: ["crews"],
     queryFn: () => getCrews(),
+    retry: false, // 에러 시 재시도 안함
   });
+
+  // useMutation의 onError처럼 에러 처리
+  useEffect(() => {
+    if (query.error) {
+      const error = query.error as any;
+      alert(getErrorMessage(error?.response?.data?.errorCode || error));
+      router.push("/");
+    }
+  }, [query.error, router]);
+
+  return query;
 }
 
 export function useGetCrewRanksByCrewID(crewId: string) {

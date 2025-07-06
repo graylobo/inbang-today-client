@@ -7,23 +7,54 @@ import {
   removeCrewPermission,
 } from "@/libs/api/services/user-permission.service";
 import { getUsers } from "@/libs/api/services/user.service";
+import { getErrorMessage } from "@/libs/utils/error-handler";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 // 모든 사용자 목록을 가져오는 훅
 export function useGetAllUsers() {
-  return useQuery({
+  const router = useRouter();
+
+  const query = useQuery({
     queryKey: ["users"],
     queryFn: getUsers,
+    retry: false, // 에러 시 재시도 안함
   });
+
+  // useMutation의 onError처럼 에러 처리
+  useEffect(() => {
+    if (query.error) {
+      const error = query.error as any;
+      alert(getErrorMessage(error?.response?.data?.errorCode || error));
+      router.push("/");
+    }
+  }, [query.error, router]);
+
+  return query;
 }
 
 // 특정 사용자의 권한 정보를 가져오는 훅
 export function useGetUserPermissions(userId: number) {
-  return useQuery({
+  const router = useRouter();
+
+  const query = useQuery({
     queryKey: ["userPermissions", userId],
     queryFn: () => getUserPermissions(userId),
     enabled: !!userId,
+    retry: false, // 에러 시 재시도 안함
   });
+
+  // useMutation의 onError처럼 에러 처리
+  useEffect(() => {
+    if (query.error) {
+      const error = query.error as any;
+      alert(getErrorMessage(error?.response?.data?.errorCode || error));
+      router.push("/");
+    }
+  }, [query.error, router]);
+
+  return query;
 }
 
 // 사용자에게 특정 크루 권한을 부여하는 훅
