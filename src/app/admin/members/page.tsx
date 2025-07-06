@@ -139,6 +139,16 @@ export default function AdminMembersPage() {
     };
   }, []);
 
+  // 슈퍼어드민이 아닌 사용자가 기본정보 수정 모드에 있을 때 자동으로 다른 옵션으로 변경
+  useEffect(() => {
+    if (!isSuperAdmin && formData.eventType === "basic_info_only") {
+      setFormData({
+        ...formData,
+        eventType: "history_add",
+      });
+    }
+  }, [isSuperAdmin, formData.eventType]);
+
   const queryClient = useQueryClient();
 
   // 모든 크루 목록 조회
@@ -780,60 +790,68 @@ export default function AdminMembersPage() {
         </nav>
       </div>
 
-      {/* 스트리머 등록 폼 */}
+      {/* 스트리머 등록 폼 - 슈퍼어드민만 접근 가능 */}
       {activeTab === "registerStreamer" && (
         <div className="bg-white shadow-sm rounded-lg p-6">
           <h2 className="text-lg font-medium mb-4">스트리머 신규 등록</h2>
-          <form onSubmit={handleStreamerRegister}>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  스트리머 이름
-                </label>
-                <input
-                  type="text"
-                  value={newStreamerData.name}
-                  onChange={(e) =>
-                    setNewStreamerData({
-                      ...newStreamerData,
-                      name: e.target.value,
-                    })
-                  }
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  required
-                />
+          {isSuperAdmin ? (
+            <form onSubmit={handleStreamerRegister}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    스트리머 이름
+                  </label>
+                  <input
+                    type="text"
+                    value={newStreamerData.name}
+                    onChange={(e) =>
+                      setNewStreamerData({
+                        ...newStreamerData,
+                        name: e.target.value,
+                      })
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    숲 ID (SOOP ID)
+                  </label>
+                  <input
+                    type="text"
+                    value={newStreamerData.soopId}
+                    onChange={(e) =>
+                      setNewStreamerData({
+                        ...newStreamerData,
+                        soopId: e.target.value,
+                      })
+                    }
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    placeholder="예: woowakgood, dkdlel123"
+                    required
+                  />
+                  <p className="mt-1 text-xs text-gray-500">
+                    프로필 이미지와 방송국 URL은 숲 ID에서 자동 생성됩니다.
+                  </p>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  >
+                    스트리머 등록
+                  </button>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  숲 ID (SOOP ID)
-                </label>
-                <input
-                  type="text"
-                  value={newStreamerData.soopId}
-                  onChange={(e) =>
-                    setNewStreamerData({
-                      ...newStreamerData,
-                      soopId: e.target.value,
-                    })
-                  }
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                  placeholder="예: woowakgood, dkdlel123"
-                  required
-                />
-                <p className="mt-1 text-xs text-gray-500">
-                  프로필 이미지와 방송국 URL은 숲 ID에서 자동 생성됩니다.
-                </p>
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                >
-                  스트리머 등록
-                </button>
-              </div>
+            </form>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500">
+                슈퍼어드민만 스트리머를 등록할 수 있습니다.
+              </p>
             </div>
-          </form>
+          )}
         </div>
       )}
 
@@ -975,24 +993,26 @@ export default function AdminMembersPage() {
                         이벤트 타입
                       </label>
                       <div className="mt-2 space-x-4">
-                        <label className="inline-flex items-center">
-                          <input
-                            type="radio"
-                            name="eventType"
-                            value="basic_info_only"
-                            checked={formData.eventType === "basic_info_only"}
-                            onChange={() =>
-                              setFormData({
-                                ...formData,
-                                eventType: "basic_info_only",
-                              })
-                            }
-                            className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
-                          />
-                          <span className="ml-2 text-sm text-gray-700">
-                            기본 정보 수정
-                          </span>
-                        </label>
+                        {isSuperAdmin && (
+                          <label className="inline-flex items-center">
+                            <input
+                              type="radio"
+                              name="eventType"
+                              value="basic_info_only"
+                              checked={formData.eventType === "basic_info_only"}
+                              onChange={() =>
+                                setFormData({
+                                  ...formData,
+                                  eventType: "basic_info_only",
+                                })
+                              }
+                              className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
+                            />
+                            <span className="ml-2 text-sm text-gray-700">
+                              기본 정보 수정
+                            </span>
+                          </label>
+                        )}
                         <label
                           className={`inline-flex items-center ${
                             !selectedMember.crew ? "" : "opacity-50"
