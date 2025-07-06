@@ -41,7 +41,7 @@ export function useGetUserPermissions(userId: number) {
   const query = useQuery({
     queryKey: ["userPermissions", userId],
     queryFn: () => getUserPermissions(userId),
-    enabled: !!userId,
+    enabled: !!userId && userId > 0,
     retry: false, // 에러 시 재시도 안함
   });
 
