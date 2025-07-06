@@ -7,6 +7,8 @@ import {
   useGetCrewSignatures,
   useUpdateCrewSignature,
 } from "@/hooks/crew/useCrews";
+import { useGetPermittedCrews } from "@/hooks/crew-permission/useCrewPermission";
+import { useAuthStore } from "@/store/authStore";
 import { useState } from "react";
 
 export interface SignatureFormData {
@@ -56,7 +58,12 @@ export default function SignaturesPage() {
     setIsEditing(false);
   };
 
-  const { data: crews } = useGetCrews();
+  const { isSuperAdmin } = useAuthStore();
+  const { data: allCrews } = useGetCrews();
+  const { data: permittedCrews } = useGetPermittedCrews();
+
+  // 슈퍼어드민인 경우 모든 크루, 아닌 경우 권한을 가진 크루만 표시
+  const crews = isSuperAdmin ? allCrews : permittedCrews;
 
   const { data: signatures } = useGetCrewSignatures(selectedCrewID);
 
