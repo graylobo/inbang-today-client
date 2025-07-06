@@ -1,3 +1,4 @@
+import { getErrorMessage } from "@/libs/utils/error-handler";
 import axios from "axios";
 
 const api = axios.create({
@@ -20,9 +21,11 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    console.error(
+    console.log(
       "error request path:::",
-      `${error.request.method} ${error.config.baseURL}${error.request.path}`
+      `${error.request.method && error.request.method} ${error.config.baseURL}${
+        error.request.path && error.request.path
+      }`
     );
     return Promise.reject(error.response?.data.errorCode);
   }

@@ -6,4 +6,6 @@ export enum ErrorCode {
   NOT_FOUND_USER = "NOT_FOUND_USER",
   DUPLICATE_BROADCAST_DATE = "DUPLICATE_BROADCAST_DATE",
   AUTHENTICATION_REQUIRED = "Authentication required",
+  ONLY_ADMIN_CAN_ACCESS = "Only superAdmins can assign permissions",
+  ONLY_VIEW_OWN_PERMISSIONS = "You can only view your own permissions",
 }

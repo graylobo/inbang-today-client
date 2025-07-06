@@ -9,5 +9,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   [ErrorCode.DUPLICATE_BROADCAST_DATE]: "이미 존재하는 방송 날짜입니다.",
   [ErrorCode.UNAUTHORIZED]: "로그인이 필요합니다.",
   [ErrorCode.AUTHENTICATION_REQUIRED]: "로그인이 필요합니다.",
+  [ErrorCode.ONLY_ADMIN_CAN_ACCESS]: "관리자만 접근할 수 있습니다.",
+  [ErrorCode.ONLY_VIEW_OWN_PERMISSIONS]:
+    "권한이 있는 유저만 접근할 수 있습니다.",
   DEFAULT: "오류가 발생했습니다. 다시 시도해 주세요.",
 };
