@@ -186,8 +186,6 @@ function StarTier() {
           // Calculate the absolute position of the grid top
           const gridTop = gridRect.top + currentScrollY;
 
-          console.log(gridRect.top, currentScrollY);
-
           // Account for navigation height with some padding
           const scrollToPosition = gridTop - navHeight - 20;
 
@@ -200,6 +198,15 @@ function StarTier() {
       }, 100);
     }
   }, [selectedStreamer, displayMode, navHeight]);
+
+  // Add useEffect to automatically show only matched opponents when a streamer is selected
+  useEffect(() => {
+    if (selectedStreamer) {
+      setShowOnlyMatched(true);
+    } else {
+      setShowOnlyMatched(false);
+    }
+  }, [selectedStreamer]);
 
   return (
     <div ref={containerRef}>
