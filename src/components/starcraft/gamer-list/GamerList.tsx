@@ -11,7 +11,7 @@ import {
 } from "@/hooks/streamer/useStreamer";
 import { useClickOutside } from "@/hooks/useClickOutSide";
 import { format, subMonths } from "date-fns";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import styles from "./GamerList.module.scss";
 
 // Gender type for filtering
@@ -171,6 +171,35 @@ function StarTier() {
       setDisplayMode("list");
     }
   };
+
+  // Add useEffect to handle scroll when selectedStreamer changes
+  useEffect(() => {
+    if (selectedStreamer && streamerGridRef.current && displayMode === "list") {
+      // Small delay to ensure the DOM has updated with the new order
+      setTimeout(() => {
+        const streamerGrid = streamerGridRef.current;
+        if (streamerGrid) {
+          // Get the position of the streamer grid
+          const gridRect = streamerGrid.getBoundingClientRect();
+          const currentScrollY = window.scrollY;
+
+          // Calculate the absolute position of the grid top
+          const gridTop = gridRect.top + currentScrollY;
+
+          console.log(gridRect.top, currentScrollY);
+
+          // Account for navigation height with some padding
+          const scrollToPosition = gridTop - navHeight - 20;
+
+          // Smooth scroll to the position
+          window.scrollTo({
+            top: Math.max(0, scrollToPosition),
+            behavior: "smooth",
+          });
+        }
+      }, 100);
+    }
+  }, [selectedStreamer, displayMode, navHeight]);
 
   return (
     <div ref={containerRef}>
