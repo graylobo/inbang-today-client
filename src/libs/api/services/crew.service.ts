@@ -179,3 +179,14 @@ export async function removeCrewMember(id: number) {
   });
   return data;
 }
+
+export async function updateCrewSignatureOverviewImageUrl(
+  id: number,
+  imageUrl: string
+) {
+  const data = await apiRequest(API_ROUTES.crews.updateSignatureOverviewImageUrl, {
+    params: { id },
+    body: { imageUrl },
+  });
+  return data;
+}

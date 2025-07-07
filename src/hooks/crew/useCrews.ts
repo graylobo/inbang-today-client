@@ -22,6 +22,7 @@ import {
   removeCrewMember,
   updateCrew,
   updateCrewSignature,
+  updateCrewSignatureOverviewImageUrl,
 } from "@/libs/api/services/crew.service";
 import { getErrorMessage } from "@/libs/utils/error-handler";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -252,6 +253,19 @@ export function useRemoveCrewMember() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["members"] });
+    },
+  });
+}
+
+export function useUpdateCrewSignatureOverviewImageUrl(resetForm?: () => void) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, imageUrl }: { id: number; imageUrl: string }) => {
+      return await updateCrewSignatureOverviewImageUrl(id, imageUrl);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["crews"] });
+      if (resetForm) resetForm();
     },
   });
 }

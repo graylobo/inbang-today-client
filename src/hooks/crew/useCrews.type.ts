@@ -5,6 +5,7 @@ export interface Crew {
   name: string;
   description: string;
   iconUrl?: string;
+  signatureOverviewImageUrl?: string;
   members: {
     id: number;
     name: string;

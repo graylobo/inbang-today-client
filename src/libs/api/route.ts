@@ -143,6 +143,7 @@ export const API_ROUTES = {
     update: { url: "/crews/{id}", method: "PUT" },
     delete: { url: "/crews/{id}", method: "DELETE" },
     rankings: { url: "/crews/rankings", method: "GET" },
+    updateSignatureOverviewImageUrl: { url: "/crews/{id}/signature-overview-image-url", method: "PATCH" },
   },
   crewRanks: {
     getByCrewId: { url: "/crew-ranks/crew/{crewId}", method: "GET" },
