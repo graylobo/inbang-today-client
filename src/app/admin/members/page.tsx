@@ -6,18 +6,15 @@ import {
   useSetStreamerCategories,
 } from "@/hooks/category/useCategory";
 import { useCrewPermissionsList } from "@/hooks/crew-permission/useCrewPermission";
-import {
-  CrewMemberHistoryItem,
-  useDeleteCrewMemberHistory,
-  useGetCrewMemberHistory,
-  useUpdateCrewMemberHistory,
-} from "@/hooks/crew/useCrewMemberHistory";
+import { useGetCrewMemberHistory } from "@/hooks/crew/useCrewMemberHistory";
 import {
   useGetCrewRanksByCrewID,
   useGetCrews,
   useRemoveCrewMember,
 } from "@/hooks/crew/useCrews";
 import MemberHistoryTable from "@/components/common/MemberHistoryTable";
+import MemberHistoryFormModal from "@/components/common/MemberHistoryFormModal";
+import { useMemberHistoryManager } from "@/hooks/crew/useMemberHistoryManager";
 
 import {
   useDeleteStreamer,
@@ -231,79 +228,8 @@ export default function AdminMembersPage() {
   const { data: memberHistory, isLoading: isLoadingHistory } =
     useGetCrewMemberHistory(selectedMember?.id);
 
-  // 히스토리 수정 모달 관련 상태
-  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
-  const [selectedHistory, setSelectedHistory] =
-    useState<CrewMemberHistoryItem | null>(null);
-  const [historyFormData, setHistoryFormData] = useState({
-    crewId: 0,
-    eventType: "join" as "join" | "leave" | "rank_change",
-    eventDate: "",
-    note: "",
-    rankId: 0,
-  });
-
-  // 히스토리 수정/삭제 mutation
-  const { mutate: updateHistory } = useUpdateCrewMemberHistory();
-  const { mutate: deleteHistory } = useDeleteCrewMemberHistory();
-
-  // 히스토리 수정 모달 열기
-  const handleEditHistory = (history: CrewMemberHistoryItem) => {
-    setSelectedHistory(history);
-    setHistoryFormData({
-      crewId: history.crew.id,
-      eventType: history.eventType,
-      eventDate: history.eventDate,
-      note: history.note,
-      rankId: history.newRank?.id || history.oldRank?.id || 0,
-    });
-    setIsHistoryModalOpen(true);
-  };
-
-  // 히스토리 수정 제출
-  const handleHistorySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (selectedHistory) {
-      updateHistory(
-        {
-          id: selectedHistory.id,
-          historyData: {
-            crewId: historyFormData.crewId,
-            eventType: historyFormData.eventType,
-            eventDate: historyFormData.eventDate,
-            note: historyFormData.note,
-            newRankId:
-              historyFormData.eventType === "join" ||
-              historyFormData.eventType === "rank_change"
-                ? historyFormData.rankId
-                : undefined,
-            oldRankId:
-              historyFormData.eventType === "rank_change"
-                ? selectedHistory.oldRank?.id
-                : undefined,
-          },
-        },
-        {
-          onSuccess: () => {
-            setIsHistoryModalOpen(false);
-            setSelectedHistory(null);
-          },
-        }
-      );
-    }
-  };
-
-  // 히스토리 삭제
-  const handleDeleteHistory = (historyId: number) => {
-    if (
-      window.confirm(
-        "정말로 이 히스토리 항목을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
-      )
-    ) {
-      deleteHistory(historyId);
-    }
-  };
+  // 히스토리 관리 커스텀 훅
+  const historyManager = useMemberHistoryManager();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -1397,154 +1323,28 @@ export default function AdminMembersPage() {
                 streamerId={selectedMember.id}
                 memberName={selectedMember.name}
                 showActions={true}
-                onEdit={handleEditHistory}
-                onDelete={handleDeleteHistory}
+                onAdd={() => historyManager.handleAddHistory(selectedMember.id)}
+                onEdit={historyManager.handleEditHistory}
+                onDelete={historyManager.handleDeleteHistory}
               />
             </div>
           )}
 
-          {/* 히스토리 수정 모달 */}
-          {isHistoryModalOpen && selectedHistory && (
-            <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50">
-              <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-                <h3 className="text-lg font-medium mb-4">히스토리 수정</h3>
-                <form onSubmit={handleHistorySubmit}>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        크루
-                      </label>
-                      <select
-                        value={historyFormData.crewId}
-                        onChange={(e) =>
-                          setHistoryFormData({
-                            ...historyFormData,
-                            crewId: Number(e.target.value),
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        required
-                      >
-                        <option value={0}>크루 선택</option>
-                        {allCrews?.map((crew: any) => (
-                          <option key={crew.id} value={crew.id}>
-                            {crew.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+          {/* 히스토리 관련 모달들 */}
+          <MemberHistoryFormModal
+            isOpen={historyManager.isHistoryEditModalOpen}
+            onClose={historyManager.closeEditModal}
+            onSubmit={historyManager.handleHistoryEditSubmit}
+            title="히스토리 수정"
+            initialData={historyManager.editModalInitialData}
+          />
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        이벤트 타입
-                      </label>
-                      <select
-                        value={historyFormData.eventType}
-                        onChange={(e) =>
-                          setHistoryFormData({
-                            ...historyFormData,
-                            eventType: e.target.value as
-                              | "join"
-                              | "leave"
-                              | "rank_change",
-                          })
-                        }
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        required
-                      >
-                        <option value="join">입사</option>
-                        <option value="leave">퇴사</option>
-                        <option value="rank_change">직급 변경</option>
-                      </select>
-                    </div>
-
-                    {(historyFormData.eventType === "join" ||
-                      historyFormData.eventType === "rank_change") && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          계급
-                        </label>
-                        <select
-                          value={historyFormData.rankId}
-                          onChange={(e) =>
-                            setHistoryFormData({
-                              ...historyFormData,
-                              rankId: Number(e.target.value),
-                            })
-                          }
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                          required
-                        >
-                          <option value={0}>계급 선택</option>
-                          {ranks?.map((rank: any) => (
-                            <option key={rank.id} value={rank.id}>
-                              {rank.name}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        이벤트 날짜
-                      </label>
-                      <input
-                        type="date"
-                        value={historyFormData.eventDate}
-                        onChange={(e) =>
-                          setHistoryFormData({
-                            ...historyFormData,
-                            eventDate: e.target.value,
-                          })
-                        }
-                        max={getTodayDate()}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700">
-                        비고 사항
-                      </label>
-                      <textarea
-                        value={historyFormData.note}
-                        onChange={(e) =>
-                          setHistoryFormData({
-                            ...historyFormData,
-                            note: e.target.value,
-                          })
-                        }
-                        rows={3}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                        placeholder="비고 사항을 입력하세요"
-                      />
-                    </div>
-
-                    <div className="flex justify-end space-x-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsHistoryModalOpen(false);
-                          setSelectedHistory(null);
-                        }}
-                        className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
-                      >
-                        취소
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                      >
-                        저장
-                      </button>
-                    </div>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
+          <MemberHistoryFormModal
+            isOpen={historyManager.isHistoryAddModalOpen}
+            onClose={historyManager.closeAddModal}
+            onSubmit={historyManager.handleHistoryAddSubmit}
+            title="히스토리 추가"
+          />
 
           {/* 멤버 목록 필터 및 리스트 */}
           <div className="mt-6">
