@@ -4,9 +4,14 @@ import MemberCard from "@/components/MemberCard";
 import { useState, useEffect } from "react";
 import EarningForm from "../EarningForm";
 import Modal from "../common/Modal";
+import MemberHistoryTable from "../common/MemberHistoryTable";
 
 export default function CrewInfo({ crew }: { crew: any }) {
   const [selectedMember, setSelectedMember] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+  const [historyMember, setHistoryMember] = useState<{
     id: number;
     name: string;
   } | null>(null);
@@ -49,6 +54,12 @@ export default function CrewInfo({ crew }: { crew: any }) {
                     name: member.name,
                   })
                 }
+                onNameClick={() =>
+                  setHistoryMember({
+                    id: member.id,
+                    name: member.name,
+                  })
+                }
               />
             ))}
           </div>
@@ -65,6 +76,21 @@ export default function CrewInfo({ crew }: { crew: any }) {
             memberId={selectedMember.id}
             memberName={selectedMember.name}
             onClose={() => setSelectedMember(null)}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={!!historyMember}
+        onClose={() => setHistoryMember(null)}
+        title="멤버 히스토리"
+        size="xl"
+      >
+        {historyMember && (
+          <MemberHistoryTable
+            streamerId={historyMember.id}
+            memberName={historyMember.name}
+            showActions={false}
           />
         )}
       </Modal>

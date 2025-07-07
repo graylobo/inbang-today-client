@@ -17,6 +17,7 @@ import {
   useGetCrews,
   useRemoveCrewMember,
 } from "@/hooks/crew/useCrews";
+import MemberHistoryTable from "@/components/common/MemberHistoryTable";
 
 import {
   useDeleteStreamer,
@@ -1390,169 +1391,15 @@ export default function AdminMembersPage() {
           </div>
 
           {/* 멤버 히스토리 */}
-          {selectedMember && memberHistory && !isLoadingHistory && (
-            <div className="bg-white shadow-sm rounded-lg p-6 mt-6">
-              <h3 className="text-lg font-medium mb-4">
-                {selectedMember.name}의 크루 히스토리
-              </h3>
-              {memberHistory.length === 0 ? (
-                <p className="text-gray-500">히스토리 정보가 없습니다.</p>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          날짜
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          크루
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          이벤트
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          직급 변경
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          비고
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          입력자
-                        </th>
-                        <th
-                          scope="col"
-                          className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                          작업
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {memberHistory.map((history: CrewMemberHistoryItem) => (
-                        <tr key={history.id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {new Date(history.eventDate).toLocaleDateString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {history.crew.name}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {history.eventType === "join" ? (
-                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                입사
-                              </span>
-                            ) : history.eventType === "leave" ? (
-                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                퇴사
-                              </span>
-                            ) : (
-                              <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                직급 변경
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {history.eventType === "rank_change" &&
-                              history.oldRank &&
-                              history.newRank && (
-                                <div className="flex items-center">
-                                  <span className="px-2 py-1 text-xs rounded bg-gray-100">
-                                    {history.oldRank.name}
-                                  </span>
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4 mx-2 text-gray-400"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={2}
-                                      d="M14 5l7 7m0 0l-7 7m7-7H3"
-                                    />
-                                  </svg>
-                                  <span className="px-2 py-1 text-xs rounded font-medium bg-blue-100 text-blue-800">
-                                    {history.newRank.name}
-                                  </span>
-                                </div>
-                              )}
-                            {history.eventType === "join" &&
-                              history.newRank && (
-                                <div className="flex items-center">
-                                  <span className="px-2 py-1 text-xs rounded font-medium bg-blue-100 text-blue-800">
-                                    {history.newRank.name}
-                                  </span>
-                                  <span className="ml-2 text-xs text-gray-500">
-                                    (초기 직급)
-                                  </span>
-                                </div>
-                              )}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500 max-w-md">
-                            {history.note}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            {history.performedBy ? (
-                              <span className="text-xs text-gray-600">
-                                {history.performedBy.name || "알 수 없음"}
-                                {(() => {
-                                  console.log(
-                                    "history.performedBy::",
-                                    history.performedBy
-                                  );
-                                  return null;
-                                })()}
-                              </span>
-                            ) : (
-                              <span className="text-xs text-gray-400">
-                                시스템
-                              </span>
-                            )}
-                            <span className="block text-xs text-gray-400 mt-1">
-                              {new Date(history.createdAt).toLocaleString()}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button
-                              onClick={() => handleEditHistory(history)}
-                              className="text-indigo-600 hover:text-indigo-900 mr-3"
-                            >
-                              수정
-                            </button>
-                            <button
-                              onClick={() => handleDeleteHistory(history.id)}
-                              className="text-red-600 hover:text-red-900"
-                            >
-                              삭제
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+          {selectedMember && !isLoadingHistory && (
+            <div className="mt-6">
+              <MemberHistoryTable
+                streamerId={selectedMember.id}
+                memberName={selectedMember.name}
+                showActions={true}
+                onEdit={handleEditHistory}
+                onDelete={handleDeleteHistory}
+              />
             </div>
           )}
 

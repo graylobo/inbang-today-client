@@ -15,11 +15,13 @@ interface MemberCardProps {
     };
   };
   onEarningClick: () => void;
+  onNameClick?: () => void;
 }
 
 export default function MemberCard({
   member,
   onEarningClick,
+  onNameClick,
 }: MemberCardProps) {
   const { user } = useAuthStore();
   const [imgError, setImgError] = useState(false);
@@ -67,7 +69,14 @@ export default function MemberCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-medium text-lg dark:text-gray-100 truncate">
+            <h3
+              className={`font-medium text-lg dark:text-gray-100 truncate ${
+                onNameClick
+                  ? "cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  : ""
+              }`}
+              onClick={onNameClick}
+            >
               {member.name}
             </h3>
             <span className="text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full text-gray-600 dark:text-gray-300 truncate">
