@@ -1092,7 +1092,7 @@ export default function AdminMembersPage() {
                             className="h-4 w-4 text-indigo-600 border-gray-300 focus:ring-indigo-500"
                           />
                           <span className="ml-2 text-sm text-gray-700">
-                            크루 히스토리 수정
+                            히스토리 추가
                           </span>
                         </label>
                       </div>

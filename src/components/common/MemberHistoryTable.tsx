@@ -1,13 +1,19 @@
 "use client";
 
-import { useGetCrewMemberHistory, CrewMemberHistoryItem } from "@/hooks/crew/useCrewMemberHistory";
+import {
+  useGetCrewMemberHistory,
+  CrewMemberHistoryItem,
+} from "@/hooks/crew/useCrewMemberHistory";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
-interface MemberHistoryTableProps {
+interface MemberHistoryTableProps { 
   streamerId: number;
   memberName: string;
   showActions?: boolean;
   onEdit?: (history: CrewMemberHistoryItem) => void;
   onDelete?: (historyId: number) => void;
+  onAdd?: () => void;
 }
 
 export default function MemberHistoryTable({
@@ -16,6 +22,7 @@ export default function MemberHistoryTable({
   showActions = false,
   onEdit,
   onDelete,
+  onAdd,
 }: MemberHistoryTableProps) {
   const { data: memberHistory, isLoading: isLoadingHistory } =
     useGetCrewMemberHistory(streamerId);
@@ -30,8 +37,34 @@ export default function MemberHistoryTable({
 
   return (
     <div className="bg-white shadow-sm rounded-lg p-6">
+      {/* 히스토리 추가 버튼 */}
+      {showActions && onAdd && (
+        <div className="mb-4 flex justify-between items-center">
+          <h3 className="text-lg font-medium text-gray-900">
+            {memberName} 히스토리
+          </h3>
+          <Button
+            onClick={onAdd}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+            size="sm"
+          >
+            <Plus className="w-4 h-4 mr-2" />새 히스토리 추가
+          </Button>
+        </div>
+      )}
+
       {!memberHistory || memberHistory.length === 0 ? (
-        <p className="text-gray-500">히스토리 정보가 없습니다.</p>
+        <div className="text-center py-8">
+          <p className="text-gray-500 mb-4">히스토리 정보가 없습니다.</p>
+          {showActions && onAdd && (
+            <Button
+              onClick={onAdd}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Plus className="w-4 h-4 mr-2" />첫 번째 히스토리 추가하기
+            </Button>
+          )}
+        </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">

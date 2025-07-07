@@ -5,6 +5,9 @@ import { useState, useEffect } from "react";
 import EarningForm from "../EarningForm";
 import Modal from "../common/Modal";
 import MemberHistoryTable from "../common/MemberHistoryTable";
+import MemberHistoryFormModal from "../common/MemberHistoryFormModal";
+import { useMemberHistoryManager } from "@/hooks/crew/useMemberHistoryManager";
+import { Button } from "@/components/ui/button";
 
 export default function CrewInfo({ crew }: { crew: any }) {
   const [selectedMember, setSelectedMember] = useState<{
@@ -16,6 +19,20 @@ export default function CrewInfo({ crew }: { crew: any }) {
     name: string;
   } | null>(null);
   const [rankGroups, setRankGroups] = useState<any[]>([]);
+
+  // 히스토리 관리 커스텀 훅
+  const {
+    isHistoryEditModalOpen,
+    isHistoryAddModalOpen,
+    handleEditHistory,
+    handleHistoryEditSubmit,
+    handleDeleteHistory,
+    handleAddHistory,
+    handleHistoryAddSubmit,
+    closeEditModal,
+    closeAddModal,
+    editModalInitialData,
+  } = useMemberHistoryManager();
 
   // Move data processing to useEffect to avoid hydration mismatch
   useEffect(() => {
@@ -90,10 +107,30 @@ export default function CrewInfo({ crew }: { crew: any }) {
           <MemberHistoryTable
             streamerId={historyMember.id}
             memberName={historyMember.name}
-            showActions={false}
+            showActions={true}
+            onEdit={handleEditHistory}
+            onDelete={handleDeleteHistory}
+            onAdd={() => handleAddHistory(historyMember.id)}
           />
         )}
       </Modal>
+
+      {/* 히스토리 수정 모달 */}
+      <MemberHistoryFormModal
+        isOpen={isHistoryEditModalOpen}
+        onClose={closeEditModal}
+        title="히스토리 수정"
+        initialData={editModalInitialData}
+        onSubmit={handleHistoryEditSubmit}
+      />
+
+      {/* 히스토리 추가 모달 */}
+      <MemberHistoryFormModal
+        isOpen={isHistoryAddModalOpen}
+        onClose={closeAddModal}
+        title="새 히스토리 추가"
+        onSubmit={handleHistoryAddSubmit}
+      />
     </div>
   );
 }
