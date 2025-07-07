@@ -21,6 +21,7 @@ export interface CrewDetail {
   id: number;
   name: string;
   description: string;
+  signatureOverviewImageUrl?: string;
   members: Streamer[];
   ranks: {
     id: number;
