@@ -75,17 +75,7 @@ export default function MemberCard({
             </span>
           </div>
           <div className="flex flex-wrap gap-2 mt-2">
-            {member.soopId && (
-              <a
-                href={broadcastUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 inline-block truncate"
-              >
-                방송국
-              </a>
-            )}
-            {user ? (
+            {/* {user ? (
               <button
                 onClick={onEarningClick}
                 className="w-[100px] px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white rounded-md hover:bg-blue-600 dark:hover:bg-blue-700 text-sm transition-colors  text-nowrap"
@@ -99,7 +89,7 @@ export default function MemberCard({
               >
                 로그인하여 수익 입력
               </Link>
-            )}
+            )} */}
           </div>
         </div>
       </div>
