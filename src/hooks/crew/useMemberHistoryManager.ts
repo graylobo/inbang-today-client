@@ -94,6 +94,17 @@ export function useMemberHistoryManager() {
       },
       {
         onSuccess: () => {
+          // 히스토리 수정 후 관련 캐시 무효화
+          queryClient.invalidateQueries({
+            queryKey: ["memberHistories"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["crew", formData.crewId.toString()],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["streamers"],
+          });
+
           setIsHistoryEditModalOpen(false);
           setSelectedHistory(null);
           toast.success("히스토리가 성공적으로 수정되었습니다.");
@@ -119,6 +130,18 @@ export function useMemberHistoryManager() {
     ) {
       deleteHistory(historyId, {
         onSuccess: () => {
+          // 히스토리 삭제 후 관련 캐시 무효화
+          queryClient.invalidateQueries({
+            queryKey: ["memberHistories"],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["streamers"],
+          });
+          // 모든 크루 캐시 무효화 (삭제된 히스토리의 crewId를 정확히 알기 어려우므로)
+          queryClient.invalidateQueries({
+            queryKey: ["crew"],
+          });
+
           toast.success("히스토리가 성공적으로 삭제되었습니다.");
         },
         onError: (error: any) => {
@@ -188,6 +211,11 @@ export function useMemberHistoryManager() {
       // 전체 memberHistories도 무효화 (다른 곳에서 사용될 수 있음)
       queryClient.invalidateQueries({
         queryKey: ["memberHistories"],
+      });
+
+      // 크루 상세 정보 무효화 (히스토리 변경으로 크루 멤버 정보가 달라질 수 있음)
+      queryClient.invalidateQueries({
+        queryKey: ["crew", formData.crewId.toString()],
       });
 
       // 멤버 정보도 무효화 (현재 소속 정보가 변경될 수 있음) - 과거 히스토리가 아닌 경우에만

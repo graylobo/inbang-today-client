@@ -517,6 +517,14 @@ export default function AdminMembersPage() {
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["memberHistories"] });
           queryClient.invalidateQueries({ queryKey: ["streamers"] }); // 과거 히스토리가 아닌 경우 스트리머 정보도 무효화
+
+          // 크루 상세 정보 무효화
+          if (formData.crewId) {
+            queryClient.invalidateQueries({
+              queryKey: ["crew", formData.crewId.toString()],
+            });
+          }
+
           resetForm();
 
           const successMessage = isHistoricalEntry
