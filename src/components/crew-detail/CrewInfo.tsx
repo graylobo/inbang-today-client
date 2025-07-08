@@ -1,13 +1,12 @@
 "use client";
 
 import MemberCard from "@/components/MemberCard";
-import { useState, useEffect } from "react";
-import EarningForm from "../EarningForm";
-import Modal from "../common/Modal";
-import MemberHistoryTable from "../common/MemberHistoryTable";
-import MemberHistoryFormModal from "../common/MemberHistoryFormModal";
 import { useMemberHistoryManager } from "@/hooks/crew/useMemberHistoryManager";
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import EarningForm from "../EarningForm";
+import MemberHistoryFormModal from "../common/MemberHistoryFormModal";
+import MemberHistoryTable from "../common/MemberHistoryTable";
+import Modal from "../common/Modal";
 
 export default function CrewInfo({ crew }: { crew: any }) {
   const [selectedMember, setSelectedMember] = useState<{
@@ -17,6 +16,8 @@ export default function CrewInfo({ crew }: { crew: any }) {
   const [historyMember, setHistoryMember] = useState<{
     id: number;
     name: string;
+    crew?: any;
+    rank?: any;
   } | null>(null);
   const [rankGroups, setRankGroups] = useState<any[]>([]);
 
@@ -24,6 +25,7 @@ export default function CrewInfo({ crew }: { crew: any }) {
   const {
     isHistoryEditModalOpen,
     isHistoryAddModalOpen,
+    currentMember,
     handleEditHistory,
     handleHistoryEditSubmit,
     handleDeleteHistory,
@@ -50,6 +52,26 @@ export default function CrewInfo({ crew }: { crew: any }) {
     setRankGroups(processedRankGroups);
   }, [crew]);
 
+  // 히스토리 추가 핸들러 (멤버 정보 포함)
+  const handleHistoryAdd = (member: any) => {
+    const memberInfo = {
+      id: member.id,
+      name: member.name,
+      currentCrew: {
+        id: crew.id,
+        name: crew.name,
+      },
+      currentRank: member.rank
+        ? {
+            id: member.rank.id,
+            name: member.rank.name,
+          }
+        : undefined,
+    };
+
+    handleAddHistory(member.id, memberInfo);
+  };
+
   return (
     <div className="space-y-8">
       {rankGroups.map((rankGroup: any) => (
@@ -75,6 +97,8 @@ export default function CrewInfo({ crew }: { crew: any }) {
                   setHistoryMember({
                     id: member.id,
                     name: member.name,
+                    crew: member.crew,
+                    rank: member.rank,
                   })
                 }
               />
@@ -110,7 +134,13 @@ export default function CrewInfo({ crew }: { crew: any }) {
             showActions={true}
             onEdit={handleEditHistory}
             onDelete={handleDeleteHistory}
-            onAdd={() => handleAddHistory(historyMember.id)}
+            onAdd={() =>
+              handleHistoryAdd({
+                id: historyMember.id,
+                name: historyMember.name,
+                rank: historyMember.rank,
+              })
+            }
           />
         )}
       </Modal>
@@ -122,6 +152,7 @@ export default function CrewInfo({ crew }: { crew: any }) {
         title="히스토리 수정"
         initialData={editModalInitialData}
         onSubmit={handleHistoryEditSubmit}
+        currentMember={currentMember || undefined}
       />
 
       {/* 히스토리 추가 모달 */}
@@ -130,6 +161,7 @@ export default function CrewInfo({ crew }: { crew: any }) {
         onClose={closeAddModal}
         title="새 히스토리 추가"
         onSubmit={handleHistoryAddSubmit}
+        currentMember={currentMember || undefined}
       />
     </div>
   );

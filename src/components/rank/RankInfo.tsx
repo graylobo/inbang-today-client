@@ -74,7 +74,7 @@ export const RankInfo = ({ userRank, className }: RankInfoProps) => {
         <div className="flex justify-between text-sm">
           <span>다음 레벨까지</span>
           <span>
-            {userRank.activityPoints.toLocaleString()} /{" "}
+            {userRank.activityPoints.toLocaleString()} /
             {nextLevelPoints.toLocaleString()} 포인트
           </span>
         </div>

@@ -13,6 +13,19 @@ import { HistoryFormData } from "@/components/common/MemberHistoryFormModal";
 import { useAuthStore } from "@/store/authStore";
 import { useQueryClient } from "@tanstack/react-query";
 
+interface CurrentMemberInfo {
+  id: number;
+  name: string;
+  currentCrew?: {
+    id: number;
+    name: string;
+  };
+  currentRank?: {
+    id: number;
+    name: string;
+  };
+}
+
 export function useMemberHistoryManager() {
   // 사용자 인증 및 권한 정보
   const { user, isAuthenticated, isSuperAdmin } = useAuthStore();
@@ -26,6 +39,9 @@ export function useMemberHistoryManager() {
   const [selectedHistory, setSelectedHistory] =
     useState<CrewMemberHistoryItem | null>(null);
   const [currentStreamerId, setCurrentStreamerId] = useState<number | null>(
+    null
+  );
+  const [currentMember, setCurrentMember] = useState<CurrentMemberInfo | null>(
     null
   );
 
@@ -113,13 +129,19 @@ export function useMemberHistoryManager() {
   };
 
   // 히스토리 추가 모달 열기 - 로그인한 사용자만 가능
-  const handleAddHistory = (streamerId: number) => {
+  const handleAddHistory = (
+    streamerId: number,
+    memberInfo?: CurrentMemberInfo
+  ) => {
     if (!canAddHistory()) {
       toast.error("히스토리 추가는 로그인이 필요합니다.");
       return;
     }
 
     setCurrentStreamerId(streamerId);
+    if (memberInfo) {
+      setCurrentMember(memberInfo);
+    }
     setIsHistoryAddModalOpen(true);
   };
 
@@ -146,7 +168,15 @@ export function useMemberHistoryManager() {
           formData.eventType === "join" || formData.eventType === "rank_change"
             ? formData.rankId
             : undefined,
+        isHistoricalEntry: formData.isHistoricalEntry || false,
       };
+
+      // 디버깅을 위한 로그 추가
+      console.log("Frontend: Creating crew member history:", {
+        ...historyData,
+        isHistoricalEntryFromForm: formData.isHistoricalEntry,
+        isHistoricalEntryFinal: historyData.isHistoricalEntry,
+      });
 
       await createCrewMemberHistory(historyData);
 
@@ -160,9 +190,22 @@ export function useMemberHistoryManager() {
         queryKey: ["memberHistories"],
       });
 
+      // 멤버 정보도 무효화 (현재 소속 정보가 변경될 수 있음) - 과거 히스토리가 아닌 경우에만
+      if (!formData.isHistoricalEntry) {
+        queryClient.invalidateQueries({
+          queryKey: ["streamers"],
+        });
+      }
+
       setIsHistoryAddModalOpen(false);
       setCurrentStreamerId(null);
-      toast.success("히스토리가 성공적으로 추가되었습니다.");
+      setCurrentMember(null);
+
+      const successMessage = formData.isHistoricalEntry
+        ? "과거 히스토리가 성공적으로 추가되었습니다. (현재 소속에는 영향 없음)"
+        : "히스토리가 성공적으로 추가되었습니다.";
+
+      toast.success(successMessage);
     } catch (error: any) {
       toast.error(error.message || "히스토리 추가에 실패했습니다.");
     }
@@ -177,6 +220,7 @@ export function useMemberHistoryManager() {
   const closeAddModal = () => {
     setIsHistoryAddModalOpen(false);
     setCurrentStreamerId(null);
+    setCurrentMember(null);
   };
 
   return {
@@ -184,6 +228,7 @@ export function useMemberHistoryManager() {
     isHistoryEditModalOpen,
     isHistoryAddModalOpen,
     selectedHistory,
+    currentMember,
 
     // 권한 정보
     canAddHistory: canAddHistory(),

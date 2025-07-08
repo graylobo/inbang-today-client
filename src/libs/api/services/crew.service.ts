@@ -138,6 +138,7 @@ export interface CrewMemberHistoryData {
   note: string;
   oldRankId?: number; // 직급 변경 시 이전 직급
   newRankId?: number; // 직급 변경 시 새 직급
+  isHistoricalEntry?: boolean; // 과거 히스토리 기록 여부
 }
 
 export async function createCrewMemberHistory(history: CrewMemberHistoryData) {
@@ -184,9 +185,12 @@ export async function updateCrewSignatureOverviewImageUrl(
   id: number,
   imageUrl: string
 ) {
-  const data = await apiRequest(API_ROUTES.crews.updateSignatureOverviewImageUrl, {
-    params: { id },
-    body: { imageUrl },
-  });
+  const data = await apiRequest(
+    API_ROUTES.crews.updateSignatureOverviewImageUrl,
+    {
+      params: { id },
+      body: { imageUrl },
+    }
+  );
   return data;
 }

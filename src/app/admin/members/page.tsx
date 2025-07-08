@@ -473,6 +473,31 @@ export default function AdminMembersPage() {
 
     // 히스토리 추가 처리
     if (formData.eventType === "history_add") {
+      // 과거 히스토리 여부 판단 로직
+      const isHistoricalEntry = (() => {
+        if (!selectedMember?.crew || !memberHistory) return false;
+
+        // 현재 소속 크루의 가장 최근 입사/직급변경 날짜 찾기
+        const currentCrewHistories = memberHistory.filter(
+          (h: any) =>
+            h.crew.id === selectedMember.crew.id &&
+            (h.eventType === "join" || h.eventType === "rank_change")
+        );
+
+        if (currentCrewHistories.length === 0) return false;
+
+        const latestCurrentCrewDate = currentCrewHistories.sort(
+          (a: any, b: any) =>
+            new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
+        )[0].eventDate;
+
+        // 추가하려는 히스토리 날짜가 현재 소속 크루의 최신 날짜보다 이전이면 과거 히스토리
+        const eventDate = new Date(formData.eventDate!);
+        const currentCrewLatestDate = new Date(latestCurrentCrewDate);
+
+        return eventDate < currentCrewLatestDate;
+      })();
+
       const historyData: any = {
         streamerId,
         crewId: formData.crewId,
@@ -484,13 +509,20 @@ export default function AdminMembersPage() {
           formData.historyEventType === "rank_change"
             ? formData.rankId
             : undefined,
+        isHistoricalEntry,
       };
 
       // 히스토리만 추가 (실제 멤버 정보는 변경하지 않음)
       createCrewMemberHistory(historyData as CrewMemberHistoryData)
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["memberHistories"] });
+          queryClient.invalidateQueries({ queryKey: ["streamers"] }); // 과거 히스토리가 아닌 경우 스트리머 정보도 무효화
           resetForm();
+
+          const successMessage = isHistoricalEntry
+            ? "과거 히스토리가 성공적으로 추가되었습니다. (현재 소속에는 영향 없음)"
+            : "히스토리가 성공적으로 추가되었습니다.";
+          alert(successMessage);
         })
         .catch((error) => {
           console.error("히스토리 추가 중 오류 발생:", error);
@@ -1323,7 +1355,28 @@ export default function AdminMembersPage() {
                 streamerId={selectedMember.id}
                 memberName={selectedMember.name}
                 showActions={true}
-                onAdd={() => historyManager.handleAddHistory(selectedMember.id)}
+                onAdd={() => {
+                  const memberInfo = {
+                    id: selectedMember.id,
+                    name: selectedMember.name,
+                    currentCrew: selectedMember.crew
+                      ? {
+                          id: selectedMember.crew.id,
+                          name: selectedMember.crew.name,
+                        }
+                      : undefined,
+                    currentRank: selectedMember.rank
+                      ? {
+                          id: selectedMember.rank.id,
+                          name: selectedMember.rank.name,
+                        }
+                      : undefined,
+                  };
+                  historyManager.handleAddHistory(
+                    selectedMember.id,
+                    memberInfo
+                  );
+                }}
                 onEdit={historyManager.handleEditHistory}
                 onDelete={historyManager.handleDeleteHistory}
               />
@@ -1337,6 +1390,7 @@ export default function AdminMembersPage() {
             onSubmit={historyManager.handleHistoryEditSubmit}
             title="히스토리 수정"
             initialData={historyManager.editModalInitialData}
+            currentMember={historyManager.currentMember || undefined}
           />
 
           <MemberHistoryFormModal
@@ -1344,6 +1398,7 @@ export default function AdminMembersPage() {
             onClose={historyManager.closeAddModal}
             onSubmit={historyManager.handleHistoryAddSubmit}
             title="히스토리 추가"
+            currentMember={historyManager.currentMember || undefined}
           />
 
           {/* 멤버 목록 필터 및 리스트 */}
