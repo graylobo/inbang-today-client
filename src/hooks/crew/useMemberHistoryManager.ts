@@ -11,10 +11,14 @@ import {
 } from "@/libs/api/services/crew.service";
 import { HistoryFormData } from "@/components/common/MemberHistoryFormModal";
 import { useAuthStore } from "@/store/authStore";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function useMemberHistoryManager() {
   // 사용자 인증 및 권한 정보
   const { user, isAuthenticated, isSuperAdmin } = useAuthStore();
+
+  // Query client for cache invalidation
+  const queryClient = useQueryClient();
 
   // 모달 상태 관리
   const [isHistoryEditModalOpen, setIsHistoryEditModalOpen] = useState(false);
@@ -145,6 +149,16 @@ export function useMemberHistoryManager() {
       };
 
       await createCrewMemberHistory(historyData);
+
+      // 성공 후 쿼리 캐시 무효화하여 최신 데이터 조회
+      queryClient.invalidateQueries({
+        queryKey: ["memberHistories", currentStreamerId],
+      });
+
+      // 전체 memberHistories도 무효화 (다른 곳에서 사용될 수 있음)
+      queryClient.invalidateQueries({
+        queryKey: ["memberHistories"],
+      });
 
       setIsHistoryAddModalOpen(false);
       setCurrentStreamerId(null);
