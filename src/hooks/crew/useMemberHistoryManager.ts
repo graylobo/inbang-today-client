@@ -10,8 +10,12 @@ import {
   CrewMemberHistoryData,
 } from "@/libs/api/services/crew.service";
 import { HistoryFormData } from "@/components/common/MemberHistoryFormModal";
+import { useAuthStore } from "@/store/authStore";
 
 export function useMemberHistoryManager() {
+  // 사용자 인증 및 권한 정보
+  const { user, isAuthenticated, isSuperAdmin } = useAuthStore();
+
   // 모달 상태 관리
   const [isHistoryEditModalOpen, setIsHistoryEditModalOpen] = useState(false);
   const [isHistoryAddModalOpen, setIsHistoryAddModalOpen] = useState(false);
@@ -25,14 +29,28 @@ export function useMemberHistoryManager() {
   const { mutate: updateHistory } = useUpdateCrewMemberHistory();
   const { mutate: deleteHistory } = useDeleteCrewMemberHistory();
 
-  // 히스토리 수정 모달 열기
+  // 권한 체크 함수들
+  const canAddHistory = () => isAuthenticated && user;
+  const canEditDeleteHistory = () => isSuperAdmin;
+
+  // 히스토리 수정 모달 열기 - 슈퍼어드민만 가능
   const handleEditHistory = (history: CrewMemberHistoryItem) => {
+    if (!canEditDeleteHistory()) {
+      toast.error("히스토리 수정은 슈퍼어드민만 가능합니다.");
+      return;
+    }
+
     setSelectedHistory(history);
     setIsHistoryEditModalOpen(true);
   };
 
-  // 히스토리 수정 제출
+  // 히스토리 수정 제출 - 슈퍼어드민만 가능
   const handleHistoryEditSubmit = (formData: HistoryFormData) => {
+    if (!canEditDeleteHistory()) {
+      toast.error("히스토리 수정은 슈퍼어드민만 가능합니다.");
+      return;
+    }
+
     if (!selectedHistory) return;
 
     updateHistory(
@@ -67,8 +85,13 @@ export function useMemberHistoryManager() {
     );
   };
 
-  // 히스토리 삭제
+  // 히스토리 삭제 - 슈퍼어드민만 가능
   const handleDeleteHistory = (historyId: number) => {
+    if (!canEditDeleteHistory()) {
+      toast.error("히스토리 삭제는 슈퍼어드민만 가능합니다.");
+      return;
+    }
+
     if (
       window.confirm(
         "정말로 이 히스토리 항목을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다."
@@ -85,14 +108,24 @@ export function useMemberHistoryManager() {
     }
   };
 
-  // 히스토리 추가 모달 열기
+  // 히스토리 추가 모달 열기 - 로그인한 사용자만 가능
   const handleAddHistory = (streamerId: number) => {
+    if (!canAddHistory()) {
+      toast.error("히스토리 추가는 로그인이 필요합니다.");
+      return;
+    }
+
     setCurrentStreamerId(streamerId);
     setIsHistoryAddModalOpen(true);
   };
 
-  // 히스토리 추가 제출
+  // 히스토리 추가 제출 - 로그인한 사용자만 가능
   const handleHistoryAddSubmit = async (formData: HistoryFormData) => {
+    if (!canAddHistory()) {
+      toast.error("히스토리 추가는 로그인이 필요합니다.");
+      return;
+    }
+
     if (!currentStreamerId) {
       toast.error("스트리머 정보를 찾을 수 없습니다.");
       return;
@@ -137,6 +170,10 @@ export function useMemberHistoryManager() {
     isHistoryEditModalOpen,
     isHistoryAddModalOpen,
     selectedHistory,
+
+    // 권한 정보
+    canAddHistory: canAddHistory(),
+    canEditDeleteHistory: canEditDeleteHistory(),
 
     // 핸들러
     handleEditHistory,

@@ -6,8 +6,9 @@ import {
 } from "@/hooks/crew/useCrewMemberHistory";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { useAuthStore } from "@/store/authStore";
 
-interface MemberHistoryTableProps { 
+interface MemberHistoryTableProps {
   streamerId: number;
   memberName: string;
   showActions?: boolean;
@@ -27,6 +28,13 @@ export default function MemberHistoryTable({
   const { data: memberHistory, isLoading: isLoadingHistory } =
     useGetCrewMemberHistory(streamerId);
 
+  // 사용자 인증 및 권한 정보
+  const { user, isAuthenticated, isSuperAdmin } = useAuthStore();
+
+  // 권한별 표시 조건
+  const canAddHistory = isAuthenticated && user; // 로그인한 사용자만 추가 가능
+  const canEditDelete = isSuperAdmin; // 슈퍼어드민만 수정/삭제 가능
+
   if (isLoadingHistory) {
     return (
       <div className="flex justify-center items-center py-8">
@@ -37,32 +45,64 @@ export default function MemberHistoryTable({
 
   return (
     <div className="bg-white shadow-sm rounded-lg p-6">
-      {/* 히스토리 추가 버튼 */}
+      {/* 히스토리 추가 버튼 - 항상 표시하되 권한에 따라 활성화/비활성화 */}
       {showActions && onAdd && (
         <div className="mb-4 flex justify-between items-center">
           <h3 className="text-lg font-medium text-gray-900">
             {memberName} 히스토리
           </h3>
-          <Button
-            onClick={onAdd}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-            size="sm"
-          >
-            <Plus className="w-4 h-4 mr-2" />새 히스토리 추가
-          </Button>
+          <div className="relative group">
+            <Button
+              onClick={canAddHistory ? onAdd : undefined}
+              className={`${
+                canAddHistory
+                  ? "bg-blue-600 hover:bg-blue-700 text-white"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+              size="sm"
+              disabled={!canAddHistory}
+              title={canAddHistory ? "" : "로그인 후 편집이 가능합니다"}
+            >
+              <Plus className="w-4 h-4 mr-2" />새 히스토리 추가
+            </Button>
+            {/* 커스텀 툴팁 */}
+            {!canAddHistory && (
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                로그인 후 편집이 가능합니다
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+              </div>
+            )}
+          </div>
         </div>
       )}
+
+      {/* 기존 제목만 표시하는 부분 제거 - 위에서 항상 표시하도록 변경 */}
 
       {!memberHistory || memberHistory.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-500 mb-4">히스토리 정보가 없습니다.</p>
           {showActions && onAdd && (
-            <Button
-              onClick={onAdd}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              <Plus className="w-4 h-4 mr-2" />첫 번째 히스토리 추가하기
-            </Button>
+            <div className="relative group inline-block">
+              <Button
+                onClick={canAddHistory ? onAdd : undefined}
+                className={`${
+                  canAddHistory
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
+                disabled={!canAddHistory}
+                title={canAddHistory ? "" : "로그인 후 편집이 가능합니다"}
+              >
+                <Plus className="w-4 h-4 mr-2" />첫 번째 히스토리 추가하기
+              </Button>
+              {/* 커스텀 툴팁 */}
+              {!canAddHistory && (
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 text-sm text-white bg-gray-800 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                  로그인 후 편집이 가능합니다
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-800"></div>
+                </div>
+              )}
+            </div>
           )}
         </div>
       ) : (
@@ -106,7 +146,7 @@ export default function MemberHistoryTable({
                 >
                   입력자
                 </th>
-                {showActions && (
+                {showActions && canEditDelete && (
                   <th
                     scope="col"
                     className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
@@ -193,7 +233,8 @@ export default function MemberHistoryTable({
                       {new Date(history.createdAt).toLocaleString()}
                     </span>
                   </td>
-                  {showActions && (
+                  {/* 수정/삭제 버튼 - 슈퍼어드민만 표시 */}
+                  {showActions && canEditDelete && (
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => onEdit && onEdit(history)}
