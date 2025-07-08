@@ -23,4 +23,5 @@ export interface Crew {
   name: string;
   description: string;
   iconUrl?: string;
+  signatureOverviewImageUrl?: string;
 }

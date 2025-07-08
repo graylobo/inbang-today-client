@@ -86,7 +86,7 @@ export const PaginationControls = ({
           <select
             value={itemsPerPage}
             onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-            className="px-2 py-1 rounded border dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-sm"
+            className="px-2 py-1 rounded border dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 text-sm cursor-pointer"
           >
             {itemsPerPageOptions.map((option) => (
               <option key={option} value={option}>
