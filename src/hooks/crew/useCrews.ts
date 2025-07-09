@@ -1,9 +1,10 @@
 import { CrewFormData } from "@/app/admin/crews/page";
-import { SignatureFormData } from "@/app/admin/signatures/page";
+import { SignatureFormData } from "@/hooks/crew/useSignatureManager";
 import { crewEarningsByDateOptions } from "@/hooks/crew/useCrews.option";
 import {
   Crew,
   CrewDetail,
+  CrewSignature,
   DailyEarningResponse,
 } from "@/hooks/crew/useCrews.type";
 import {
@@ -191,7 +192,7 @@ export function useDeleteCrew() {
 }
 
 export function useGetCrewSignatures(crewId: number) {
-  return useQuery({
+  return useQuery<CrewSignature[]>({
     queryKey: ["signatures", crewId],
     queryFn: () => getCrewSignatures(crewId),
   });

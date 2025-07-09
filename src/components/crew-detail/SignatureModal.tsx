@@ -86,10 +86,33 @@ export default function SignatureModal({
         }
       >
         {/* 헤더 */}
-        <div className="flex justify-between items-center p-3 border-b dark:border-gray-700 shrink-0">
-          <h2 className="text-lg font-bold truncate dark:text-gray-100">
-            {signature.songName} ({signature.starballoonCount}개)
-          </h2>
+        <div className="flex justify-between items-start p-3 border-b dark:border-gray-700 shrink-0">
+          <div className="flex-1">
+            <h2 className="text-lg font-bold truncate dark:text-gray-100">
+              {signature.songName} ({signature.starballoonCount}개)
+            </h2>
+            {signature.description && (
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                {signature.description}
+              </p>
+            )}
+            {/* 사용자 정보 */}
+            <div className="text-xs text-gray-500 dark:text-gray-400 mt-2 space-y-1">
+              {signature.createdBy && <p>등록자: {signature.createdBy.name}</p>}
+              {signature.updatedBy &&
+                signature.updatedBy.id !== signature.createdBy?.id && (
+                  <p>수정자: {signature.updatedBy.name}</p>
+                )}
+              <p>
+                등록일: {new Date(signature.createdAt).toLocaleDateString()}
+              </p>
+              {signature.updatedAt !== signature.createdAt && (
+                <p>
+                  수정일: {new Date(signature.updatedAt).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+          </div>
           <div className="flex gap-2 shrink-0">
             {/* <button
               onClick={() => setIsFullscreen(!isFullscreen)}

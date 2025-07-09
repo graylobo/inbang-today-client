@@ -131,6 +131,28 @@ export default function SignaturesPage() {
                     {signature.description && (
                       <p className="text-gray-600">{signature.description}</p>
                     )}
+
+                    {/* 사용자 정보 */}
+                    <div className="text-xs text-gray-500 space-y-1 border-t pt-2">
+                      {signature.createdBy && (
+                        <p>등록자: {signature.createdBy.name}</p>
+                      )}
+                      {signature.updatedBy &&
+                        signature.updatedBy.id !== signature.createdBy?.id && (
+                          <p>수정자: {signature.updatedBy.name}</p>
+                        )}
+                      <p>
+                        등록일:
+                        {new Date(signature.createdAt).toLocaleDateString()}
+                      </p>
+                      {signature.updatedAt !== signature.createdAt && (
+                        <p>
+                          수정일:
+                          {new Date(signature.updatedAt).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+
                     <div className="flex space-x-4">
                       {signature.signatureImageUrl && (
                         <a

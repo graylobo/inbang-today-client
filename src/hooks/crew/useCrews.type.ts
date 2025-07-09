@@ -61,3 +61,32 @@ export interface DailyEarningResponse {
     };
   };
 }
+
+export interface User {
+  id: number;
+  name: string;
+}
+
+export interface CrewSignatureDance {
+  id: number;
+  memberName: string;
+  danceVideoUrl: string;
+  performedAt: string;
+  createdBy?: User;
+  updatedBy?: User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CrewSignature {
+  id: number;
+  starballoonCount: number;
+  songName: string;
+  signatureImageUrl: string;
+  description?: string;
+  dances: CrewSignatureDance[];
+  createdBy?: User;
+  updatedBy?: User;
+  createdAt: string;
+  updatedAt: string;
+}
