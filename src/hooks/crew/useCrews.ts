@@ -268,5 +268,8 @@ export function useUpdateCrewSignatureOverviewImageUrl(resetForm?: () => void) {
       queryClient.invalidateQueries({ queryKey: ["crews"] });
       if (resetForm) resetForm();
     },
+    onError: (error) => {
+      alert(getErrorMessage(error));
+    },
   });
 }

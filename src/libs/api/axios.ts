@@ -1,4 +1,3 @@
-import { getErrorMessage } from "@/libs/utils/error-handler";
 import axios from "axios";
 
 const api = axios.create({
@@ -27,6 +26,7 @@ api.interceptors.response.use(
         error.request.path && error.request.path
       }`
     );
+    debugger;
     return Promise.reject(error.response?.data.errorCode);
   }
 );

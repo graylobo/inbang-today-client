@@ -1,4 +1,4 @@
-export enum ErrorCode {
+export enum ErrorMessage {
   DUPLICATE_NAME = "DUPLICATE_NAME",
   RESOURCE_NOT_FOUND = "RESOURCE_NOT_FOUND",
   UNAUTHORIZED = "UNAUTHORIZED",
