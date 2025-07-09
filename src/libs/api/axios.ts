@@ -26,8 +26,11 @@ api.interceptors.response.use(
         error.request.path && error.request.path
       }`
     );
-    debugger;
-    return Promise.reject(error.response?.data.errorCode);
+    return Promise.reject({
+      errorCode: error.response?.data.errorCode,
+      statusCode: error.response?.status,
+      originalError: error,
+    });
   }
 );
 
