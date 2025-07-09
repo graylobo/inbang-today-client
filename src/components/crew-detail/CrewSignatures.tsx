@@ -49,6 +49,34 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
     }
   }, [overviewManageMode, crewId, crew?.signatureOverviewImageUrl]);
 
+  // 오버뷰 이미지 저장 완료 시 관리 모드 종료
+  useEffect(() => {
+    if (
+      signatureManager.updateOverviewImageMutation.isSuccess &&
+      overviewManageMode
+    ) {
+      setOverviewManageMode(false);
+    }
+  }, [
+    signatureManager.updateOverviewImageMutation.isSuccess,
+    overviewManageMode,
+  ]);
+
+  // 개별 시그니처 저장 완료 시 관리 모드 종료
+  useEffect(() => {
+    if (
+      (signatureManager.createMutation.isSuccess ||
+        signatureManager.updateMutation.isSuccess) &&
+      isManageMode
+    ) {
+      setIsManageMode(false);
+    }
+  }, [
+    signatureManager.createMutation.isSuccess,
+    signatureManager.updateMutation.isSuccess,
+    isManageMode,
+  ]);
+
   const handleImageError = (imageUrl: string) => {
     setFailedImages((prev) => new Set(prev).add(imageUrl));
   };
@@ -70,6 +98,10 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
                 setActiveTab("overview");
                 setIsManageMode(false);
                 setOverviewManageMode(false);
+                // 탭 전환시 mutation 상태 리셋
+                signatureManager.updateOverviewImageMutation.reset();
+                signatureManager.createMutation.reset();
+                signatureManager.updateMutation.reset();
               }}
               className={`py-4 px-6 text-sm font-medium border-b-2 ${
                 activeTab === "overview"
@@ -84,6 +116,10 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
                 setActiveTab("individual");
                 setIsManageMode(false);
                 setOverviewManageMode(false);
+                // 탭 전환시 mutation 상태 리셋
+                signatureManager.updateOverviewImageMutation.reset();
+                signatureManager.createMutation.reset();
+                signatureManager.updateMutation.reset();
               }}
               className={`py-4 px-6 text-sm font-medium border-b-2 ${
                 activeTab === "individual"
@@ -100,7 +136,13 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
             <div className="flex space-x-2">
               {activeTab === "overview" && (
                 <button
-                  onClick={() => setOverviewManageMode(!overviewManageMode)}
+                  onClick={() => {
+                    // 관리 모드로 들어갈 때 mutation 상태 리셋
+                    if (!overviewManageMode) {
+                      signatureManager.updateOverviewImageMutation.reset();
+                    }
+                    setOverviewManageMode(!overviewManageMode);
+                  }}
                   className={`px-4 py-2 text-sm rounded-md ${
                     overviewManageMode
                       ? "bg-red-500 text-white hover:bg-red-600"
@@ -112,7 +154,14 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
               )}
               {activeTab === "individual" && (
                 <button
-                  onClick={() => setIsManageMode(!isManageMode)}
+                  onClick={() => {
+                    // 관리 모드로 들어갈 때 mutation 상태 리셋
+                    if (!isManageMode) {
+                      signatureManager.createMutation.reset();
+                      signatureManager.updateMutation.reset();
+                    }
+                    setIsManageMode(!isManageMode);
+                  }}
                   className={`px-4 py-2 text-sm rounded-md ${
                     isManageMode
                       ? "bg-red-500 text-white hover:bg-red-600"
