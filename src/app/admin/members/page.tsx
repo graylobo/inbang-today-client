@@ -19,7 +19,6 @@ import { useMemberHistoryManager } from "@/hooks/crew/useMemberHistoryManager";
 import {
   useDeleteStreamer,
   useGetStreamers,
-  useSearchStreamers,
   useUpdateStreamer,
 } from "@/hooks/streamer/useStreamer";
 import { Streamer } from "@/hooks/streamer/useStreamer.type";
@@ -31,6 +30,7 @@ import {
   createStreamer,
   getStreamerById,
 } from "@/libs/api/services/streamer.service";
+import { StreamerSearchBox } from "@/components/common/StreamerSearchBox";
 import { useAuthStore } from "@/store/authStore";
 import { useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
@@ -91,16 +91,6 @@ export default function AdminMembersPage() {
     soopId: "",
   });
 
-  // 스트리머 검색 관련 상태
-  const [searchQuery, setSearchQuery] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
-  const searchResultsRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-
-  // 스트리머 검색 쿼리
-  const { data: searchResults, isLoading: isLoadingSearch } =
-    useSearchStreamers(searchQuery, searchQuery.trim().length >= 1);
-
   const resetForm = () => {
     setFormData({
       name: "",
@@ -114,28 +104,7 @@ export default function AdminMembersPage() {
       note: "",
     });
     setSelectedMember(null);
-    setSearchQuery("");
-    setIsSearching(false);
   };
-
-  // 검색 결과 외부 클릭 핸들러
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchResultsRef.current &&
-        !searchResultsRef.current.contains(event.target as Node) &&
-        searchInputRef.current &&
-        !searchInputRef.current.contains(event.target as Node)
-      ) {
-        setIsSearching(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   // 슈퍼어드민이 아닌 사용자가 기본정보 수정 모드에 있을 때 자동으로 다른 옵션으로 변경
   useEffect(() => {
@@ -633,23 +602,10 @@ export default function AdminMembersPage() {
     setActiveTab("manageCrew"); // 크루 멤버십 탭으로 전환
   };
 
-  // 검색을 시작하는 핸들러
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim().length >= 1) {
-      setIsSearching(true);
-    } else {
-      // 검색어가 2글자 미만인 경우 알림
-      alert("검색어는 2글자 이상 입력해주세요.");
-    }
-  };
-
   // 검색 결과를 선택하는 핸들러
   const handleSelectSearchResult = (streamer: Streamer) => {
     // 스트리머 ID로 전체 데이터 조회
     fetchStreamerDetails(streamer.id);
-    setSearchQuery(""); // 검색어 초기화
-    setIsSearching(false);
   };
 
   // 스트리머 상세 정보 조회 및 수정 모드 설정
@@ -833,87 +789,12 @@ export default function AdminMembersPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 스트리머 검색
               </label>
-              <div className="flex space-x-2">
-                <div className="relative flex-1">
-                  <input
-                    type="text"
-                    ref={searchInputRef}
-                    value={searchQuery}
-                    onChange={(e) => {
-                      const newQuery = e.target.value;
-                      setSearchQuery(newQuery);
-                      // 검색어가 1글자 이상이면 검색 시작
-                      if (newQuery.trim().length >= 1) {
-                        setIsSearching(true);
-                      } else {
-                        setIsSearching(false);
-                      }
-                    }}
-                    placeholder="스트리머 이름 또는 숲 ID로 검색"
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    onFocus={() => {
-                      if (searchQuery.trim().length >= 1) {
-                        setIsSearching(true);
-                      }
-                    }}
-                  />
-                  {isSearching && searchResults && searchResults.length > 0 && (
-                    <div
-                      ref={searchResultsRef}
-                      className="absolute z-10 w-full bg-white mt-1 shadow-lg rounded-md border border-gray-200 max-h-60 overflow-y-auto"
-                    >
-                      {isLoadingSearch ? (
-                        <div className="p-2 text-center text-gray-500">
-                          검색 중...
-                        </div>
-                      ) : (
-                        <ul className="py-1">
-                          {searchResults.map((result) => (
-                            <li
-                              key={result.id}
-                              onClick={() => handleSelectSearchResult(result)}
-                              className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center"
-                            >
-                              {result.soopId && (
-                                <img
-                                  src={`https://profile.img.sooplive.co.kr/LOGO/${result.soopId.slice(
-                                    0,
-                                    2
-                                  )}/${result.soopId}/${result.soopId}.jpg`}
-                                  alt={result.name}
-                                  className="w-8 h-8 rounded-full mr-2"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).src =
-                                      "https://via.placeholder.com/40";
-                                  }}
-                                />
-                              )}
-                              <div>
-                                <div className="font-medium">{result.name}</div>
-                                {result.soopId && (
-                                  <div className="text-xs text-gray-500">
-                                    {result.soopId}
-                                  </div>
-                                )}
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={handleSearch}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-                >
-                  검색
-                </button>
-              </div>
-              <p className="mt-1 text-xs text-gray-500">
-                스트리머를 검색하여 크루 멤버를 관리하세요.
-              </p>
+              <StreamerSearchBox
+                onSelectStreamer={handleSelectSearchResult}
+                placeholder="스트리머 이름 또는 숲 ID로 검색"
+                description="스트리머를 검색하여 크루 멤버를 관리하세요."
+                showCrewInfo={false}
+              />
             </div>
 
             {/* 선택된 스트리머 - 크루 멤버십 관리 폼 */}

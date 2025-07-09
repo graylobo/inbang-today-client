@@ -7,6 +7,8 @@ import EarningForm from "../EarningForm";
 import MemberHistoryFormModal from "../common/MemberHistoryFormModal";
 import MemberHistoryTable from "../common/MemberHistoryTable";
 import Modal from "../common/Modal";
+import { Streamer } from "@/hooks/streamer/useStreamer.type";
+import { StreamerSearchBox } from "../common/StreamerSearchBox";
 
 export default function CrewInfo({ crew }: { crew: any }) {
   const [selectedMember, setSelectedMember] = useState<{
@@ -72,8 +74,51 @@ export default function CrewInfo({ crew }: { crew: any }) {
     handleAddHistory(member.id, memberInfo);
   };
 
+  // 검색 결과를 선택하는 핸들러
+  const handleSelectSearchResult = (streamer: Streamer) => {
+    // 멤버 정보 구성
+    const memberInfo = {
+      id: streamer.id,
+      name: streamer.name,
+      currentCrew: streamer.crew
+        ? {
+            id: streamer.crew.id,
+            name: streamer.crew.name,
+          }
+        : undefined,
+      currentRank: streamer.rank
+        ? {
+            id: streamer.rank.id,
+            name: streamer.rank.name,
+          }
+        : undefined,
+    };
+
+    // 히스토리 추가 모달 열기
+    handleAddHistory(streamer.id, memberInfo);
+  };
+
   return (
     <div className="space-y-8">
+      {/* 스트리머 검색 섹션 */}
+      <div className="bg-white dark:bg-dark-bg rounded-lg p-6 shadow-md dark:shadow-none dark:border dark:border-gray-700">
+        <h2 className="text-lg font-medium mb-4 dark:text-gray-100">
+          스트리머 검색 및 히스토리 추가
+        </h2>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            스트리머 검색
+          </label>
+          <StreamerSearchBox
+            onSelectStreamer={handleSelectSearchResult}
+            placeholder="스트리머 이름 또는 숲 ID로 검색하여 히스토리 추가"
+            description={`스트리머를 검색하여 ${crew.name} 크루와 관련된 히스토리를 추가할 수 있습니다.`}
+            showCrewInfo={true}
+          />
+        </div>
+      </div>
+
+      {/* 기존 크루 멤버 목록 */}
       {rankGroups.map((rankGroup: any) => (
         <div
           key={rankGroup.id}
