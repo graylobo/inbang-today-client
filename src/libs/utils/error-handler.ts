@@ -9,7 +9,7 @@ export interface ApiErrorInfo {
   originalError?: any;
 }
 
-export type ErrorInput = string | ApiErrorInfo;
+export type ErrorInput = string | ApiErrorInfo | Error;
 
 export const getErrorMessage = (error: ErrorInput): string => {
   // 문자열로 직접 전달된 경우 (이전 방식 호환)
@@ -19,14 +19,16 @@ export const getErrorMessage = (error: ErrorInput): string => {
 
   // 객체로 전달된 경우
   if (error && typeof error === "object") {
+    const apiError = error as ApiErrorInfo;
+
     // 1순위: errorCode 확인
-    if (error.errorCode && ERROR_MESSAGES[error.errorCode]) {
-      return ERROR_MESSAGES[error.errorCode];
+    if (apiError.errorCode && ERROR_MESSAGES[apiError.errorCode]) {
+      return ERROR_MESSAGES[apiError.errorCode];
     }
 
     // 2순위: statusCode로 처리
-    if (error.statusCode) {
-      return getStatusCodeMessage(error.statusCode);
+    if (apiError.statusCode) {
+      return getStatusCodeMessage(apiError.statusCode);
     }
   }
 
