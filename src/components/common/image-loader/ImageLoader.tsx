@@ -27,6 +27,21 @@ function ImageLoader({ src, alt, className, resize }: ImageLoaderProps) {
   }
 
   const imageUrl = resize ? `${src}?w=${resize.width}&h=${resize.height}` : src;
+  
+  // 허용된 도메인 목록
+  const allowedDomains = [
+    'profile.img.sooplive.co.kr',
+    'liveimg.sooplive.co.kr', 
+    'file.inbangtoday.com'
+  ];
+  
+  // 현재 이미지 URL의 도메인 확인
+  const isAllowedDomain = allowedDomains.some(domain => 
+    imageUrl.includes(domain)
+  );
+  
+  // 허용되지 않은 도메인의 경우 unoptimized 사용
+  const shouldOptimize = isAllowedDomain;
 
   return (
     <div className="absolute inset-0">
@@ -48,6 +63,7 @@ function ImageLoader({ src, alt, className, resize }: ImageLoaderProps) {
           src={imageUrl}
           alt={alt}
           fill
+          unoptimized={!shouldOptimize}
           className={`transition-opacity duration-300 ease-in-out ${
             isLoading ? "opacity-0" : "opacity-100"
           } ${className || ""}`}
