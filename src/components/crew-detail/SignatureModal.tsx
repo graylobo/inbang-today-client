@@ -114,7 +114,6 @@ export default function SignatureModal({
     try {
       // 기존 시그니처 데이터에 새 춤 영상 추가
       const updatedFormData = {
-        signatureId: signature.id,
         crewId: signature.crewId,
         starballoonCount: signature.starballoonCount,
         songName: signature.songName,
