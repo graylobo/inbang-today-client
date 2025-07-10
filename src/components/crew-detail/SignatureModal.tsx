@@ -166,7 +166,9 @@ export default function SignatureModal({
         className={
           isFullscreen
             ? "w-full h-full bg-white dark:bg-gray-800 rounded-lg flex flex-col"
-            : "w-[900px] h-[650px] bg-white dark:bg-gray-800 rounded-lg flex flex-col overflow-hidden"
+            : `w-[900px] ${
+                isAddingDance ? "h-[750px]" : "h-[650px]"
+              } bg-white dark:bg-gray-800 rounded-lg flex flex-col overflow-hidden`
         }
       >
         {/* 헤더 */}
@@ -295,18 +297,18 @@ export default function SignatureModal({
         )}
 
         {/* 네비게이션 */}
-        <div className="p-3 bg-gray-50 dark:bg-gray-900 shrink-0 relative">
+        <div className="p-3 bg-gray-50 dark:bg-gray-900 border-t dark:border-gray-700 flex-shrink-0 relative z-20">
           {showArrows && (
             <>
               <button
                 onClick={() => handleScroll("left")}
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="absolute left-2 top-1/2 -translate-y-1/2 z-30 bg-white dark:bg-gray-800 rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 ←
               </button>
               <button
                 onClick={() => handleScroll("right")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800 rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 z-30 bg-white dark:bg-gray-800 rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 →
               </button>
@@ -314,7 +316,7 @@ export default function SignatureModal({
           )}
           <div
             ref={scrollContainerRef}
-            className="flex items-center gap-4 overflow-x-auto pb-2 px-8 scrollbar-hide"
+            className="flex items-center gap-4 overflow-x-auto pb-2 px-8 scrollbar-hide min-h-[48px]"
           >
             {signature.dances?.map((dance: any, index: number) => (
               <button
@@ -337,16 +339,24 @@ export default function SignatureModal({
         </div>
 
         {/* 비디오 영역 */}
-        <div className="flex-1 p-3 min-h-0">
+        <div
+          className={`flex-1 p-3 relative z-10 ${
+            isAddingDance ? "min-h-[300px]" : "min-h-0"
+          }`}
+        >
           <div className="h-full flex items-center">
             <div
-              className="w-full bg-black rounded-lg overflow-hidden"
+              className={`w-full rounded-lg overflow-hidden ${
+                currentDance?.danceVideoUrl
+                  ? "bg-black"
+                  : "bg-gray-100 dark:bg-gray-700 border-2 border-dashed border-gray-300 dark:border-gray-600"
+              }`}
               style={{
                 aspectRatio: "1.8/1",
-                maxHeight: "500px",
+                maxHeight: isAddingDance ? "400px" : "500px",
               }}
             >
-              {currentDance?.danceVideoUrl && (
+              {currentDance?.danceVideoUrl ? (
                 <iframe
                   src={getValidVideoUrl(currentDance.danceVideoUrl)}
                   className="w-full h-full"
@@ -354,6 +364,16 @@ export default function SignatureModal({
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   referrerPolicy="strict-origin-when-cross-origin"
                 />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="text-center text-gray-500 dark:text-gray-400">
+                    <div className="text-4xl mb-2">📹</div>
+                    <p className="text-lg">비디오가 존재하지 않습니다</p>
+                    <p className="text-sm mt-1">
+                      춤 영상이 업로드되지 않았습니다.
+                    </p>
+                  </div>
+                </div>
               )}
             </div>
           </div>
