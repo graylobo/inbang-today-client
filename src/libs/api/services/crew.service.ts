@@ -1,5 +1,5 @@
 import { CrewFormData } from "@/app/admin/crews/page";
-import { SignatureFormData } from "@/app/admin/signatures/page";
+import { SignatureFormData } from "@/hooks/crew/useSignatureManager";
 import { apiRequest } from "@/libs/api/api-request";
 import { API_ROUTES } from "@/libs/api/route";
 
