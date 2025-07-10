@@ -44,6 +44,9 @@ export default function SignatureModal({
   useEffect(() => {
     if (!signature) return;
 
+    // 모달이 열릴 때마다 춤영상 추가 섹션을 닫힌 상태로 초기화
+    setIsAddingDance(false);
+
     const checkOverflow = () => {
       if (scrollContainerRef.current) {
         const isOverflowing =
