@@ -222,6 +222,25 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
                   >
                     이미지를 불러올 수 없습니다.
                   </div>
+
+                  {/* 사용자 추적 정보 표시 */}
+                  {crew.signatureOverviewImageUpdatedBy && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <div className="text-xs text-gray-500 space-y-1">
+                        <p>
+                          업데이트: {crew.signatureOverviewImageUpdatedBy.name}
+                        </p>
+                        {crew.signatureOverviewImageUpdatedAt && (
+                          <p>
+                            업데이트 일시:{" "}
+                            {new Date(
+                              crew.signatureOverviewImageUpdatedAt
+                            ).toLocaleString()}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="bg-gray-50 rounded-lg p-8 text-center">
