@@ -11,7 +11,9 @@ import { useCrewPermissionsList } from "@/hooks/crew-permission/useCrewPermissio
 import { useState, useEffect } from "react";
 
 export default function CrewSignatures({ crewId }: { crewId: string }) {
-  const { data: signatures } = useGetCrewSignatures(parseInt(crewId));
+  const { data: signatures, refetch: refetchSignatures } = useGetCrewSignatures(
+    parseInt(crewId)
+  );
   const { data: crew } = useGetCrewByID(crewId);
   const [selectedSignature, setSelectedSignature] = useState<any>(null);
   const [failedImages, setFailedImages] = useState<Set<string>>(new Set());
@@ -432,6 +434,25 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
       <SignatureModal
         signature={selectedSignature}
         onClose={() => setSelectedSignature(null)}
+        onSignatureUpdate={() => {
+          refetchSignatures();
+          // 모달을 열어둔 상태에서 데이터가 업데이트되면 선택된 시그니처도 업데이트
+          if (selectedSignature) {
+            setTimeout(() => {
+              // 잠시 후 최신 데이터로 모달 내용 갱신
+              refetchSignatures().then((result) => {
+                if (result.data) {
+                  const updatedSignature = result.data.find(
+                    (sig: any) => sig.id === selectedSignature.id
+                  );
+                  if (updatedSignature) {
+                    setSelectedSignature(updatedSignature);
+                  }
+                }
+              });
+            }, 500);
+          }
+        }}
       />
     </div>
   );
