@@ -161,14 +161,12 @@ export default function SignatureModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center my-0">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-[9999] flex items-center justify-center p-4 pt-20">
       <div
         className={
           isFullscreen
             ? "w-full h-full bg-white dark:bg-gray-800 rounded-lg flex flex-col"
-            : `w-[900px] ${
-                isAddingDance ? "h-[750px]" : "h-[650px]"
-              } bg-white dark:bg-gray-800 rounded-lg flex flex-col overflow-hidden`
+            : "w-[900px] max-h-[calc(100vh-120px)] bg-white dark:bg-gray-800 rounded-lg flex flex-col overflow-y-auto"
         }
       >
         {/* 헤더 */}
@@ -339,11 +337,7 @@ export default function SignatureModal({
         </div>
 
         {/* 비디오 영역 */}
-        <div
-          className={`flex-1 p-3 relative z-10 ${
-            isAddingDance ? "min-h-[300px]" : "min-h-0"
-          }`}
-        >
+        <div className="flex-1 p-3 relative z-10 min-h-[300px]">
           <div className="h-full flex items-center">
             <div
               className={`w-full rounded-lg overflow-hidden ${
@@ -353,7 +347,7 @@ export default function SignatureModal({
               }`}
               style={{
                 aspectRatio: "1.8/1",
-                maxHeight: isAddingDance ? "400px" : "500px",
+                maxHeight: "400px",
               }}
             >
               {currentDance?.danceVideoUrl ? (
