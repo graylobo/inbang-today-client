@@ -41,13 +41,13 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
 
   // 오버뷰 이미지 폼 초기화
   useEffect(() => {
-    if (overviewManageMode) {
+    if (overviewManageMode && crew) {
       signatureManager.initializeOverviewForm(
         parseInt(crewId),
-        crew?.signatureOverviewImageUrl || ""
+        crew.signatureOverviewImageUrl || ""
       );
     }
-  }, [overviewManageMode, crewId, crew?.signatureOverviewImageUrl]);
+  }, [overviewManageMode, crewId, crew?.signatureOverviewImageUrl, crew]);
 
   // 오버뷰 이미지 저장 완료 시 관리 모드 종료
   useEffect(() => {
@@ -140,6 +140,13 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
                     // 관리 모드로 들어갈 때 mutation 상태 리셋
                     if (!overviewManageMode) {
                       signatureManager.updateOverviewImageMutation.reset();
+                      // 최신 데이터로 폼 초기화
+                      if (crew) {
+                        signatureManager.initializeOverviewForm(
+                          parseInt(crewId),
+                          crew.signatureOverviewImageUrl || ""
+                        );
+                      }
                     }
                     setOverviewManageMode(!overviewManageMode);
                   }}

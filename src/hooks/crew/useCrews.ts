@@ -264,8 +264,13 @@ export function useUpdateCrewSignatureOverviewImageUrl(resetForm?: () => void) {
     mutationFn: async ({ id, imageUrl }: { id: number; imageUrl: string }) => {
       return await updateCrewSignatureOverviewImageUrl(id, imageUrl);
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      // 전체 크루 목록 무효화
       queryClient.invalidateQueries({ queryKey: ["crews"] });
+      // 개별 크루 정보 무효화 (variables.id가 crewId)
+      queryClient.invalidateQueries({
+        queryKey: ["crew", variables.id.toString()],
+      });
       if (resetForm) resetForm();
     },
     onError: (error) => {
