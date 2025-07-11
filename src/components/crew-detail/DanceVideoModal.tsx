@@ -28,6 +28,7 @@ export const DanceVideoModal: React.FC<DanceVideoModalProps> = ({
 
   const handleAddDance = () => {
     const newDance: DanceVideoData = {
+      // id는 undefined (새로운 춤 영상이므로 ID 없음)
       memberName: "",
       danceVideoUrl: "",
       performedAt: new Date().toISOString().split("T")[0],
@@ -111,13 +112,24 @@ export const DanceVideoModal: React.FC<DanceVideoModalProps> = ({
             <div className="space-y-4">
               {dances.map((dance, index) => (
                 <div
-                  key={index}
+                  key={dance.id || `new-${index}`}
                   className="p-4 border border-gray-200 rounded-lg space-y-3"
                 >
                   <div className="flex justify-between items-center">
-                    <h4 className="font-medium text-lg">
-                      춤 영상 #{index + 1}
-                    </h4>
+                    <div>
+                      <h4 className="font-medium text-lg">
+                        춤 영상 #{index + 1}
+                        {dance.id ? (
+                          <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                            기존 (ID: {dance.id})
+                          </span>
+                        ) : (
+                          <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                            새로 추가
+                          </span>
+                        )}
+                      </h4>
+                    </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveDance(index)}

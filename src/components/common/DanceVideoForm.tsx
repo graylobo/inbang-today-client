@@ -1,6 +1,7 @@
 import React from "react";
 
 export interface DanceVideoData {
+  id?: number; // 기존 춤 영상의 경우 ID 포함
   memberName: string;
   danceVideoUrl: string;
   performedAt: string;

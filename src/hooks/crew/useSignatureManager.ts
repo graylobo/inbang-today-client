@@ -5,6 +5,7 @@ import {
   useUpdateCrewSignature,
   useUpdateCrewSignatureOverviewImageUrl,
 } from "./useCrews";
+import { DanceVideoData } from "@/components/common/DanceVideoForm";
 
 export interface SignatureFormData {
   signatureId?: number;
@@ -13,11 +14,7 @@ export interface SignatureFormData {
   songName: string;
   signatureImageUrl: string;
   description?: string;
-  dances: {
-    memberName: string;
-    danceVideoUrl: string;
-    performedAt: string;
-  }[];
+  dances: DanceVideoData[];
 }
 
 export interface OverviewImageData {
@@ -118,9 +115,23 @@ export const useSignatureManager = () => {
 
   // 시그니처 편집
   const handleEdit = (signature: any) => {
+    // 기존 춤 영상 데이터에 ID 포함해서 매핑
+    const dancesWithId =
+      signature.dances?.map((dance: any) => ({
+        id: dance.id, // 기존 ID 유지
+        memberName: dance.memberName,
+        danceVideoUrl: dance.danceVideoUrl,
+        performedAt: dance.performedAt,
+      })) || [];
+
     setFormData({
       signatureId: signature.id,
-      ...signature,
+      crewId: signature.crewId || signature.crew?.id,
+      starballoonCount: signature.starballoonCount,
+      songName: signature.songName,
+      signatureImageUrl: signature.signatureImageUrl,
+      description: signature.description,
+      dances: dancesWithId,
     });
     setIsEditing(true);
   };
@@ -138,7 +149,12 @@ export const useSignatureManager = () => {
       ...formData,
       dances: [
         ...formData.dances,
-        { memberName: "", danceVideoUrl: "", performedAt: getTodayDate() },
+        {
+          // id는 undefined (새로운 춤 영상이므로 ID 없음)
+          memberName: "",
+          danceVideoUrl: "",
+          performedAt: getTodayDate(),
+        },
       ],
     });
   };
