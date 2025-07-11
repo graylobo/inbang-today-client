@@ -37,9 +37,7 @@ export const useSignatureManager = () => {
     songName: "",
     signatureImageUrl: "",
     description: "",
-    dances: [
-      { memberName: "", danceVideoUrl: "", performedAt: getTodayDate() },
-    ],
+    dances: [],
   });
 
   const [overviewImageData, setOverviewImageData] = useState<OverviewImageData>(
@@ -49,6 +47,9 @@ export const useSignatureManager = () => {
     }
   );
 
+  // DanceVideoModal 관련 상태
+  const [isDanceModalOpen, setIsDanceModalOpen] = useState(false);
+
   const resetForm = () => {
     setFormData({
       crewId: 0,
@@ -56,11 +57,10 @@ export const useSignatureManager = () => {
       songName: "",
       signatureImageUrl: "",
       description: "",
-      dances: [
-        { memberName: "", danceVideoUrl: "", performedAt: getTodayDate() },
-      ],
+      dances: [],
     });
     setIsEditing(false);
+    setIsDanceModalOpen(false);
   };
 
   const resetOverviewForm = () => {
@@ -85,11 +85,10 @@ export const useSignatureManager = () => {
       songName: "",
       signatureImageUrl: "",
       description: "",
-      dances: [
-        { memberName: "", danceVideoUrl: "", performedAt: getTodayDate() },
-      ],
+      dances: [],
     });
     setIsEditing(false);
+    setIsDanceModalOpen(false);
   };
 
   // 오버뷰 이미지 폼 초기화
@@ -163,6 +162,23 @@ export const useSignatureManager = () => {
     });
   };
 
+  // DanceVideoModal 관련 함수들
+  const openDanceModal = () => {
+    setIsDanceModalOpen(true);
+  };
+
+  const closeDanceModal = () => {
+    setIsDanceModalOpen(false);
+  };
+
+  const handleDancesSave = (newDances: SignatureFormData["dances"]) => {
+    setFormData({
+      ...formData,
+      dances: newDances,
+    });
+    setIsDanceModalOpen(false);
+  };
+
   // 오버뷰 이미지 제출
   const handleOverviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -188,6 +204,7 @@ export const useSignatureManager = () => {
     isEditing,
     formData,
     overviewImageData,
+    isDanceModalOpen,
 
     // 상태 설정자
     setFormData,
@@ -206,6 +223,11 @@ export const useSignatureManager = () => {
     handleAddDance,
     handleDanceChange,
     handleRemoveDance,
+
+    // DanceVideoModal 관리
+    openDanceModal,
+    closeDanceModal,
+    handleDancesSave,
 
     // 오버뷰 이미지 관리
     handleOverviewSubmit,

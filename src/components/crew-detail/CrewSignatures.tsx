@@ -4,6 +4,7 @@ import ImageLoader from "@/components/common/image-loader/ImageLoader";
 import SignatureModal from "@/components/crew-detail/SignatureModal";
 import { SignatureForm } from "@/components/common/SignatureForm";
 import { OverviewImageForm } from "@/components/common/OverviewImageForm";
+import { DanceVideoModal } from "@/components/crew-detail/DanceVideoModal";
 import { useGetCrewSignatures, useGetCrewByID } from "@/hooks/crew/useCrews";
 import { useSignatureManager } from "@/hooks/crew/useSignatureManager";
 import { useAuthStore } from "@/store/authStore";
@@ -430,9 +431,7 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
                 isEditing={signatureManager.isEditing}
                 onSubmit={signatureManager.handleSubmit}
                 onFormChange={signatureManager.setFormData}
-                onAddDance={signatureManager.handleAddDance}
-                onDanceChange={signatureManager.handleDanceChange}
-                onRemoveDance={signatureManager.handleRemoveDance}
+                onOpenDanceModal={signatureManager.openDanceModal}
                 onCancel={() => {
                   signatureManager.resetForm();
                   setIsManageMode(false);
@@ -530,6 +529,19 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
           )}
         </div>
       )}
+
+      {/* DanceVideoModal */}
+      <DanceVideoModal
+        isOpen={signatureManager.isDanceModalOpen}
+        onClose={signatureManager.closeDanceModal}
+        signatureId={signatureManager.formData.signatureId}
+        initialDances={signatureManager.formData.dances}
+        onSave={signatureManager.handleDancesSave}
+        isLoading={
+          signatureManager.createMutation.isPending ||
+          signatureManager.updateMutation.isPending
+        }
+      />
 
       <SignatureModal
         signature={selectedSignature}
