@@ -8,7 +8,11 @@ import { useGetCrewSignatures, useGetCrewByID } from "@/hooks/crew/useCrews";
 import { useSignatureManager } from "@/hooks/crew/useSignatureManager";
 import { useAuthStore } from "@/store/authStore";
 import { useCrewPermissionsList } from "@/hooks/crew-permission/useCrewPermission";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { AgGridReact } from "ag-grid-react";
+import { ColDef, GridOptions, ICellRendererParams } from "ag-grid-community";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
 
 export default function CrewSignatures({ crewId }: { crewId: string }) {
   const { data: signatures, refetch: refetchSignatures } = useGetCrewSignatures(
@@ -27,6 +31,153 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
   const { isSuperAdmin } = useAuthStore();
   const { crews: permittedCrews } = useCrewPermissionsList();
   const signatureManager = useSignatureManager();
+
+  // ag-grid 컬럼 정의
+  const columnDefs = useMemo<ColDef[]>(
+    () => [
+      {
+        headerName: "별풍선 개수",
+        field: "starballoonCount",
+        sortable: true,
+        filter: "agNumberColumnFilter",
+        width: 120,
+        cellRenderer: (params: ICellRendererParams) => `${params.value}개`,
+      },
+      {
+        headerName: "노래명",
+        field: "songName",
+        sortable: true,
+        filter: "agTextColumnFilter",
+        width: 200,
+        cellStyle: { fontWeight: "bold" },
+      },
+      {
+        headerName: "설명",
+        field: "description",
+        sortable: true,
+        filter: "agTextColumnFilter",
+        width: 250,
+        cellRenderer: (params: ICellRendererParams) => params.value || "-",
+      },
+      {
+        headerName: "춤 영상 수",
+        field: "dances",
+        sortable: true,
+        width: 120,
+        cellRenderer: (params: ICellRendererParams) =>
+          `${params.value?.length || 0}개`,
+      },
+      {
+        headerName: "등록자",
+        field: "createdBy.name",
+        sortable: true,
+        filter: "agTextColumnFilter",
+        width: 120,
+        cellRenderer: (params: ICellRendererParams) =>
+          params.data.createdBy?.name || "-",
+      },
+      {
+        headerName: "수정자",
+        field: "updatedBy.name",
+        sortable: true,
+        filter: "agTextColumnFilter",
+        width: 120,
+        cellRenderer: (params: ICellRendererParams) => {
+          const updatedBy = params.data.updatedBy;
+          const createdBy = params.data.createdBy;
+          if (!updatedBy || updatedBy.id === createdBy?.id) return "-";
+          return updatedBy.name;
+        },
+      },
+      {
+        headerName: "등록일",
+        field: "createdAt",
+        sortable: true,
+        width: 120,
+        cellRenderer: (params: ICellRendererParams) =>
+          new Date(params.value).toLocaleDateString("ko-KR"),
+      },
+      {
+        headerName: "수정일",
+        field: "updatedAt",
+        sortable: true,
+        width: 120,
+        cellRenderer: (params: ICellRendererParams) => {
+          const updatedAt = params.data.updatedAt;
+          const createdAt = params.data.createdAt;
+          if (updatedAt === createdAt) return "-";
+          return new Date(updatedAt).toLocaleDateString("ko-KR");
+        },
+      },
+      {
+        headerName: "링크",
+        field: "links",
+        width: 200,
+        cellRenderer: (params: ICellRendererParams) => {
+          const signature = params.data;
+          return (
+            <div className="flex space-x-2">
+              {signature.signatureImageUrl && (
+                <a
+                  href={signature.signatureImageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-500 hover:text-blue-700 text-xs"
+                >
+                  이미지
+                </a>
+              )}
+              {signature.dances?.some((dance: any) => dance.danceVideoUrl) && (
+                <span className="text-green-500 text-xs">영상 있음</span>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        headerName: "작업",
+        field: "actions",
+        width: 120,
+        cellRenderer: (params: ICellRendererParams) => (
+          <div className="flex gap-2">
+            <button
+              onClick={() => signatureManager.handleEdit(params.data)}
+              className="text-blue-500 hover:text-blue-700 text-xs px-2 py-1 border border-blue-500 rounded"
+            >
+              수정
+            </button>
+            <button
+              onClick={() => signatureManager.handleDelete(params.data.id)}
+              className="text-red-500 hover:text-red-700 text-xs px-2 py-1 border border-red-500 rounded"
+            >
+              삭제
+            </button>
+          </div>
+        ),
+      },
+    ],
+    [signatureManager]
+  );
+
+  // ag-grid 옵션
+  const gridOptions = useMemo<GridOptions>(
+    () => ({
+      theme: "legacy", // v32 스타일 테마 사용
+      defaultColDef: {
+        resizable: true,
+        sortable: true,
+        filter: true,
+      },
+      pagination: true,
+      paginationPageSize: 30,
+      paginationPageSizeSelector: [30, 50, 100],
+      rowHeight: 50,
+      headerHeight: 40,
+      animateRows: true,
+      rowSelection: "single",
+    }),
+    []
+  );
 
   // 현재 크루에 대한 편집 권한 확인
   const hasEditPermission = () => {
@@ -292,92 +443,41 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
                 }
               />
 
-              {/* 시그니처 목록 (관리 모드) */}
+              {/* 시그니처 목록 (관리 모드) - ag-grid */}
               <div className="space-y-4">
                 <h4 className="text-lg font-medium">등록된 시그니처 목록</h4>
-                {signatures?.map((signature: any) => (
+                {signatures && signatures.length > 0 ? (
                   <div
-                    key={signature.id}
-                    className="bg-white p-4 rounded-lg shadow"
+                    className="ag-theme-alpine"
+                    style={{ height: "600px", width: "100%" }}
                   >
-                    <div className="flex justify-between">
-                      <div className="space-y-2">
-                        <p className="font-medium">
-                          별풍선 {signature.starballoonCount}개
-                        </p>
-                        <p className="text-lg">{signature.songName}</p>
-                        {signature.description && (
-                          <p className="text-gray-600">
-                            {signature.description}
-                          </p>
-                        )}
-
-                        {/* 사용자 정보 */}
-                        <div className="text-xs text-gray-500 space-y-1">
-                          {signature.createdBy && (
-                            <p>등록자: {signature.createdBy.name}</p>
-                          )}
-                          {signature.updatedBy &&
-                            signature.updatedBy.id !==
-                              signature.createdBy?.id && (
-                              <p>수정자: {signature.updatedBy.name}</p>
-                            )}
-                          <p>
-                            등록일:
-                            {new Date(signature.createdAt).toLocaleDateString()}
-                          </p>
-                          {signature.updatedAt !== signature.createdAt && (
-                            <p>
-                              수정일:
-                              {new Date(
-                                signature.updatedAt
-                              ).toLocaleDateString()}
-                            </p>
-                          )}
-                        </div>
-
-                        <div className="flex space-x-4">
-                          {signature.signatureImageUrl && (
-                            <a
-                              href={signature.signatureImageUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:text-blue-700"
-                            >
-                              시그니처 이미지 보기
-                            </a>
-                          )}
-                          {signature.danceVideoUrl && (
-                            <a
-                              href={signature.danceVideoUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-500 hover:text-blue-700"
-                            >
-                              춤 영상 보기
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => signatureManager.handleEdit(signature)}
-                          className="text-blue-500 hover:text-blue-700"
-                        >
-                          수정
-                        </button>
-                        <button
-                          onClick={() =>
-                            signatureManager.handleDelete(signature.id)
-                          }
-                          className="text-red-500 hover:text-red-700"
-                        >
-                          삭제
-                        </button>
-                      </div>
-                    </div>
+                    <AgGridReact
+                      rowData={signatures}
+                      columnDefs={columnDefs}
+                      gridOptions={gridOptions}
+                      suppressRowClickSelection={true}
+                    />
                   </div>
-                ))}
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-8 text-center">
+                    <div className="text-gray-400 mb-2">
+                      <svg
+                        className="mx-auto h-12 w-12"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 19V6l12-3v13M9 19c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zm12-3c0 1.105-.895 2-2 2s-2-.895-2-2 .895-2 2-2 2 .895 2 2zM9 10l12-3"
+                        />
+                      </svg>
+                    </div>
+                    <p className="text-gray-500">등록된 시그니처가 없습니다.</p>
+                  </div>
+                )}
               </div>
             </>
           ) : (

@@ -8,6 +8,12 @@ import { useEffect, useState } from "react";
 import { getProfile } from "@/libs/api/services/auth.service";
 import { usePathname } from "next/navigation";
 
+// AG Grid 모듈 등록
+import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+
+// AG Grid 커뮤니티 모듈 등록
+ModuleRegistry.registerModules([AllCommunityModule]);
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
