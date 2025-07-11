@@ -9,6 +9,7 @@ interface SignatureFormProps {
   onFormChange: (data: SignatureFormData) => void;
   onCancel: () => void;
   onOpenDanceModal: () => void;
+  existingSignatures?: any[]; // 기존 시그니처 목록 (중복 체크용)
   isLoading?: boolean;
 }
 
@@ -19,6 +20,7 @@ export const SignatureForm: React.FC<SignatureFormProps> = ({
   onFormChange,
   onCancel,
   onOpenDanceModal,
+  existingSignatures = [],
   isLoading = false,
 }) => {
   const handleSignatureInfoChange = (signatureInfo: SignatureInfoData) => {
@@ -46,6 +48,8 @@ export const SignatureForm: React.FC<SignatureFormProps> = ({
           description: formData.description,
         }}
         onDataChange={handleSignatureInfoChange}
+        existingSignatures={existingSignatures}
+        currentSignatureId={formData.signatureId}
       />
 
       {/* 춤 영상 관리 섹션 */}

@@ -207,6 +207,18 @@ export function useCreateCrewSignature(resetForm: () => void) {
       queryClient.invalidateQueries({ queryKey: ["signatures"] });
       resetForm();
     },
+    onError: (error: any) => {
+      // 서버에서 오는 중복 에러 처리
+      const errorMessage = error?.response?.data?.message || error?.message;
+      if (
+        errorMessage?.includes("별풍선") &&
+        errorMessage?.includes("시그니처가 존재")
+      ) {
+        alert(errorMessage);
+      } else {
+        alert(getErrorMessage(error));
+      }
+    },
   });
 }
 
@@ -223,6 +235,18 @@ export function useUpdateCrewSignature(resetForm: () => void) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["signatures"] });
       resetForm();
+    },
+    onError: (error: any) => {
+      // 서버에서 오는 중복 에러 처리
+      const errorMessage = error?.response?.data?.message || error?.message;
+      if (
+        errorMessage?.includes("별풍선") &&
+        errorMessage?.includes("시그니처가 존재")
+      ) {
+        alert(errorMessage);
+      } else {
+        alert(getErrorMessage(error));
+      }
     },
   });
 }

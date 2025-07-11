@@ -432,6 +432,7 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
                 onSubmit={signatureManager.handleSubmit}
                 onFormChange={signatureManager.setFormData}
                 onOpenDanceModal={signatureManager.openDanceModal}
+                existingSignatures={signatures || []}
                 onCancel={() => {
                   signatureManager.resetForm();
                   setIsManageMode(false);
