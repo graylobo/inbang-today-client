@@ -209,7 +209,7 @@ export function useCreateCrewSignature(resetForm: () => void) {
     },
     onError: (error: any) => {
       // 서버에서 오는 중복 에러 처리
-      const errorMessage = error?.response?.data?.message || error?.message;
+      const errorMessage = error?.errorCode;
       if (
         errorMessage?.includes("별풍선") &&
         errorMessage?.includes("시그니처가 존재")
@@ -239,6 +239,7 @@ export function useUpdateCrewSignature(resetForm: () => void) {
     onError: (error: any) => {
       // 서버에서 오는 중복 에러 처리
       const errorMessage = error?.response?.data?.message || error?.message;
+      console.log("errorMessage:::", error);
       if (
         errorMessage?.includes("별풍선") &&
         errorMessage?.includes("시그니처가 존재")
