@@ -13,6 +13,8 @@ import Image from "next/image";
 import { useState } from "react";
 import CommentForm from "./CommentForm";
 import { formatDate } from "@/utils/date.utils";
+import { useUserRank } from "@/api-hooks/rank.hooks";
+import { LevelBadge } from "@/components/rank/LevelBadge";
 
 interface CommentItemProps {
   comment: Comment;
@@ -38,6 +40,7 @@ export default function CommentItem({
     authorName: comment.authorName || "",
   });
 
+  const { data: userRank } = useUserRank();
   const updateComment = useUpdateComment(() => setIsEditing(false));
   const deleteComment = useDeleteComment();
   const verifyPassword = useVerifyCommentPassword(
@@ -168,6 +171,17 @@ export default function CommentItem({
                 작성자
               </span>
             )}
+            {/* Show level badge if this is the logged-in user's comment */}
+            {user &&
+              comment.author &&
+              user.id === comment.author.id &&
+              userRank &&
+              !isDeletedComment && (
+                <LevelBadge
+                  level={userRank.level}
+                  className="text-xs px-2 py-0.5 ml-2"
+                />
+              )}
           </span>
           {post.board.isAnonymous && comment.ipAddress && !isDeletedComment && (
             <span className="text-xs text-gray-500 dark:text-gray-400">

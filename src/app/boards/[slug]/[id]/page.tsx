@@ -4,9 +4,7 @@ import CommentSection from "@/components/board/CommentSection";
 import Divider from "@/components/common/divider/Divider";
 import { PostDetailSkeleton } from "@/components/ui/skeleton";
 import { useDeletePost, usePost } from "@/hooks/board/useBoards";
-import {
-  useOptimisticPostLike
-} from "@/hooks/board/useLikes";
+import { useOptimisticPostLike } from "@/hooks/board/useLikes";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
 import { formatDate } from "@/utils/date.utils";
@@ -25,6 +23,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import styles from "./index.module.scss";
+import { useUserRank } from "@/api-hooks/rank.hooks";
+import { LevelBadge } from "@/components/rank/LevelBadge";
 
 type PostPageParams = Promise<{
   slug: string;
@@ -38,6 +38,7 @@ export default function PostPage(props: { params: PostPageParams }) {
   const { user } = useAuthStore();
   const router = useRouter();
   const { data: post, isLoading } = usePost(postId);
+  const { data: userRank } = useUserRank();
   const {
     status: likeStatus,
     counts: likeCounts,
@@ -123,6 +124,15 @@ export default function PostPage(props: { params: PostPageParams }) {
                     <span> ({maskIpAddress(post.ipAddress)})</span>
                   )}
                 </span>
+                {user &&
+                  post.author &&
+                  user.id === post.author.id &&
+                  userRank && (
+                    <LevelBadge
+                      level={userRank.level}
+                      className="text-xs px-2 py-0.5 ml-2"
+                    />
+                  )}
               </div>
               <div className="flex items-center">
                 <CalendarIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />

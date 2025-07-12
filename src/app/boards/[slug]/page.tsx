@@ -19,6 +19,8 @@ import {
   PostListSkeleton,
   BoardHeaderSkeleton,
 } from "@/components/ui/skeleton";
+import { useUserRank } from "@/api-hooks/rank.hooks";
+import { LevelBadge } from "@/components/rank/LevelBadge";
 
 type BoardPageParams = Promise<{
   slug: string;
@@ -28,6 +30,7 @@ export default function BoardPage(props: { params: BoardPageParams }) {
   const { slug } = use(props.params);
   const { user } = useAuthStore();
   const [showPostForm, setShowPostForm] = useState(false);
+  const { data: userRank } = useUserRank();
 
   // Pagination state
   const [paginationParams, setPaginationParams] = useState<PaginationQueryDto>({
@@ -125,13 +128,30 @@ export default function BoardPage(props: { params: BoardPageParams }) {
                     </p>
                     <div className="mt-1 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
                       <div className="flex items-center">
-                        <UserIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                        {post.author?.profileImage ? (
+                          <img
+                            src={post.author.profileImage}
+                            alt="Profile"
+                            className="w-4 h-4 rounded-full object-cover mr-1.5 flex-shrink-0"
+                          />
+                        ) : (
+                          <UserIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
+                        )}
                         <span className="leading-none align-middle">
                           {post.author ? post.author.name : post.authorName}
                           {board.isAnonymous && post.ipAddress && (
                             <span> ({maskIpAddress(post.ipAddress)})</span>
                           )}
                         </span>
+                        {user &&
+                          post.author &&
+                          user.id === post.author.id &&
+                          userRank && (
+                            <LevelBadge
+                              level={userRank.level}
+                              className="text-xs px-2 py-0.5 ml-2"
+                            />
+                          )}
                       </div>
                       <div className="flex items-center">
                         <EyeIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />
