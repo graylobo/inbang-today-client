@@ -33,7 +33,8 @@ export default function CrewInfo({ crew }: { crew: any }) {
   const hasEditPermission = hasCrewEditPermission(
     isSuperAdmin,
     permittedCrews,
-    crew.id
+    crew.id,
+    isAuthenticated
   );
 
   // 히스토리 관리 커스텀 훅

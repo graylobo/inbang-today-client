@@ -196,7 +196,8 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
   const hasEditPermission = hasCrewEditPermission(
     isSuperAdmin,
     permittedCrews,
-    parseInt(crewId)
+    parseInt(crewId),
+    isAuthenticated
   );
 
   // 시그니처 폼 초기화 (크루 ID 설정)

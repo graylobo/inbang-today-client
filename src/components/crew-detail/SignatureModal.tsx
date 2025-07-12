@@ -31,13 +31,18 @@ export default function SignatureModal({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // 권한 확인
-  const { isSuperAdmin } = useAuthStore();
+  const { isSuperAdmin, isAuthenticated } = useAuthStore();
   const { crews: permittedCrews } = useCrewPermissionsList();
   const signatureManager = useSignatureManager();
 
   // 현재 크루에 대한 편집 권한 확인
   const hasEditPermission = signature
-    ? hasCrewEditPermission(isSuperAdmin, permittedCrews, signature.crewId)
+    ? hasCrewEditPermission(
+        isSuperAdmin,
+        permittedCrews,
+        signature.crewId,
+        isAuthenticated
+      )
     : false;
 
   useEffect(() => {
