@@ -6,6 +6,7 @@ import { useAuthStore } from "@/store/authStore";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useEffect, useRef, useState } from "react";
+import { hasCrewEditPermission } from "@/utils/permissions";
 
 interface SignatureModalProps {
   signature: any;
@@ -35,11 +36,9 @@ export default function SignatureModal({
   const signatureManager = useSignatureManager();
 
   // 현재 크루에 대한 편집 권한 확인
-  const hasEditPermission = () => {
-    if (!signature) return false;
-    if (isSuperAdmin) return true;
-    return permittedCrews?.some((crew: any) => crew.id === signature.crewId);
-  };
+  const hasEditPermission = signature
+    ? hasCrewEditPermission(isSuperAdmin, permittedCrews, signature.crewId)
+    : false;
 
   useEffect(() => {
     if (!signature) return;
@@ -201,7 +200,7 @@ export default function SignatureModal({
             </div>
           </div>
           <div className="flex gap-2 shrink-0">
-            {
+            {hasEditPermission && (
               <button
                 onClick={() => setIsAddingDance(!isAddingDance)}
                 className={`p-1.5 rounded text-sm transition-colors ${
@@ -212,7 +211,7 @@ export default function SignatureModal({
               >
                 {isAddingDance ? "취소" : "춤 영상 추가"}
               </button>
-            }
+            )}
             <button
               onClick={onClose}
               className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-sm text-gray-700 dark:text-gray-300 transition-colors"

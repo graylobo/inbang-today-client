@@ -14,6 +14,7 @@ import { AgGridReact } from "ag-grid-react";
 import { ColDef, GridOptions, ICellRendererParams } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import { hasCrewEditPermission } from "@/utils/permissions";
 
 export default function CrewSignatures({ crewId }: { crewId: string }) {
   const { data: signatures, refetch: refetchSignatures } = useGetCrewSignatures(
@@ -30,7 +31,7 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
   const [showSignatureForm, setShowSignatureForm] = useState(false);
 
   // 권한 및 시그니처 관리
-  const { isSuperAdmin } = useAuthStore();
+  const { isSuperAdmin, isAuthenticated } = useAuthStore();
   const { crews: permittedCrews } = useCrewPermissionsList();
   const signatureManager = useSignatureManager();
 
@@ -142,21 +143,28 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
         width: 120,
         cellRenderer: (params: ICellRendererParams) => (
           <div className="flex gap-2">
-            <button
-              onClick={() => {
-                signatureManager.handleEdit(params.data);
-                setShowSignatureForm(true);
-              }}
-              className="text-blue-500 hover:text-blue-700 text-xs px-2 py-1 border border-blue-500 rounded"
-            >
-              수정
-            </button>
-            <button
-              onClick={() => signatureManager.handleDelete(params.data.id)}
-              className="text-red-500 hover:text-red-700 text-xs px-2 py-1 border border-red-500 rounded"
-            >
-              삭제
-            </button>
+            {hasEditPermission && (
+              <>
+                <button
+                  onClick={() => {
+                    signatureManager.handleEdit(params.data);
+                    setShowSignatureForm(true);
+                  }}
+                  className="text-blue-500 hover:text-blue-700 text-xs px-2 py-1 border border-blue-500 rounded"
+                >
+                  수정
+                </button>
+                <button
+                  onClick={() => signatureManager.handleDelete(params.data.id)}
+                  className="text-red-500 hover:text-red-700 text-xs px-2 py-1 border border-red-500 rounded"
+                >
+                  삭제
+                </button>
+              </>
+            )}
+            {!hasEditPermission && (
+              <span className="text-gray-400 text-xs px-2 py-1">권한 없음</span>
+            )}
           </div>
         ),
       },
@@ -185,10 +193,11 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
   );
 
   // 현재 크루에 대한 편집 권한 확인
-  const hasEditPermission = () => {
-    if (isSuperAdmin) return true;
-    return permittedCrews?.some((crew: any) => crew.id === parseInt(crewId));
-  };
+  const hasEditPermission = hasCrewEditPermission(
+    isSuperAdmin,
+    permittedCrews,
+    parseInt(crewId)
+  );
 
   // 시그니처 폼 초기화 (크루 ID 설정)
   useEffect(() => {
@@ -293,57 +302,107 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
           </nav>
 
           {/* 관리 버튼들 */}
-          {hasEditPermission() && (
-            <div className="flex space-x-2">
-              {activeTab === "overview" && (
-                <button
-                  onClick={() => {
-                    // 관리 모드로 들어갈 때 mutation 상태 리셋
-                    if (!overviewManageMode) {
-                      signatureManager.updateOverviewImageMutation.reset();
-                      // 최신 데이터로 폼 초기화
-                      if (crew) {
-                        signatureManager.initializeOverviewForm(
-                          parseInt(crewId),
-                          crew.signatureOverviewImageUrl || ""
-                        );
+          <div className="flex space-x-2">
+            {isAuthenticated ? (
+              hasEditPermission ? (
+                <>
+                  {activeTab === "overview" && (
+                    <button
+                      onClick={() => {
+                        // 관리 모드로 들어갈 때 mutation 상태 리셋
+                        if (!overviewManageMode) {
+                          signatureManager.updateOverviewImageMutation.reset();
+                          // 최신 데이터로 폼 초기화
+                          if (crew) {
+                            signatureManager.initializeOverviewForm(
+                              parseInt(crewId),
+                              crew.signatureOverviewImageUrl || ""
+                            );
+                          }
+                        }
+                        setOverviewManageMode(!overviewManageMode);
+                      }}
+                      className={`px-4 py-2 text-sm rounded-md ${
+                        overviewManageMode
+                          ? "bg-red-500 text-white hover:bg-red-600"
+                          : "bg-blue-500 text-white hover:bg-blue-600"
+                      }`}
+                    >
+                      {overviewManageMode ? "관리 종료" : "시그목록표 관리"}
+                    </button>
+                  )}
+                  {activeTab === "individual" && (
+                    <button
+                      onClick={() => {
+                        // 관리 모드로 들어갈 때 mutation 상태 리셋
+                        if (!isManageMode) {
+                          signatureManager.createMutation.reset();
+                          signatureManager.updateMutation.reset();
+                        } else {
+                          // 관리 모드 종료 시 SignatureForm 숨기기
+                          setShowSignatureForm(false);
+                        }
+                        setIsManageMode(!isManageMode);
+                      }}
+                      className={`px-4 py-2 text-sm rounded-md ${
+                        isManageMode
+                          ? "bg-red-500 text-white hover:bg-red-600"
+                          : "bg-blue-500 text-white hover:bg-blue-600"
+                      }`}
+                    >
+                      {isManageMode ? "관리 종료" : "시그니처 관리"}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  {activeTab === "overview" && (
+                    <button
+                      onClick={() =>
+                        alert("해당 크루에 대한 편집 권한이 없습니다.")
                       }
-                    }
-                    setOverviewManageMode(!overviewManageMode);
-                  }}
-                  className={`px-4 py-2 text-sm rounded-md ${
-                    overviewManageMode
-                      ? "bg-red-500 text-white hover:bg-red-600"
-                      : "bg-blue-500 text-white hover:bg-blue-600"
-                  }`}
-                >
-                  {overviewManageMode ? "관리 종료" : "시그목록표 관리"}
-                </button>
-              )}
-              {activeTab === "individual" && (
-                <button
-                  onClick={() => {
-                    // 관리 모드로 들어갈 때 mutation 상태 리셋
-                    if (!isManageMode) {
-                      signatureManager.createMutation.reset();
-                      signatureManager.updateMutation.reset();
-                    } else {
-                      // 관리 모드 종료 시 SignatureForm 숨기기
-                      setShowSignatureForm(false);
-                    }
-                    setIsManageMode(!isManageMode);
-                  }}
-                  className={`px-4 py-2 text-sm rounded-md ${
-                    isManageMode
-                      ? "bg-red-500 text-white hover:bg-red-600"
-                      : "bg-blue-500 text-white hover:bg-blue-600"
-                  }`}
-                >
-                  {isManageMode ? "관리 종료" : "시그니처 관리"}
-                </button>
-              )}
-            </div>
-          )}
+                      className="px-4 py-2 text-sm rounded-md bg-orange-300 dark:bg-orange-700 text-orange-700 dark:text-orange-300 hover:bg-orange-400 dark:hover:bg-orange-600 transition-colors"
+                      title="해당 크루에 대한 편집 권한이 없습니다"
+                    >
+                      🔒 시그목록표 관리 (권한 없음)
+                    </button>
+                  )}
+                  {activeTab === "individual" && (
+                    <button
+                      onClick={() =>
+                        alert("해당 크루에 대한 편집 권한이 없습니다.")
+                      }
+                      className="px-4 py-2 text-sm rounded-md bg-orange-300 dark:bg-orange-700 text-orange-700 dark:text-orange-300 hover:bg-orange-400 dark:hover:bg-orange-600 transition-colors"
+                      title="해당 크루에 대한 편집 권한이 없습니다"
+                    >
+                      🔒 시그니처 관리 (권한 없음)
+                    </button>
+                  )}
+                </>
+              )
+            ) : (
+              <>
+                {activeTab === "overview" && (
+                  <button
+                    onClick={() => (window.location.href = "/login")}
+                    className="px-4 py-2 text-sm rounded-md bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
+                    title="로그인 후 시그목록표 관리 가능"
+                  >
+                    🔒 시그목록표 관리 (로그인 필요)
+                  </button>
+                )}
+                {activeTab === "individual" && (
+                  <button
+                    onClick={() => (window.location.href = "/login")}
+                    className="px-4 py-2 text-sm rounded-md bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors"
+                    title="로그인 후 시그니처 관리 가능"
+                  >
+                    🔒 시그니처 관리 (로그인 필요)
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
 

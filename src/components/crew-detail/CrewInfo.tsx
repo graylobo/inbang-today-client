@@ -9,6 +9,9 @@ import MemberHistoryTable from "../common/MemberHistoryTable";
 import Modal from "../common/Modal";
 import { Streamer } from "@/hooks/streamer/useStreamer.type";
 import { StreamerSearchBox } from "../common/StreamerSearchBox";
+import { useAuthStore } from "@/store/authStore";
+import { useCrewPermissionsList } from "@/hooks/crew-permission/useCrewPermission";
+import { hasCrewEditPermission } from "@/utils/permissions";
 
 export default function CrewInfo({ crew }: { crew: any }) {
   const [selectedMember, setSelectedMember] = useState<{
@@ -22,6 +25,15 @@ export default function CrewInfo({ crew }: { crew: any }) {
     rank?: any;
   } | null>(null);
   const [rankGroups, setRankGroups] = useState<any[]>([]);
+  const { isAuthenticated, isSuperAdmin } = useAuthStore();
+  const { crews: permittedCrews } = useCrewPermissionsList();
+
+  // 현재 크루에 대한 편집 권한 확인
+  const hasEditPermission = hasCrewEditPermission(
+    isSuperAdmin,
+    permittedCrews,
+    crew.id
+  );
 
   // 히스토리 관리 커스텀 훅
   const {
@@ -105,17 +117,72 @@ export default function CrewInfo({ crew }: { crew: any }) {
         <h2 className="text-lg font-medium mb-4 dark:text-gray-100">
           스트리머 검색 및 히스토리 추가
         </h2>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            스트리머 검색
-          </label>
-          <StreamerSearchBox
-            onSelectStreamer={handleSelectSearchResult}
-            placeholder="스트리머 이름 또는 숲 ID로 검색하여 히스토리 추가"
-            description={`스트리머를 검색하여 ${crew.name} 크루와 관련된 히스토리를 추가할 수 있습니다.`}
-            showCrewInfo={true}
-          />
-        </div>
+        {isAuthenticated ? (
+          hasEditPermission ? (
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                스트리머 검색
+              </label>
+              <StreamerSearchBox
+                onSelectStreamer={handleSelectSearchResult}
+                placeholder="스트리머 이름 또는 숲 ID로 검색하여 히스토리 추가"
+                description={`스트리머를 검색하여 ${crew.name} 크루와 관련된 히스토리를 추가할 수 있습니다.`}
+                showCrewInfo={true}
+              />
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="text-orange-400 dark:text-orange-500 mb-4">
+                <svg
+                  className="mx-auto h-12 w-12 mb-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 18.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+                <p className="text-lg font-medium">편집 권한이 없습니다</p>
+                <p className="text-sm mt-1">
+                  해당 크루에 대한 스트리머 검색 및 히스토리 추가 권한이
+                  없습니다.
+                </p>
+              </div>
+            </div>
+          )
+        ) : (
+          <div className="text-center py-8">
+            <div className="text-gray-400 dark:text-gray-500 mb-4">
+              <svg
+                className="mx-auto h-12 w-12 mb-2"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                />
+              </svg>
+              <p className="text-lg font-medium">로그인이 필요합니다</p>
+              <p className="text-sm mt-1">
+                스트리머 검색 및 히스토리 추가 기능을 사용하려면 로그인해주세요.
+              </p>
+            </div>
+            <button
+              onClick={() => (window.location.href = "/login")}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            >
+              로그인하러 가기
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 기존 크루 멤버 목록 */}
