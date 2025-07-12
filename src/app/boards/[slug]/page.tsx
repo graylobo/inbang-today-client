@@ -19,7 +19,6 @@ import {
   PostListSkeleton,
   BoardHeaderSkeleton,
 } from "@/components/ui/skeleton";
-import { useUserRank } from "@/api-hooks/rank.hooks";
 import { LevelBadge } from "@/components/rank/LevelBadge";
 
 type BoardPageParams = Promise<{
@@ -30,7 +29,6 @@ export default function BoardPage(props: { params: BoardPageParams }) {
   const { slug } = use(props.params);
   const { user } = useAuthStore();
   const [showPostForm, setShowPostForm] = useState(false);
-  const { data: userRank } = useUserRank();
 
   // Pagination state
   const [paginationParams, setPaginationParams] = useState<PaginationQueryDto>({
@@ -143,15 +141,12 @@ export default function BoardPage(props: { params: BoardPageParams }) {
                             <span> ({maskIpAddress(post.ipAddress)})</span>
                           )}
                         </span>
-                        {user &&
-                          post.author &&
-                          user.id === post.author.id &&
-                          userRank && (
-                            <LevelBadge
-                              level={userRank.level}
-                              className="text-xs px-2 py-0.5 ml-2"
-                            />
-                          )}
+                        {post.author?.userLevel && (
+                          <LevelBadge
+                            level={post.author.userLevel.level}
+                            className="text-xs px-2 py-0.5 ml-2"
+                          />
+                        )}
                       </div>
                       <div className="flex items-center">
                         <EyeIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />

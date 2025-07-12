@@ -23,7 +23,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import styles from "./index.module.scss";
-import { useUserRank } from "@/api-hooks/rank.hooks";
 import { LevelBadge } from "@/components/rank/LevelBadge";
 
 type PostPageParams = Promise<{
@@ -38,7 +37,6 @@ export default function PostPage(props: { params: PostPageParams }) {
   const { user } = useAuthStore();
   const router = useRouter();
   const { data: post, isLoading } = usePost(postId);
-  const { data: userRank } = useUserRank();
   const {
     status: likeStatus,
     counts: likeCounts,
@@ -124,15 +122,12 @@ export default function PostPage(props: { params: PostPageParams }) {
                     <span> ({maskIpAddress(post.ipAddress)})</span>
                   )}
                 </span>
-                {user &&
-                  post.author &&
-                  user.id === post.author.id &&
-                  userRank && (
-                    <LevelBadge
-                      level={userRank.level}
-                      className="text-xs px-2 py-0.5 ml-2"
-                    />
-                  )}
+                {post.author?.userLevel && (
+                  <LevelBadge
+                    level={post.author.userLevel.level}
+                    className="text-xs px-2 py-0.5 ml-2"
+                  />
+                )}
               </div>
               <div className="flex items-center">
                 <CalendarIcon className="w-4 h-4 mr-1.5 flex-shrink-0" />

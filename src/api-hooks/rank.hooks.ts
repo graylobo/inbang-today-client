@@ -7,9 +7,9 @@ import {
 import { UserLevel, UserBadge } from "@/constants/rank";
 
 export const useUserRank = () => {
-  return useQuery<UserLevel>({
+  return useQuery({
     queryKey: ["userRank"],
-    queryFn: () => getMyRank(),
+    queryFn: getMyRank,
   });
 };
 

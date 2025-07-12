@@ -15,11 +15,17 @@ export interface Board {
   description?: string;
 }
 
+export interface PostAuthor extends User {
+  userLevel?: {
+    level: number;
+  };
+}
+
 export interface Post {
   id: number;
   title: string;
   content: string;
-  author: User | null;
+  author: PostAuthor | null;
   authorName: string | null;
   ipAddress: string | null;
   createdAt: string;
@@ -32,7 +38,7 @@ export interface Post {
 export interface Comment {
   id: number;
   content: string;
-  author: User | null;
+  author: PostAuthor | null;
   authorName: string | null;
   ipAddress: string | null;
   password?: string;
