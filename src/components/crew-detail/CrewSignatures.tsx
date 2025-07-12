@@ -27,6 +27,7 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
   );
   const [isManageMode, setIsManageMode] = useState(false);
   const [overviewManageMode, setOverviewManageMode] = useState(false);
+  const [showSignatureForm, setShowSignatureForm] = useState(false);
 
   // 권한 및 시그니처 관리
   const { isSuperAdmin } = useAuthStore();
@@ -142,7 +143,10 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
         cellRenderer: (params: ICellRendererParams) => (
           <div className="flex gap-2">
             <button
-              onClick={() => signatureManager.handleEdit(params.data)}
+              onClick={() => {
+                signatureManager.handleEdit(params.data);
+                setShowSignatureForm(true);
+              }}
               className="text-blue-500 hover:text-blue-700 text-xs px-2 py-1 border border-blue-500 rounded"
             >
               수정
@@ -223,6 +227,7 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
         signatureManager.updateMutation.isSuccess) &&
       isManageMode
     ) {
+      setShowSignatureForm(false);
       setIsManageMode(false);
     }
   }, [
@@ -252,6 +257,7 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
                 setActiveTab("overview");
                 setIsManageMode(false);
                 setOverviewManageMode(false);
+                setShowSignatureForm(false);
                 // 탭 전환시 mutation 상태 리셋
                 signatureManager.updateOverviewImageMutation.reset();
                 signatureManager.createMutation.reset();
@@ -270,6 +276,7 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
                 setActiveTab("individual");
                 setIsManageMode(false);
                 setOverviewManageMode(false);
+                setShowSignatureForm(false);
                 // 탭 전환시 mutation 상태 리셋
                 signatureManager.updateOverviewImageMutation.reset();
                 signatureManager.createMutation.reset();
@@ -320,6 +327,9 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
                     if (!isManageMode) {
                       signatureManager.createMutation.reset();
                       signatureManager.updateMutation.reset();
+                    } else {
+                      // 관리 모드 종료 시 SignatureForm 숨기기
+                      setShowSignatureForm(false);
                     }
                     setIsManageMode(!isManageMode);
                   }}
@@ -425,23 +435,66 @@ export default function CrewSignatures({ crewId }: { crewId: string }) {
         <div className="space-y-4">
           {isManageMode ? (
             <>
-              <h3 className="text-lg font-semibold">시그니처 관리</h3>
-              <SignatureForm
-                formData={signatureManager.formData}
-                isEditing={signatureManager.isEditing}
-                onSubmit={signatureManager.handleSubmit}
-                onFormChange={signatureManager.setFormData}
-                onOpenDanceModal={signatureManager.openDanceModal}
-                existingSignatures={signatures || []}
-                onCancel={() => {
-                  signatureManager.resetForm();
-                  setIsManageMode(false);
-                }}
-                isLoading={
-                  signatureManager.createMutation.isPending ||
-                  signatureManager.updateMutation.isPending
-                }
-              />
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold">시그니처 관리</h3>
+                {!showSignatureForm && (
+                  <button
+                    onClick={() => {
+                      signatureManager.resetForm();
+                      signatureManager.initializeForm(parseInt(crewId));
+                      setShowSignatureForm(true);
+                    }}
+                    className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+                  >
+                    신규 시그니처 추가
+                  </button>
+                )}
+              </div>
+
+              {/* 시그니처 폼 - 조건부 렌더링 */}
+              {showSignatureForm && (
+                <div className="border-2 border-dashed border-blue-300 bg-blue-50 p-4 rounded-lg">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-blue-600 font-medium">
+                        {signatureManager.isEditing
+                          ? "📝 수정 중"
+                          : "✨ 새 시그니처"}
+                      </span>
+                      {signatureManager.isEditing && (
+                        <span className="text-sm text-gray-500">
+                          ({signatureManager.formData.songName})
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => {
+                        signatureManager.resetForm();
+                        setShowSignatureForm(false);
+                      }}
+                      className="text-gray-400 hover:text-gray-600 text-sm"
+                    >
+                      ✕ 닫기
+                    </button>
+                  </div>
+                  <SignatureForm
+                    formData={signatureManager.formData}
+                    isEditing={signatureManager.isEditing}
+                    onSubmit={signatureManager.handleSubmit}
+                    onFormChange={signatureManager.setFormData}
+                    onOpenDanceModal={signatureManager.openDanceModal}
+                    existingSignatures={signatures || []}
+                    onCancel={() => {
+                      signatureManager.resetForm();
+                      setShowSignatureForm(false);
+                    }}
+                    isLoading={
+                      signatureManager.createMutation.isPending ||
+                      signatureManager.updateMutation.isPending
+                    }
+                  />
+                </div>
+              )}
 
               {/* 시그니처 목록 (관리 모드) - ag-grid */}
               <div className="space-y-4">

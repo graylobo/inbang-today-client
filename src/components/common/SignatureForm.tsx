@@ -38,7 +38,16 @@ export const SignatureForm: React.FC<SignatureFormProps> = ({
       onSubmit={onSubmit}
       className="space-y-4 bg-white p-6 rounded-lg shadow"
     >
-      <h3 className="text-lg font-medium">시그니처 관리</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-medium">
+          {isEditing ? "시그니처 수정" : "시그니처 등록"}
+        </h3>
+        {isEditing && (
+          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+            수정 모드
+          </span>
+        )}
+      </div>
 
       <SignatureInfoForm
         data={{
@@ -69,18 +78,22 @@ export const SignatureForm: React.FC<SignatureFormProps> = ({
             </button>
           </div>
         </div>
-        
+
         {/* 춤 영상 목록 미리보기 */}
         {formData.dances.length > 0 && (
           <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">등록된 영상 목록:</h4>
+            <h4 className="text-sm font-medium text-gray-700 mb-2">
+              등록된 영상 목록:
+            </h4>
             <div className="space-y-2">
               {formData.dances.map((dance, index) => (
                 <div key={index} className="flex items-center gap-2 text-sm">
                   <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
                     #{index + 1}
                   </span>
-                  <span className="font-medium">{dance.memberName || "이름 없음"}</span>
+                  <span className="font-medium">
+                    {dance.memberName || "이름 없음"}
+                  </span>
                   <span className="text-gray-500">({dance.performedAt})</span>
                 </div>
               ))}
