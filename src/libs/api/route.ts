@@ -48,6 +48,7 @@ export const API_ROUTES = {
     create: { url: "/posts", method: "POST" },
     update: { url: "/posts/{id}", method: "PUT" },
     delete: { url: "/posts/{id}", method: "DELETE" },
+    toggleNotice: { url: "/posts/{id}/notice", method: "PATCH" },
   },
   comments: {
     getByPost: { url: "/comments/post/{postId}", method: "GET" },
@@ -143,7 +144,10 @@ export const API_ROUTES = {
     update: { url: "/crews/{id}", method: "PUT" },
     delete: { url: "/crews/{id}", method: "DELETE" },
     rankings: { url: "/crews/rankings", method: "GET" },
-    updateSignatureOverviewImageUrl: { url: "/crews/{id}/signature-overview-image-url", method: "PATCH" },
+    updateSignatureOverviewImageUrl: {
+      url: "/crews/{id}/signature-overview-image-url",
+      method: "PATCH",
+    },
   },
   crewRanks: {
     getByCrewId: { url: "/crew-ranks/crew/{crewId}", method: "GET" },

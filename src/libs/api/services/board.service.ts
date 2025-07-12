@@ -25,6 +25,7 @@ export interface Post {
   id: number;
   title: string;
   content: string;
+  isNotice: boolean;
   author: PostAuthor | null;
   authorName: string | null;
   ipAddress: string | null;
@@ -148,6 +149,16 @@ export async function deletePost(id: number, password?: string): Promise<any> {
   return await apiRequest(API_ROUTES.posts.delete, {
     params: { id },
     query: { password },
+  });
+}
+
+export async function toggleNotice(
+  id: number,
+  isNotice: boolean
+): Promise<Post> {
+  return await apiRequest(API_ROUTES.posts.toggleNotice, {
+    params: { id },
+    body: { isNotice },
   });
 }
 

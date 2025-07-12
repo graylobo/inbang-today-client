@@ -3,7 +3,11 @@
 import CommentSection from "@/components/board/CommentSection";
 import Divider from "@/components/common/divider/Divider";
 import { PostDetailSkeleton } from "@/components/ui/skeleton";
-import { useDeletePost, usePost } from "@/hooks/board/useBoards";
+import {
+  useDeletePost,
+  usePost,
+  useToggleNotice,
+} from "@/hooks/board/useBoards";
 import { useOptimisticPostLike } from "@/hooks/board/useLikes";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
@@ -48,6 +52,8 @@ export default function PostPage(props: { params: PostPageParams }) {
     router.push(`/boards/${slug}`);
   });
 
+  const toggleNotice = useToggleNotice();
+
   if (isLoading) return <PostDetailSkeleton />;
   if (!post)
     return <div className="dark:text-gray-300">게시글을 찾을 수 없습니다.</div>;
@@ -65,6 +71,21 @@ export default function PostPage(props: { params: PostPageParams }) {
     }
   };
 
+  const handleToggleNotice = () => {
+    if (
+      window.confirm(
+        `정말로 이 게시글을 ${
+          post.isNotice ? "일반글로" : "공지로"
+        } 변경하시겠습니까?`
+      )
+    ) {
+      toggleNotice.mutate({
+        id: post.id,
+        isNotice: !post.isNotice,
+      });
+    }
+  };
+
   const handleLikeClick = (action: "like" | "dislike") => {
     toggleLike(action);
   };
@@ -77,29 +98,51 @@ export default function PostPage(props: { params: PostPageParams }) {
         <h1 className="text-[25px] font-semibold dark:text-gray-200">
           {post.board.name}
         </h1>
-        {isAuthor && (
-          <div className="space-x-2">
-            <Link
-              href={`/boards/${slug}/${post.id}/edit`}
-              className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
-            >
-              수정
-            </Link>
+        <div className="flex items-center space-x-2">
+          {user?.isAdmin && (
             <button
-              onClick={handleDelete}
-              className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+              onClick={handleToggleNotice}
+              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                post.isNotice
+                  ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              }`}
+              disabled={toggleNotice.isPending}
             >
-              삭제
+              {post.isNotice ? "공지 해제" : "공지 등록"}
             </button>
-          </div>
-        )}
+          )}
+          {isAuthor && (
+            <div className="space-x-2">
+              <Link
+                href={`/boards/${slug}/${post.id}/edit`}
+                className="text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+              >
+                수정
+              </Link>
+              <button
+                onClick={handleDelete}
+                className="text-red-500 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+              >
+                삭제
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <article className="bg-white dark:bg-dark-bg rounded-lg overflow-hidden">
         <div className="">
-          <h1 className="text-2xl font-bold mb-4 dark:text-gray-100">
-            {post.title}
-          </h1>
+          <div className="flex items-center gap-2 mb-2">
+            {post.isNotice && (
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                공지
+              </span>
+            )}
+            <h1 className="text-2xl font-bold dark:text-gray-100">
+              {post.title}
+            </h1>
+          </div>
           <div className="flex justify-between items-center text-sm text-gray-600 dark:text-gray-400 mb-6">
             <div className="flex items-center gap-2">
               <div className="flex items-center">

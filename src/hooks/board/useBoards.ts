@@ -8,6 +8,7 @@ import {
   createPost,
   updatePost,
   deletePost,
+  toggleNotice,
   getComments,
   createComment,
   createReply,
@@ -141,6 +142,30 @@ export const useDeletePost = (onSuccess?: () => void) => {
       });
 
       onSuccess?.();
+    },
+  });
+};
+
+export const useToggleNotice = (onSuccess?: () => void) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, isNotice }: { id: number; isNotice: boolean }) =>
+      toggleNotice(id, isNotice),
+    onSuccess: (_, variables) => {
+      // 개별 게시글 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ["post", variables.id] });
+
+      // 모든 게시글 목록 캐시 무효화 (정렬 순서가 변경됨)
+      queryClient.invalidateQueries({
+        queryKey: ["posts"],
+        exact: false,
+      });
+
+      onSuccess?.();
+    },
+    onError: (error) => {
+      alert(getErrorMessage(error));
     },
   });
 };

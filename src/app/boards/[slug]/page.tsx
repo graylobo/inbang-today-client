@@ -5,7 +5,11 @@ import { use, useState } from "react";
 import { useAuthStore } from "@/store/authStore";
 import PostForm from "@/components/board/PostForm";
 import Modal from "@/components/common/Modal";
-import { useBoardBySlug, usePostsBySlug } from "@/hooks/board/useBoards";
+import {
+  useBoardBySlug,
+  usePostsBySlug,
+  useToggleNotice,
+} from "@/hooks/board/useBoards";
 import { maskIpAddress } from "@/utils/ipUtils";
 import { UserIcon, EyeIcon, CalendarIcon } from "@heroicons/react/24/outline";
 import { formatDate } from "@/utils/date.utils";
@@ -43,6 +47,26 @@ export default function BoardPage(props: { params: BoardPageParams }) {
     slug,
     paginationParams
   );
+
+  const toggleNotice = useToggleNotice(() => {
+    // 성공 시 자동으로 목록이 새로고침됨
+  });
+
+  // 공지 토글 핸들러
+  const handleToggleNotice = (postId: number, isCurrentlyNotice: boolean) => {
+    if (
+      window.confirm(
+        `정말로 이 게시글을 ${
+          isCurrentlyNotice ? "일반글로" : "공지로"
+        } 변경하시겠습니까?`
+      )
+    ) {
+      toggleNotice.mutate({
+        id: postId,
+        isNotice: !isCurrentlyNotice,
+      });
+    }
+  };
 
   // Reset to page 1 when perPage changes
   const handlePerPageChange = (newPerPage: number) => {
@@ -112,18 +136,29 @@ export default function BoardPage(props: { params: BoardPageParams }) {
               <Link
                 key={post.id}
                 href={`/boards/${board.slug}/${post.id}`}
-                className="block p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                className={`block p-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
+                  post.isNotice
+                    ? "bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400"
+                    : ""
+                }`}
               >
                 <div className="flex justify-between items-start">
                   <div className="flex flex-row justify-center items-center gap-2">
-                    <p className="dark:text-gray-100">
-                      <span className="mr-2">{`${post.title}`}</span>
-                      {post.comments.length > 0 && (
-                        <span className="text-blue-500 dark:text-blue-400 text-sm">
-                          [{post.comments.length}]
+                    <div className="flex items-center gap-2">
+                      {post.isNotice && (
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                          공지
                         </span>
                       )}
-                    </p>
+                      <p className="dark:text-gray-100">
+                        <span className="mr-2">{`${post.title}`}</span>
+                        {post.comments.length > 0 && (
+                          <span className="text-blue-500 dark:text-blue-400 text-sm">
+                            [{post.comments.length}]
+                          </span>
+                        )}
+                      </p>
+                    </div>
                     <div className="mt-1 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
                       <div className="flex items-center">
                         {post.author?.profileImage ? (
@@ -164,7 +199,25 @@ export default function BoardPage(props: { params: BoardPageParams }) {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400"></div>
+                  <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                    {user?.isAdmin && (
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleToggleNotice(post.id, post.isNotice);
+                        }}
+                        className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                          post.isNotice
+                            ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800"
+                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                        }`}
+                        disabled={toggleNotice.isPending}
+                      >
+                        {post.isNotice ? "공지 해제" : "공지 등록"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </Link>
             ))}
