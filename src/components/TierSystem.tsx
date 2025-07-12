@@ -3,7 +3,14 @@
 import { EloRanking } from "@/hooks/elo-ranking/useEloRanking";
 import { TierType, calculateTiers } from "@/utils/tierCalculator";
 import StreamerCard from "@/components/streaming/StreamerCard";
-import { Dispatch, RefObject, SetStateAction, useMemo, useRef } from "react";
+import {
+  Dispatch,
+  RefObject,
+  SetStateAction,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   Tooltip,
   TooltipContent,
@@ -81,16 +88,20 @@ export default function TierSystem({
     return groups;
   }, [filteredRankings]);
 
+  // State for tooltip visibility (mobile support)
+  const [isTooltipOpen, setIsTooltipOpen] = useState(false);
+
   return (
     <TooltipProvider delayDuration={0}>
       <div className="p-4">
         <div className="flex items-center gap-2 mb-6">
           <h2 className="text-2xl font-bold">{month} 계급 랭킹</h2>
-          <Tooltip>
+          <Tooltip open={isTooltipOpen} onOpenChange={setIsTooltipOpen}>
             <TooltipTrigger asChild>
               <button
                 className="w-6 h-6 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-sm font-bold text-gray-600 transition-colors cursor-help"
                 type="button"
+                onClick={() => setIsTooltipOpen(!isTooltipOpen)}
               >
                 ?
               </button>
@@ -99,6 +110,7 @@ export default function TierSystem({
               className="max-w-xs z-[9999] bg-white border border-gray-200 shadow-lg"
               side="bottom"
               sideOffset={5}
+              onPointerDownOutside={() => setIsTooltipOpen(false)}
             >
               <div className="text-sm text-gray-900">
                 <h3 className="font-bold mb-2">계급 분포 시스템</h3>
