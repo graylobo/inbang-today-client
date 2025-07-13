@@ -26,6 +26,7 @@ export interface Post {
   title: string;
   content: string;
   isNotice: boolean;
+  noticeOrder?: number;
   author: PostAuthor | null;
   authorName: string | null;
   ipAddress: string | null;
@@ -159,6 +160,25 @@ export async function toggleNotice(
   return await apiRequest(API_ROUTES.posts.toggleNotice, {
     params: { id },
     body: { isNotice },
+  });
+}
+
+export async function moveNoticeUp(id: number): Promise<Post> {
+  return await apiRequest(API_ROUTES.posts.moveNoticeUp, {
+    params: { id },
+  });
+}
+
+export async function moveNoticeDown(id: number): Promise<Post> {
+  return await apiRequest(API_ROUTES.posts.moveNoticeDown, {
+    params: { id },
+  });
+}
+
+export async function setNoticeOrder(id: number, order: number): Promise<Post> {
+  return await apiRequest(API_ROUTES.posts.setNoticeOrder, {
+    params: { id },
+    body: { order },
   });
 }
 

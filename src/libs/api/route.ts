@@ -49,6 +49,9 @@ export const API_ROUTES = {
     update: { url: "/posts/{id}", method: "PUT" },
     delete: { url: "/posts/{id}", method: "DELETE" },
     toggleNotice: { url: "/posts/{id}/notice", method: "PATCH" },
+    moveNoticeUp: { url: "/posts/{id}/notice-order/up", method: "PATCH" },
+    moveNoticeDown: { url: "/posts/{id}/notice-order/down", method: "PATCH" },
+    setNoticeOrder: { url: "/posts/{id}/notice-order", method: "PATCH" },
   },
   comments: {
     getByPost: { url: "/comments/post/{postId}", method: "GET" },

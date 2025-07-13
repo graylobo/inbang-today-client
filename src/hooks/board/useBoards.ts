@@ -9,6 +9,9 @@ import {
   updatePost,
   deletePost,
   toggleNotice,
+  moveNoticeUp,
+  moveNoticeDown,
+  setNoticeOrder,
   getComments,
   createComment,
   createReply,
@@ -146,26 +149,92 @@ export const useDeletePost = (onSuccess?: () => void) => {
   });
 };
 
-export const useToggleNotice = (onSuccess?: () => void) => {
+export const useToggleNotice = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, isNotice }: { id: number; isNotice: boolean }) =>
       toggleNotice(id, isNotice),
-    onSuccess: (_, variables) => {
-      // 개별 게시글 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: ["post", variables.id] });
-
-      // 모든 게시글 목록 캐시 무효화 (정렬 순서가 변경됨)
-      queryClient.invalidateQueries({
+    onSuccess: (data) => {
+      queryClient.refetchQueries({
         queryKey: ["posts"],
         exact: false,
       });
 
-      onSuccess?.();
+      queryClient.invalidateQueries({
+        queryKey: ["post", data.id],
+      });
     },
     onError: (error) => {
-      alert(getErrorMessage(error));
+      console.error("공지 토글 실패:", error);
+      throw error;
+    },
+  });
+};
+
+export const useMoveNoticeUp = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => moveNoticeUp(id),
+    onSuccess: (data) => {
+      queryClient.refetchQueries({
+        queryKey: ["posts"],
+        exact: false,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["post", data.id],
+      });
+    },
+    onError: (error) => {
+      console.error("공지 위로 이동 실패:", error);
+      throw error;
+    },
+  });
+};
+
+export const useMoveNoticeDown = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: number) => moveNoticeDown(id),
+    onSuccess: (data) => {
+      queryClient.refetchQueries({
+        queryKey: ["posts"],
+        exact: false,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["post", data.id],
+      });
+    },
+    onError: (error) => {
+      console.error("공지 아래로 이동 실패:", error);
+      throw error;
+    },
+  });
+};
+
+export const useSetNoticeOrder = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, order }: { id: number; order: number }) =>
+      setNoticeOrder(id, order),
+    onSuccess: (data) => {
+      queryClient.refetchQueries({
+        queryKey: ["posts"],
+        exact: false,
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["post", data.id],
+      });
+    },
+    onError: (error) => {
+      console.error("공지 순서 설정 실패:", error);
+      throw error;
     },
   });
 };

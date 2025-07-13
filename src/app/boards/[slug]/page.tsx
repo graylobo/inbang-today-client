@@ -9,6 +9,8 @@ import {
   useBoardBySlug,
   usePostsBySlug,
   useToggleNotice,
+  useMoveNoticeUp,
+  useMoveNoticeDown,
 } from "@/hooks/board/useBoards";
 import { maskIpAddress } from "@/utils/ipUtils";
 import { UserIcon, EyeIcon, CalendarIcon } from "@heroicons/react/24/outline";
@@ -48,9 +50,9 @@ export default function BoardPage(props: { params: BoardPageParams }) {
     paginationParams
   );
 
-  const toggleNotice = useToggleNotice(() => {
-    // 성공 시 자동으로 목록이 새로고침됨
-  });
+  const toggleNotice = useToggleNotice();
+  const moveNoticeUp = useMoveNoticeUp();
+  const moveNoticeDown = useMoveNoticeDown();
 
   // 공지 토글 핸들러
   const handleToggleNotice = (postId: number, isCurrentlyNotice: boolean) => {
@@ -61,11 +63,38 @@ export default function BoardPage(props: { params: BoardPageParams }) {
         } 변경하시겠습니까?`
       )
     ) {
-      toggleNotice.mutate({
-        id: postId,
-        isNotice: !isCurrentlyNotice,
-      });
+      toggleNotice.mutate(
+        {
+          id: postId,
+          isNotice: !isCurrentlyNotice,
+        },
+        {
+          onError: (error) => {
+            console.error("공지 토글 실패:", error);
+            alert("공지 설정 변경에 실패했습니다.");
+          },
+        }
+      );
     }
+  };
+
+  // 공지 순서 변경 핸들러
+  const handleMoveNoticeUp = (postId: number) => {
+    moveNoticeUp.mutate(postId, {
+      onError: (error) => {
+        console.error("공지 위로 이동 실패:", error);
+        alert("공지 순서 변경에 실패했습니다.");
+      },
+    });
+  };
+
+  const handleMoveNoticeDown = (postId: number) => {
+    moveNoticeDown.mutate(postId, {
+      onError: (error) => {
+        console.error("공지 아래로 이동 실패:", error);
+        alert("공지 순서 변경에 실패했습니다.");
+      },
+    });
   };
 
   // Reset to page 1 when perPage changes
@@ -200,22 +229,50 @@ export default function BoardPage(props: { params: BoardPageParams }) {
                     </div>
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
-                    {user?.isAdmin && (
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleToggleNotice(post.id, post.isNotice);
-                        }}
-                        className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                          post.isNotice
-                            ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800"
-                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-                        }`}
-                        disabled={toggleNotice.isPending}
-                      >
-                        {post.isNotice ? "공지 해제" : "공지 등록"}
-                      </button>
+                    {user?.isSuperAdmin && (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleToggleNotice(post.id, post.isNotice);
+                          }}
+                          className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
+                            post.isNotice
+                              ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800"
+                              : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                          }`}
+                          disabled={toggleNotice.isPending}
+                        >
+                          {post.isNotice ? "공지 해제" : "공지 등록"}
+                        </button>
+                        {post.isNotice && (
+                          <>
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleMoveNoticeUp(post.id);
+                              }}
+                              className="px-2 py-1 rounded text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                              disabled={moveNoticeUp.isPending}
+                            >
+                              위로
+                            </button>
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleMoveNoticeDown(post.id);
+                              }}
+                              className="px-2 py-1 rounded text-xs font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                              disabled={moveNoticeDown.isPending}
+                            >
+                              아래로
+                            </button>
+                          </>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

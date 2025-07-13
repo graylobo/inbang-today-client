@@ -7,6 +7,8 @@ import {
   useDeletePost,
   usePost,
   useToggleNotice,
+  useMoveNoticeUp,
+  useMoveNoticeDown,
 } from "@/hooks/board/useBoards";
 import { useOptimisticPostLike } from "@/hooks/board/useLikes";
 import { cn } from "@/lib/utils";
@@ -53,6 +55,8 @@ export default function PostPage(props: { params: PostPageParams }) {
   });
 
   const toggleNotice = useToggleNotice();
+  const moveNoticeUp = useMoveNoticeUp();
+  const moveNoticeDown = useMoveNoticeDown();
 
   if (isLoading) return <PostDetailSkeleton />;
   if (!post)
@@ -79,11 +83,37 @@ export default function PostPage(props: { params: PostPageParams }) {
         } 변경하시겠습니까?`
       )
     ) {
-      toggleNotice.mutate({
-        id: post.id,
-        isNotice: !post.isNotice,
-      });
+      toggleNotice.mutate(
+        {
+          id: post.id,
+          isNotice: !post.isNotice,
+        },
+        {
+          onError: (error) => {
+            console.error("공지 토글 실패:", error);
+            alert("공지 설정 변경에 실패했습니다.");
+          },
+        }
+      );
     }
+  };
+
+  const handleMoveNoticeUp = () => {
+    moveNoticeUp.mutate(post.id, {
+      onError: (error) => {
+        console.error("공지 위로 이동 실패:", error);
+        alert("공지 순서 변경에 실패했습니다.");
+      },
+    });
+  };
+
+  const handleMoveNoticeDown = () => {
+    moveNoticeDown.mutate(post.id, {
+      onError: (error) => {
+        console.error("공지 아래로 이동 실패:", error);
+        alert("공지 순서 변경에 실패했습니다.");
+      },
+    });
   };
 
   const handleLikeClick = (action: "like" | "dislike") => {
@@ -99,18 +129,38 @@ export default function PostPage(props: { params: PostPageParams }) {
           {post.board.name}
         </h1>
         <div className="flex items-center space-x-2">
-          {user?.isAdmin && (
-            <button
-              onClick={handleToggleNotice}
-              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-                post.isNotice
-                  ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
-              }`}
-              disabled={toggleNotice.isPending}
-            >
-              {post.isNotice ? "공지 해제" : "공지 등록"}
-            </button>
+          {user?.isSuperAdmin && (
+            <>
+              <button
+                onClick={handleToggleNotice}
+                className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                  post.isNotice
+                    ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900 dark:text-yellow-200 dark:hover:bg-yellow-800"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                }`}
+                disabled={toggleNotice.isPending}
+              >
+                {post.isNotice ? "공지 해제" : "공지 등록"}
+              </button>
+              {post.isNotice && (
+                <>
+                  <button
+                    onClick={handleMoveNoticeUp}
+                    className="px-3 py-1 rounded text-sm font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                    disabled={moveNoticeUp.isPending}
+                  >
+                    위로
+                  </button>
+                  <button
+                    onClick={handleMoveNoticeDown}
+                    className="px-3 py-1 rounded text-sm font-medium transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+                    disabled={moveNoticeDown.isPending}
+                  >
+                    아래로
+                  </button>
+                </>
+              )}
+            </>
           )}
           {isAuthor && (
             <div className="space-x-2">
