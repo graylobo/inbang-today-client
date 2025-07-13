@@ -1,18 +1,19 @@
 "use client";
 
+import { useUserBadges, useUserRank } from "@/api-hooks/rank.hooks";
+import { RankInfo } from "@/components/rank/RankInfo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useUpdateNickname } from "@/hooks/auth/useAuthHooks";
 import { useUpdateProfileImage } from "@/hooks/user/useUser";
 import { useAuthStore } from "@/store/authStore";
+import { compressImage, validateImageFile } from "@/utils/imageCompression";
 import { Camera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { useUserRank, useUserBadges } from "@/api-hooks/rank.hooks";
-import { RankInfo } from "@/components/rank/RankInfo";
-import { useUpdateNickname } from "@/hooks/auth/useAuthHooks";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_FILE_SIZE = 1 * 1024 * 1024; // 5MB
 const ALLOWED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 export default function ProfilePage() {
@@ -68,20 +69,6 @@ export default function ProfilePage() {
 
   const { mutate: uploadImage, isPending } = useUpdateProfileImage();
 
-  const validateFile = (file: File): boolean => {
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error("파일 크기는 5MB를 초과할 수 없습니다.");
-      return false;
-    }
-
-    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      toast.error("JPG, JPEG, PNG 파일만 업로드할 수 있습니다.");
-      return false;
-    }
-
-    return true;
-  };
-
   const handleImageClick = () => {
     fileInputRef.current?.click();
   };
@@ -90,14 +77,39 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!validateFile(file)) {
+    // 파일 유효성 검사
+    const validation = validateImageFile(
+      file,
+      MAX_FILE_SIZE,
+      ALLOWED_FILE_TYPES
+    );
+    if (!validation.isValid) {
+      alert(validation.error);
       e.target.value = "";
       return;
     }
 
-    const formData = new FormData();
-    formData.append("image", file);
-    uploadImage(formData);
+    try {
+      // 이미지 압축 수행 (profile 프리셋 사용)
+      const compressionResult = await compressImage(file, "profile");
+
+      // 압축된 이미지를 FormData에 추가
+      const formData = new FormData();
+      formData.append("image", compressionResult.compressedFile);
+
+      uploadImage(formData);
+    } catch (error) {
+      console.error("이미지 처리 중 오류:", error);
+      toast.error("이미지 압축 중 오류가 발생했습니다.");
+
+      // 압축 실패 시 원본 이미지 업로드
+      const formData = new FormData();
+      formData.append("image", file);
+      uploadImage(formData);
+    } finally {
+      // 파일 input 초기화
+      e.target.value = "";
+    }
   };
 
   return (
@@ -127,6 +139,13 @@ export default function ProfilePage() {
             </>
           )}
         </div>
+
+        {/* 이미지 업로드 가이드 */}
+        {isEditing && (
+          <div className="text-sm text-gray-600 text-center">
+            <p>JPG, PNG 파일만 업로드 가능 (최대 1MB)</p>
+          </div>
+        )}
       </div>
 
       <div className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow">

@@ -18,7 +18,6 @@ export default function EarningHistory({ crewId }: EarningHistoryProps) {
     year,
     month
   );
-  console.log("dailyEarnings:::", dailyEarnings);
   return (
     <div className="mt-8 bg-white dark:bg-dark-bg rounded-lg p-6 shadow-md dark:shadow-none dark:border dark:border-gray-700">
       <div className="flex justify-between items-center mb-6">

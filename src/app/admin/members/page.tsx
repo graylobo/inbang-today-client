@@ -66,7 +66,6 @@ export default function AdminMembersPage() {
     "registerStreamer"
   );
 
-  console.log("selectedMember:::", selectedMember);
   // Get today's date in YYYY-MM-DD format for the default date
   const getTodayDate = () => {
     const today = new Date();
