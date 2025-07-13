@@ -8,13 +8,17 @@ import { Input } from "@/components/ui/input";
 import { useUpdateNickname } from "@/hooks/auth/useAuthHooks";
 import { useUpdateProfileImage } from "@/hooks/user/useUser";
 import { useAuthStore } from "@/store/authStore";
-import { compressImage, validateImageFile } from "@/utils/imageCompression";
 import { Camera } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-const MAX_FILE_SIZE = 1 * 1024 * 1024; // 5MB
-const ALLOWED_FILE_TYPES = ["image/jpeg", "image/jpg", "image/png"];
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB (서버에서 압축 처리)
+const ALLOWED_FILE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/gif",
+];
 
 export default function ProfilePage() {
   const { user, setUser } = useAuthStore();
@@ -78,34 +82,29 @@ export default function ProfilePage() {
     if (!file) return;
 
     // 파일 유효성 검사
-    const validation = validateImageFile(
-      file,
-      MAX_FILE_SIZE,
-      ALLOWED_FILE_TYPES
-    );
-    if (!validation.isValid) {
-      alert(validation.error);
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error(
+        `파일 크기는 ${MAX_FILE_SIZE / 1024 / 1024}MB를 초과할 수 없습니다.`
+      );
+      e.target.value = "";
+      return;
+    }
+
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      toast.error("JPG, PNG, GIF 파일만 업로드할 수 있습니다.");
       e.target.value = "";
       return;
     }
 
     try {
-      // 이미지 압축 수행 (profile 프리셋 사용)
-      const compressionResult = await compressImage(file, "profile");
-
-      // 압축된 이미지를 FormData에 추가
+      // 서버에서 이미지 압축 처리
       const formData = new FormData();
-      formData.append("image", compressionResult.compressedFile);
+      formData.append("image", file);
 
       uploadImage(formData);
     } catch (error) {
-      console.error("이미지 처리 중 오류:", error);
-      toast.error("이미지 압축 중 오류가 발생했습니다.");
-
-      // 압축 실패 시 원본 이미지 업로드
-      const formData = new FormData();
-      formData.append("image", file);
-      uploadImage(formData);
+      console.error("이미지 업로드 중 오류:", error);
+      toast.error("이미지 업로드 중 오류가 발생했습니다.");
     } finally {
       // 파일 input 초기화
       e.target.value = "";
@@ -143,7 +142,10 @@ export default function ProfilePage() {
         {/* 이미지 업로드 가이드 */}
         {isEditing && (
           <div className="text-sm text-gray-600 text-center">
-            <p>JPG, PNG 파일만 업로드 가능 (최대 1MB)</p>
+            <p>JPG, PNG, GIF 파일만 업로드 가능 (최대 10MB)</p>
+            <p className="text-xs mt-1">
+              이미지는 서버에서 자동으로 WebP 형식으로 압축됩니다
+            </p>
           </div>
         )}
       </div>
