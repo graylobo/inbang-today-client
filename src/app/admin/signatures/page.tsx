@@ -105,9 +105,8 @@ export default function SignaturesPage() {
             isEditing={signatureManager.isEditing}
             onSubmit={signatureManager.handleSubmit}
             onFormChange={signatureManager.setFormData}
-            onAddDance={signatureManager.handleAddDance}
-            onDanceChange={signatureManager.handleDanceChange}
-            onRemoveDance={signatureManager.handleRemoveDance}
+            onOpenDanceModal={signatureManager.openDanceModal}
+            existingSignatures={signatures || []}
             onCancel={signatureManager.resetForm}
             isLoading={
               signatureManager.createMutation.isPending ||
