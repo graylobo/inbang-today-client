@@ -3,7 +3,6 @@
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
 import { Markdown } from "tiptap-markdown";
 import { useCallback, useEffect } from "react";
 import CustomResizableImage from "@/components/editor/extensions/CustomResizableImage";
@@ -83,7 +82,14 @@ const MenuBar = ({
                   if (!response.ok) throw new Error("Upload failed");
 
                   const { url } = await response.json();
-                  editor.chain().focus().setImage({ src: url }).run();
+                  editor
+                    .chain()
+                    .focus()
+                    .insertContent({
+                      type: "resizableImage",
+                      attrs: { src: url, width: "auto", height: "auto" },
+                    })
+                    .run();
                 } catch (error) {
                   console.error("Image upload failed:", error);
                   alert("이미지 업로드에 실패했습니다.");
@@ -162,9 +168,6 @@ const Tiptap = ({
       Link.configure({
         openOnClick: false,
       }),
-      Image.configure({
-        allowBase64: true,
-      }),
       CustomResizableImage,
       YouTubeEmbed,
       Markdown,
@@ -199,7 +202,14 @@ const Tiptap = ({
         if (!response.ok) throw new Error("Upload failed");
 
         const { url } = await response.json();
-        editor.chain().focus().setImage({ src: url }).run();
+        editor
+          .chain()
+          .focus()
+          .insertContent({
+            type: "resizableImage",
+            attrs: { src: url, width: "auto", height: "auto" },
+          })
+          .run();
       } catch (error) {
         console.error("Image upload failed:", error);
         alert("이미지 업로드에 실패했습니다.");

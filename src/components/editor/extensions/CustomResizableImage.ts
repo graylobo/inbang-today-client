@@ -6,6 +6,13 @@ import { ReactNodeViewRenderer } from "@tiptap/react";
 const CustomResizableImage = Image.extend({
   name: "resizableImage",
 
+  addOptions() {
+    return {
+      ...this.parent?.(),
+      allowBase64: true,
+    };
+  },
+
   addAttributes() {
     return {
       ...this.parent?.(),
