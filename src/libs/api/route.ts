@@ -55,6 +55,7 @@ export const API_ROUTES = {
   },
   comments: {
     getByPost: { url: "/comments/post/{postId}", method: "GET" },
+    getBestByPost: { url: "/comments/post/{postId}/best", method: "GET" },
     create: { url: "/comments", method: "POST" },
     createReply: { url: "/comments/{parentId}/reply", method: "POST" },
     update: { url: "/comments/{id}", method: "PUT" },

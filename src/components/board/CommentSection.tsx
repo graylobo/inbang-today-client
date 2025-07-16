@@ -2,6 +2,7 @@
 
 import Divider from "@/components/common/divider/Divider";
 import { useComments } from "@/hooks/board/useBoards";
+import { useBestComments } from "@/hooks/board/useBoards";
 import { Post } from "@/libs/api/services/board.service";
 import { User } from "@/store/authStore";
 import CommentForm from "./CommentForm";
@@ -14,6 +15,7 @@ interface CommentSectionProps {
 
 export default function CommentSection({ post, user }: CommentSectionProps) {
   const { data: comments = [], isLoading } = useComments(post.id);
+  const { data: bestComments = [] } = useBestComments(post.id);
 
   // 최상위 댓글만 필터링
   const parentComments = comments.filter((comment) => !comment.parent);
@@ -48,11 +50,34 @@ export default function CommentSection({ post, user }: CommentSectionProps) {
 
   if (isLoading) return <div>댓글을 불러오는 중...</div>;
 
+  // BEST 댓글 id set
+  const bestCommentIds = new Set(bestComments.map((c) => c.id));
+
   return (
     <div className="mt-8">
       <h2 className="text-xl font-bold mb-4 dark:text-gray-100">
         댓글 {comments.length}개
       </h2>
+      {/* BEST 댓글 영역 */}
+      {bestComments.length > 0 && (
+        <div className="mb-8 p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg border border-yellow-200 dark:border-yellow-700">
+          <div className="font-semibold text-yellow-700 dark:text-yellow-200 mb-2">
+            BEST 댓글
+          </div>
+          <div className="space-y-6">
+            {bestComments.map((comment) => (
+              <CommentItem
+                key={comment.id}
+                comment={comment}
+                user={user}
+                post={post}
+                replies={getAllReplies(comment.id)}
+                best={true}
+              />
+            ))}
+          </div>
+        </div>
+      )}
       <div className="mt-8 space-y-6">
         {parentComments.map((comment) => (
           <CommentItem
@@ -61,6 +86,7 @@ export default function CommentSection({ post, user }: CommentSectionProps) {
             user={user}
             post={post}
             replies={getAllReplies(comment.id)}
+            best={bestCommentIds.has(comment.id)}
           />
         ))}
       </div>

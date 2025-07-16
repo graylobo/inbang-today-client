@@ -189,6 +189,12 @@ export async function getComments(postId: number): Promise<Comment[]> {
   });
 }
 
+export async function getBestComments(postId: number): Promise<Comment[]> {
+  return await apiRequest(API_ROUTES.comments.getBestByPost, {
+    params: { postId },
+  });
+}
+
 export async function createComment(data: CreateCommentDto): Promise<Comment> {
   return await apiRequest(API_ROUTES.comments.create, {
     body: data,

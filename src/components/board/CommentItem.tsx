@@ -20,6 +20,7 @@ interface CommentItemProps {
   user: User | null;
   post: Post;
   replies: Comment[];
+  best?: boolean;
 }
 
 export default function CommentItem({

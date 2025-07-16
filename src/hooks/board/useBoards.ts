@@ -21,6 +21,7 @@ import {
   CreatePostDto,
   CreateReplyDto,
   verifyCommentPassword,
+  getBestComments,
 } from "@/libs/api/services/board.service";
 import { PaginationQueryDto } from "@/libs/api/dto/pagination.dto";
 import { getErrorMessage } from "@/libs/utils/error-handler";
@@ -246,6 +247,13 @@ export const useComments = (postId: number) => {
     queryFn: () => getComments(postId),
   });
 };
+
+export const useBestComments = (postId: number) =>
+  useQuery({
+    queryKey: ["bestComments", postId],
+    queryFn: () => getBestComments(postId),
+    enabled: !!postId,
+  });
 
 export const useCreateComment = (onSuccess?: () => void) => {
   const queryClient = useQueryClient();
