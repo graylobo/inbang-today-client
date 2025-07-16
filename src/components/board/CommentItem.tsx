@@ -136,7 +136,7 @@ export default function CommentItem({
               alt="Profile"
               width={40}
               height={40}
-              className="rounded-full object-cover"
+              className="rounded-full object-cover w-10 h-10 aspect-square"
             />
           ) : (
             <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
