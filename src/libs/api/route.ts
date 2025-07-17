@@ -169,10 +169,19 @@ export const API_ROUTES = {
     update: { url: "/crew-signatures/{id}", method: "PUT" },
     delete: { url: "/crew-signatures/{id}", method: "DELETE" },
   },
-  soopAuth: {
-    generateCode: { url: "/soop-auth/generate-code", method: "POST" },
-    verify: { url: "/soop-auth/verify", method: "POST" },
-    status: { url: "/soop-auth/status", method: "GET" },
+  platformVerification: {
+    generateCode: {
+      url: "/platform-verification/{platformName}/generate-code",
+      method: "POST",
+    },
+    verify: {
+      url: "/platform-verification/{platformName}/verify",
+      method: "POST",
+    },
+    status: {
+      url: "/platform-verification/{platformName}/status",
+      method: "GET",
+    },
   },
 } as const satisfies RouteObject;
 

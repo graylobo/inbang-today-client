@@ -1,18 +1,20 @@
 "use client";
 
-import { useSoopAuthStatus } from "@/hooks/soop-auth/useSoopAuthStatus";
+import { usePlatformAuthStatus } from "@/hooks/platform-verification/usePlatformAuthStatus";
 import { CheckCircle, Circle, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 
-interface SoopAuthIconProps {
+interface PlatformAuthIconProps {
   className?: string;
 }
 
-export default function SoopAuthIcon({ className = "" }: SoopAuthIconProps) {
-  const { data: authStatus, isLoading } = useSoopAuthStatus();
+export default function PlatformAuthIcon({
+  className = "",
+}: PlatformAuthIconProps) {
+  const { data: authStatus, isLoading } = usePlatformAuthStatus("soop");
 
-  console.log("SoopAuthIcon 렌더링:", { authStatus, isLoading });
+  console.log("PlatformAuthIcon 렌더링:", { authStatus, isLoading });
 
   if (isLoading) {
     return (
@@ -36,7 +38,7 @@ export default function SoopAuthIcon({ className = "" }: SoopAuthIconProps) {
   }
 
   return (
-    <Link href="/user/soop-auth">
+    <Link href="/user/platform-verification">
       <Button
         variant="outline"
         size="sm"

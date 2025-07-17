@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  useGenerateSoopAuthCode,
-  useVerifySoopAuth,
-} from "@/hooks/soop-auth/useSoopAuth";
+  useGeneratePlatformAuthCode,
+  useVerifyPlatformAuth,
+} from "@/hooks/platform-verification/usePlatformAuth";
 import { Copy, ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -19,9 +19,9 @@ export default function SoopAuthPage() {
   const router = useRouter();
 
   const { mutate: generateCode, isPending: isGenerating } =
-    useGenerateSoopAuthCode();
+    useGeneratePlatformAuthCode();
   const { mutate: verifyAuth, isPending: isVerifyingAuth } =
-    useVerifySoopAuth();
+    useVerifyPlatformAuth();
 
   const handleGenerateCode = () => {
     if (!username.trim()) {
@@ -29,12 +29,15 @@ export default function SoopAuthPage() {
       return;
     }
 
-    generateCode(username, {
-      onSuccess: (code) => {
-        setAuthCode(code);
-        toast.success("인증 코드가 생성되었습니다.");
-      },
-    });
+    generateCode(
+      { platformName: "soop", username },
+      {
+        onSuccess: (code) => {
+          setAuthCode(code);
+          toast.success("인증 코드가 생성되었습니다.");
+        },
+      }
+    );
   };
 
   const handleCopyCode = async () => {
@@ -60,25 +63,28 @@ export default function SoopAuthPage() {
 
     setIsVerifying(true);
     setErrorMessage(""); // 에러 메시지 초기화
-    verifyAuth(username, {
-      onSuccess: (response) => {
-        if (response.success) {
-          toast.success("숲 인증이 완료되었습니다!");
-          // toast 메시지가 표시될 시간을 주기 위해 약간의 지연 후 리다이렉트
-          setTimeout(() => {
-            router.push("/user/profile");
-          }, 1000);
-        } else {
-          setErrorMessage(response.message || "인증에 실패했습니다.");
-        }
-      },
-      onError: (error: any) => {
-        setErrorMessage(error.message || "인증 확인 중 오류가 발생했습니다.");
-      },
-      onSettled: () => {
-        setIsVerifying(false);
-      },
-    });
+    verifyAuth(
+      { platformName: "soop", username },
+      {
+        onSuccess: (response) => {
+          if (response.success) {
+            toast.success("숲 인증이 완료되었습니다!");
+            // toast 메시지가 표시될 시간을 주기 위해 약간의 지연 후 리다이렉트
+            setTimeout(() => {
+              router.push("/user/profile");
+            }, 1000);
+          } else {
+            setErrorMessage(response.message || "인증에 실패했습니다.");
+          }
+        },
+        onError: (error: any) => {
+          setErrorMessage(error.message || "인증 확인 중 오류가 발생했습니다.");
+        },
+        onSettled: () => {
+          setIsVerifying(false);
+        },
+      }
+    );
   };
 
   const profileUrl = username
