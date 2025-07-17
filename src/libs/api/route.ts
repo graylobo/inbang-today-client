@@ -169,6 +169,11 @@ export const API_ROUTES = {
     update: { url: "/crew-signatures/{id}", method: "PUT" },
     delete: { url: "/crew-signatures/{id}", method: "DELETE" },
   },
+  soopAuth: {
+    generateCode: { url: "/soop-auth/generate-code", method: "POST" },
+    verify: { url: "/soop-auth/verify", method: "POST" },
+    status: { url: "/soop-auth/status", method: "GET" },
+  },
 } as const satisfies RouteObject;
 
 // URL에서 경로 파라미터 추출하는 타입

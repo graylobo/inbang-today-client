@@ -5,6 +5,7 @@ import { RankInfo } from "@/components/rank/RankInfo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import SoopAuthIcon from "@/components/SoopAuthIcon";
 import { useUpdateNickname } from "@/hooks/auth/useAuthHooks";
 import { useUpdateProfileImage } from "@/hooks/user/useUser";
 import { useAuthStore } from "@/store/authStore";
@@ -173,6 +174,11 @@ export default function ProfilePage() {
             readOnly
             className="bg-gray-50"
           />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">숲 인증</label>
+          <SoopAuthIcon />
         </div>
 
         <div className="flex justify-end space-x-4">
