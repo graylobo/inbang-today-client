@@ -23,14 +23,8 @@ export function useVerifySoopAuth() {
     mutationFn: verifySoopAuth,
     onSuccess: (response) => {
       if (response.success) {
-        // 인증 성공 시 관련 쿼리 무효화 및 즉시 업데이트
+        // 인증 성공 시 관련 쿼리 무효화하여 서버에서 최신 데이터를 가져오도록 함
         queryClient.invalidateQueries({ queryKey: ["soopAuthStatus"] });
-        // 캐시를 즉시 업데이트
-        queryClient.setQueryData(["soopAuthStatus"], {
-          isVerified: true,
-          username: response.userInfo?.username,
-          verifiedAt: new Date().toISOString(),
-        });
       }
     },
     onError: (error: any) => {

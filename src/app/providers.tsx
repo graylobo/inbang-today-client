@@ -3,13 +3,14 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
 import { useAuthStore } from "@/store/authStore";
 import { useEffect, useState } from "react";
 import { getProfile } from "@/libs/api/services/auth.service";
 import { usePathname } from "next/navigation";
 
 // AG Grid 모듈 등록
-import { ModuleRegistry, AllCommunityModule } from 'ag-grid-community';
+import { ModuleRegistry, AllCommunityModule } from "ag-grid-community";
 
 // AG Grid 커뮤니티 모듈 등록
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -74,6 +75,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <AuthInitializer />
         {children}
         <ReactQueryDevtools initialIsOpen={false} />
+        <Toaster position="top-center" />
       </QueryClientProvider>
     </ThemeProvider>
   );
